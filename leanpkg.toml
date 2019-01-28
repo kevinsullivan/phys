@@ -1,0 +1,8 @@
+[package]
+name = "rwt-lean"
+version = "0.1"
+lean_version = "nightly-2018-08-23"
+path = "src"
+
+[dependencies]
+mathlib = {git = "https://github.com/leanprover/mathlib", rev = "891dfbbebba8a0269072460785172c294935af22"}
