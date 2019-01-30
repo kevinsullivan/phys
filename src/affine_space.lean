@@ -1,4 +1,4 @@
-import data.real.basic
+//import data.real.basic
 
 namespace affine_space
 
@@ -6,7 +6,7 @@ namespace affine_space
 /- *** Scalar *** -/
 /- ************** -/
 
-abbreviation scalar := ℚ 
+abbreviation scalar := ℕ 
 
 /- ************* -/
 /- *** Space *** -/
