@@ -1,5 +1,3 @@
-//import data.real.basic
-
 namespace affine_space
 
 /- ************** -/
