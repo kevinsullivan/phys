@@ -1,13 +1,17 @@
-import analysis.real
+import data.real.basic
+
+namespace peirce
 
 inductive space : Type
 | mk (id : ℕ) : space 
 
-abbreviation scalar := ℕ 
+abbreviation scalar := ℝ
 
-inductive vector : space → Type 
-| mkVector : Π s : space, scalar → scalar → scalar → vector s
+inductive vec : space → Type 
+| mkVector : Π s : space, scalar → scalar → scalar → vec s
 
-def add { s : space } (v1 v2 : vector s) : vector s :=
-    vector.mkVector s 0 0 0
+def add { s : space } (v1 v2 : vec s) : vec s :=
+    vec.mkVector s 0 0 0 --stub
+
+end peirce
 
