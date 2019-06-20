@@ -20,7 +20,6 @@ vector K d
 def tuple_tuple_add
     {d : ℕ} 
     {K : Type u} 
-    [f : discrete_field K] 
     [a : has_add K]
     (t1 t2 : tuple d K) :
     tuple d K :=
@@ -33,7 +32,6 @@ end
 def scalar_tuple_mult
     {d : ℕ} 
     {K : Type u} 
-    [f : discrete_field K] 
     [m : has_mul K]
     (a : K)
     (t : tuple d K) :
@@ -46,7 +44,6 @@ subtype.mk
 def tuple_neg
     {d : ℕ} 
     {K : Type u} 
-    [f : discrete_field K] 
     [n : has_neg K]
     (t : tuple d K) :
         vector K d := 
@@ -55,42 +52,39 @@ subtype.mk (list.map n.neg t.val) sorry
 def mk_tuple_zero :
     Π
     (d : ℕ) 
-    (K : Type u) 
-    [f : discrete_field K] 
+    (K : Type u)  
     [z : has_zero K],
         vector K d 
-| 0 K f z := vector.nil
-| (nat.succ n') K f z := vector.cons (z.zero) (@mk_tuple_zero n' K f z)
+| 0 K z := vector.nil
+| (nat.succ n') K z := vector.cons (z.zero) (@mk_tuple_zero n' K z)
 
 -- A few routines to construct standard basis vector tuples
 def mk_indicator_tuple_helper :
     Π
     (d : ℕ) 
     (K : Type u) 
-    [f : discrete_field K] 
     [z : has_zero K]
     [o : has_one K]
     (i : ℕ)
     (b : bool),
         (list K)
-| 0 K f z o i b := list.nil
-| (nat.succ n') K f z o i b := 
+| 0 K z o i b := list.nil
+| (nat.succ n') K f o i b := 
     if (i = 0 ∧ b = ff) 
     then (list.append [o.one] (@mk_indicator_tuple_helper n' 
-        K f z o (i-1) true))
+        K f o (i-1) true))
     else (list.append [o.one] (@mk_indicator_tuple_helper n' 
-        K f z o (i-1) b))
+        K f o (i-1) b))
 
 lemma mk_indicator_tuple_helper_length :
     ∀ 
     (d : ℕ) 
     (K : Type u) 
-    [f : discrete_field K] 
     [z : has_zero K]
     [o : has_one K]
     (i : ℕ)
     (b : bool),
-    list.length (@mk_indicator_tuple_helper d K f z o i b) = d :=
+    list.length (@mk_indicator_tuple_helper d K z o i b) = d :=
 begin
 intros,
 induction d, 
@@ -102,13 +96,12 @@ end
 def mk_indicator_tuple
     (d : ℕ) 
     (K : Type u) 
-    [f : discrete_field K] 
     [z : has_zero K]
     [o : has_one K]
     (i : fin d) :
         vector K d :=
 subtype.mk 
-    (@mk_indicator_tuple_helper d K f z o i.val false)
+    (@mk_indicator_tuple_helper d K z o i.val false)
     (by apply mk_indicator_tuple_helper_length)
 
 /-
@@ -181,6 +174,10 @@ TBD: Need a better representation of vector space basis than
 the vectors have to be linearly independent.
 -/
 
+/-
+TBD: Need representation of affine transformations, also to be
+represented in the form of d-tuples of affine vectors.
+-/
 
 /-
 Basic projection functions
