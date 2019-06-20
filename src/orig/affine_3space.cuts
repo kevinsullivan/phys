@@ -1,0 +1,147 @@
+
+/-
+OLDER STUFF
+-/
+
+-- Example of a real 4-tuple
+example : tuple ℝ 4 := subtype.mk [0,1,2,1] rfl 
+
+#print monoid
+
+/-
+An associative element-wise addition operator. The carrier 
+type, α, has to have an addition operation and a proof that
+that operation is associative.
+-/
+def tuple_tuple_add 
+    {α : Type} [f : discrete_field α] { n : ℕ } (t1 t2: tuple α n) : tuple α n :=
+let l := (list.zip_with f.add t1.val t2.val)  in
+    subtype.mk l -- proof l is of length n
+begin 
+have x := t1.property,
+have y := t2.property,
+sorry
+end
+
+
+begin
+intros α l,
+split,
+assume h,
+induction l,
+trivial,
+cases h,
+assume h, rw h, simp,
+end
+
+lemma zip_eq_length_invar {α β : Type} [f: discrete_field α] :
+    ∀ {n : ℕ} (t1 t2 : tuple α n) (f : α → α → β), t1.length = t2.length → (list.zip_with f t1.val t2.val).length = n :=
+begin
+intros n t1 t2 f,
+assume h,
+induction n,
+have x : t1.val.length = 0 := t1.property,
+have y : t2.val.length = 0 := t2.property,
+have x' : t1.val = list.nil,
+exact ((list_len_zero_nil α t1.val).elim_left x),
+have y' : t2.val = list.nil,
+exact ((list_len_zero_nil α t2.val).elim_left y),
+rw x',
+rw y',
+simp [list.zip_with],
+sorry,
+end
+
+
+
+end tuple
+
+#print add_comm_group
+
+#check vector   -- data.vector
+#print vector
+#print field
+
+#check field
+
+variable F : field ℝ 
+
+def ℝspace' (n : ℕ) := fin n → ℝ
+def ℝspace (n : ℕ) := (vector ℝ n)
+
+#print add_comm_group
+
+#print vector
+#reduce vector
+
+def v1 : vector ℕ 3 := subtype.mk [1,2,3] rfl
+#print v1
+
+#eval vector.nth v1 0
+
+instance spacex (n : ℕ): add_comm_group (ℝspace n) := 
+begin 
+unfold ℝspace,
+--apply_instance,
+apply add_comm_group.mk,
+
+-- inverses
+intro v, 
+end
+
+
+#print vector_space
+
+noncomputable instance (n : ℕ): vector_space ℝ (ℝspace n) := 
+begin
+dunfold ℝspace,
+apply_instance,
+end
+
+variables (n : ℕ) (v w : ℝspace n) (r : ℝ)
+
+#check v + w -- adding vectors
+#check r • v -- scalar times vector
+
+
+========
+
+
+--#print list.map
+
+#print field
+#print discrete_field
+#print add_comm_group
+#print module       -- ring over add comm group
+#print vector_space -- field over add comm group
+
+
+
+lemma map_length_invar : 
+    ∀ (α β : Type) (l : list α) (f : α → β),
+        (list.map f l).length = l.length :=
+begin  
+intros,
+induction l with e l' ih,
+trivial,
+simp [list.map],
+end 
+
+def scalar_tuple_mult
+    {α : Type} [f : discrete_field α] { n : ℕ } (a : α) (t: tuple α n) : tuple α n :=
+let l := (list.map (λ e, field.mul a e) t.val)  in
+    subtype.mk l 
+begin  -- proof l is of length n
+    simp,
+    exact t.property,
+end
+
+#check scalar_tuple_mult
+
+lemma list_len_zero_nil : 
+    ∀ (α : Type) (l : list α),
+        (l.length = 0) ↔ (l = list.nil) :=
+/-
+BEGIN OLD AND STILL OFFICIAL VERSION
+-/
+

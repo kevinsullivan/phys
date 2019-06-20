@@ -1,109 +1,3 @@
-import data.matrix
-import data.rat
-import data.real.basic
-import algebra.pi_instances
-
--- See https://math-comp.github.io/math-comp/htmldoc/mathcomp.algebra.vector.html
--- See https://hal.inria.fr/inria-00377431/document
--- See! http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.652.3183&rep=rep1&type=pdf
-
-namespace tuple
-
-def tuple (α : Type) [field α] (n : ℕ) [has_add α] := vector α n 
-
-example : vector ℚ 1 := subtype.mk [0] rfl 
-
-#print monoid
-
-/-
-An associative element-wise addition operator. The carrier 
-type, α, has to have an addition operation and a proof that
-that operation is associative.
--/
-def tuple_tuple_add 
-    {α : Type} [f : field α] { n : ℕ } (t1 t2: tuple α n) : tuple α n :=
-let l := (list.zip_with f.add t1.val t2.val)  in
-    subtype.mk l -- proof l is of length n
-begin 
-sorry
-end
-
-#print list.map
-#print field
-#print vector_space
-#print discrete_field
-#print add_comm_group
-
-lemma map_length_invar : 
-    ∀ (α β : Type) (l : list α) (f : α → β),
-        (list.map f l).length = l.length :=
-begin  
-intros,
-induction l with e l' ih,
-trivial,
-simp [list.map],
-end 
-
-def scalar_tuple_mult
-    {α : Type} [f : field α] { n : ℕ } (a : α) (t: tuple α n) : tuple α n :=
-let l := (list.map (λ e, field.mul a e) t.val)  in
-    subtype.mk l 
-begin  -- proof l is of length n
-    simp,
-    exact t.property,
-end
-
-#check scalar_tuple_mult
-
-end tuple
-
-#print add_comm_group
-
-#check vector   -- data.vector
-#print vector
-#print field
-
-#check field
-
-variable F : field ℝ 
-
-def ℝspace' (n : ℕ) := fin n → ℝ
-def ℝspace (n : ℕ) := (vector ℝ n)
-
-#print add_comm_group
-
-#print vector
-#reduce vector
-
-def v1 : vector ℕ 3 := subtype.mk [1,2,3] rfl
-#print v1
-
-#eval vector.nth v1 0
-
-instance spacex (n : ℕ): add_comm_group (ℝspace n) := 
-begin 
-unfold ℝspace,
---apply_instance,
-apply add_comm_group.mk,
-
--- inverses
-intro v, 
-end
-
-
-#print vector_space
-
-noncomputable instance (n : ℕ): vector_space ℝ (ℝspace n) := 
-begin
-dunfold ℝspace,
-apply_instance,
-end
-
-variables (n : ℕ) (v w : ℝspace n) (r : ℝ)
-
-#check v + w -- adding vectors
-#check r • v -- scalar times vector
-
 namespace real_affine_3space
 
 /- ************** -/
@@ -138,7 +32,7 @@ def eq_space (s1 s2: space) : bool :=
 /- **************************** -/
 
 mutual inductive point, vector, frame
-with point : ∀ s : space, Type
+with point : space → Type
 | mk_std : Π { s : space }, point s 
 | mk : Π {s : space}, frame s → scalar → point s
 with vector : ∀ (s : space), Type
@@ -308,7 +202,5 @@ def point_vector_add {s : space } (p : point s) (v : vector s) : option (point s
 def std_frame (s: space) := @frame.mk_std s
 def std_vector (s: space) := @vector.mk_std s
 def std_point (s: space) := @point.mk_std s
-
-
 
 end  real_affine_3space
