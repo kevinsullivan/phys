@@ -135,10 +135,8 @@ vectors, and frames, just below.
 structure space
 (dim : ℕ) 
 (K: Type) 
-[isField : discrete_field K]
---[theZero : has_zero K]
---[theOne : has_one K]
-: Type :=
+[isField : discrete_field K] : 
+Type :=
 mk :: (name : string)
 
 /-
@@ -176,6 +174,13 @@ with affine_vector : Type 1
 with affine_frame : Type 1
 | mk_std : affine_frame
 | mk : affine_point → (list affine_vector) → affine_frame
+
+/-
+TBD: Need a better representation of vector space basis than
+(list affine_vector). At a minimum the length has to be d and
+the vectors have to be linearly independent.
+-/
+
 
 /-
 Basic projection functions
