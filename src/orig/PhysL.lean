@@ -1,7 +1,7 @@
 /-
 SCALAR_EXPR := (SCALAR_EXPR) | SCALAR_EXPR + SCALAR_EXPR | SCALAR_EXPR * SCALAR_EXPR | SCALAR_VAR | SCALAR_LITERAL
 -/
-
+namespace peirce
 def scalar := ℕ
 
 structure scalar_var : Type :=
@@ -38,60 +38,58 @@ def scalar_eval : scalar_expression → scalar_interp → scalar
     VEC_EXPR := (VEC_EXPR) | VEC_EXPR + VEC_EXPR | VEC_EXPR * SCALAR_EXPR | VEC_VAR | VEC_LITERAL
 -/
 
-structure space : Type :=
+structure vector_space : Type :=
 mk :: (index : ℕ)
 
-def bar_space := space.mk 0
-def foo_space := space.mk 1
+def bar_vector_space := vector_space.mk 0
+def foo_vector_space := vector_space.mk 1
 
-structure vector_variable (sp : space) : Type :=
+structure vector_variable (sp : vector_space) : Type :=
 mk :: (index : ℕ)
 
-structure phys_vector (sp : space) : Type :=
+structure vector (sp : vector_space) : Type :=
 mk :: (x y z : ℕ)
 
-#check phys_vector.mk
+#check vector.mk
 
-def vector_interp (sp : space) := vector_variable sp → phys_vector sp
-def init_vector_interp : vector_interp bar_space := λ v : vector_variable bar_space, @phys_vector.mk bar_space 0 0 0
+def vector_interp (sp : vector_space) := vector_variable sp → vector sp
+def init_vector_interp : vector_interp bar_vector_space := λ v : vector_variable bar_vector_space, @vector.mk bar_vector_space 0 0 0
 
-def v1 := @phys_vector.mk bar_space 1 2 3
-def v2 := @phys_vector.mk bar_space 1 6 2
-def v3 := @phys_vector.mk bar_space 0 1 3
-def v4 := @phys_vector.mk bar_space 1 2 4
+def v1 := @vector.mk bar_vector_space 1 2 3
+def v2 := @vector.mk bar_vector_space 1 6 2
+def v3 := @vector.mk bar_vector_space 0 1 3
+def v4 := @vector.mk bar_vector_space 1 2 4
 
-#reduce v1
+#reduce v1 
 
-inductive vector_space_transformation : Type
+inductive vector_vector_space_transformation : Type
 
-inductive vector_space_transformation_expressions : Type
+inductive vector_vector_space_transformation_expressions : Type
 
-inductive vector_expression (sp: space) : Type 
-| vector_literal : @phys_vector sp → vector_expression
+inductive vector_expression (sp: vector_space) : Type 
+| vector_literal : @vector sp → vector_expression
 | scalar_vector_mul : scalar_expression → vector_expression → vector_expression
 | vector_paren : vector_expression → vector_expression 
-| vector_mul : vector_expression → vector_expression → vector_expression -- might delete
 | vector_add : vector_expression → vector_expression → vector_expression
 | vector_var : vector_variable sp → vector_expression
 
 open vector_expression
 
-def vector_eval (sp : space) : vector_expression sp → vector_interp sp → scalar_interp → phys_vector sp
+def vector_eval (sp : vector_space) : vector_expression sp → vector_interp sp → scalar_interp → vector sp
 | (vector_literal v) i_v i_s :=  v
 | (scalar_vector_mul s v) i_v i_s :=
         let interp_v := (vector_eval v i_v i_s) in
         let interp_s := scalar_eval s i_s in
-        (@phys_vector.mk sp
+        (@vector.mk sp
             (interp_v.x * interp_s)
             (interp_v.y * interp_s)
             (interp_v.z * interp_s)
         )
 | (vector_paren v) i_v i_s := vector_eval v i_v i_s
-| (vector_mul e1 e2) iv is := phys_vector.mk _ 0 0 0 -- stub
 | (vector_add e1 e2) i_v i_s := 
         let interp_v1 := vector_eval e1 i_v i_s in
         let interp_v2 := vector_eval e2 i_v i_s in
-        (@phys_vector.mk sp
+        (@vector.mk sp
             (interp_v1.x + interp_v2.x)
             (interp_v1.y + interp_v2.y)
             (interp_v1.z + interp_v2.z)
@@ -100,17 +98,17 @@ def vector_eval (sp : space) : vector_expression sp → vector_interp sp → sca
 
 -- Example code below
 -- Note: You need to define vectors, vector variable interpreters, and vector expressions
---       with a vector space argument
+--       with a vector vector_space argument
 
-def ve1 : vector_expression bar_space := (vector_literal v1)
-def ve2 : vector_expression bar_space := vector_add (vector_literal v2) (ve1)
-def vv0 : vector_variable bar_space := vector_variable.mk _ 0
-def vv1 : vector_variable foo_space := vector_variable.mk _ 1
-def vv0_e : vector_expression bar_space := vector_paren (vector_var vv0)
+def ve1 : vector_expression bar_vector_space := (vector_literal v1)
+def ve2 : vector_expression bar_vector_space := vector_add (vector_literal v2) (ve1)
+def vv0 : vector_variable bar_vector_space := vector_variable.mk _ 0
+def vv1 : vector_variable foo_vector_space := vector_variable.mk _ 1
+def vv0_e : vector_expression bar_vector_space := vector_paren (vector_var vv0)
 
-def vv1_e : vector_expression bar_space := scalar_vector_mul (scalar_lit 3) (vector_var vv1)  -- Type error expected
--- This line will fail to typecheck because vv1 was defined with space foo_space,
--- rather than expected bar_space
+def vv1_e : vector_expression bar_vector_space := scalar_vector_mul (scalar_lit 3) (vector_var vv1)  -- Type error expected
+-- This line will fail to typecheck because vv1 was defined with vector_space foo_vector_space,
+-- rather than expected bar_vector_space
 
 def vv2_e : vector_expression _ := vector_add (vector_var vv0) (vector_var vv0) 
 -- Type inference working as expected
@@ -119,35 +117,36 @@ def vve_e : vector_expression _ := vector_add (vector_var vv0) (vector_var vv1) 
 -- Additional example with error + type inference
 
 
-def v_interp : vector_interp bar_space := λ v : vector_variable bar_space,
+def v_interp : vector_interp bar_vector_space := λ v : vector_variable bar_vector_space,
         match v.index with,
-            0 := phys_vector.mk _ 1 1 1,
-            1 := phys_vector.mk _ 2 2 2,
-            _ := phys_vector.mk _ 0 0 0
+            0 := vector.mk _ 1 1 1,
+            1 := vector.mk _ 2 2 2,
+            _ := vector.mk _ 0 0 0
         end
 
-#reduce vector_eval bar_space (ve2) init_vector_interp init_scalar_interp
-#reduce vector_eval bar_space (vector_add vv0_e vv1_e) v_interp init_scalar_interp
+#reduce vector_eval bar_vector_space (ve2) init_vector_interp init_scalar_interp
+#reduce vector_eval bar_vector_space (vector_add vv0_e vv1_e) v_interp init_scalar_interp
 
-structure transform (inp outp: space): Type
+structure transform (inp outp: vector_space): Type
 
-def transform_apply {sp1 sp2 : space} (t : transform sp1 sp2) (inputvec : phys_vector sp1) : 
-    phys_vector sp2 := 
-        phys_vector.mk sp2 0 0 0
-def transform_compose {sp1 sp2 sp3: space} (t1 : transform sp1 sp2) (t2 : transform sp2 sp3) : 
+def transform_apply {sp1 sp2 : vector_space} (t : transform sp1 sp2) (inputvec : vector sp1) : 
+    vector sp2 := 
+        vector.mk sp2 0 0 0
+def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform sp1 sp2) (t2 : transform sp2 sp3) : 
     transform sp1 sp3 := 
         transform.mk sp1 sp3
-def t1 := transform.mk foo_space bar_space
-def t2 := transform.mk bar_space foo_space
+def t1 := transform.mk foo_vector_space bar_vector_space
+def t2 := transform.mk bar_vector_space foo_vector_space
 #check transform_apply t1 v1 --type error expected
 #check transform_apply t2 v1
 #check transform_apply t1 (transform_apply t2 v1)
-def res2 : phys_vector _ := 
-    ( transform_apply ( t2 : transform _ _)  ( v2 : phys_vector _ ) : phys_vector _ )
+def res2 : vector _ := 
+    ( transform_apply ( t2 : transform _ _)  ( v2 : vector _ ) : vector _ )
 
-def vvv1 := @phys_vector.mk bar_space 1 2 3
-def vvv2 := @phys_vector.mk foo_space 1 6 2
+def vvv1 := @vector.mk bar_vector_space 1 2 3
+def vvv2 := @vector.mk foo_vector_space 1 6 2
 
 
 
 def vvv3 := vector_add (vector_literal vvv1) (vector_literal (transform_apply t1 ( vvv2)))
+end peirce
