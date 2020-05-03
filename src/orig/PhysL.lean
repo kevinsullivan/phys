@@ -70,7 +70,7 @@ inductive vector_expression (sp: space) : Type
 | vector_literal : @phys_vector sp → vector_expression
 | scalar_vector_mul : scalar_expression → vector_expression → vector_expression
 | vector_paren : vector_expression → vector_expression 
-| vector_mul : vector_expression → vector_expression → vector_expression
+| vector_mul : vector_expression → vector_expression → vector_expression -- might delete
 | vector_add : vector_expression → vector_expression → vector_expression
 | vector_var : vector_variable sp → vector_expression
 
@@ -134,7 +134,9 @@ structure transform (inp outp: space): Type
 def transform_apply {sp1 sp2 : space} (t : transform sp1 sp2) (inputvec : phys_vector sp1) : 
     phys_vector sp2 := 
         phys_vector.mk sp2 0 0 0
-
+def transform_compose {sp1 sp2 sp3: space} (t1 : transform sp1 sp2) (t2 : transform sp2 sp3) : 
+    transform sp1 sp3 := 
+        transform.mk sp1 sp3
 def t1 := transform.mk foo_space bar_space
 def t2 := transform.mk bar_space foo_space
 #check transform_apply t1 v1 --type error expected
@@ -142,3 +144,10 @@ def t2 := transform.mk bar_space foo_space
 #check transform_apply t1 (transform_apply t2 v1)
 def res2 : phys_vector _ := 
     ( transform_apply ( t2 : transform _ _)  ( v2 : phys_vector _ ) : phys_vector _ )
+
+def vvv1 := @phys_vector.mk bar_space 1 2 3
+def vvv2 := @phys_vector.mk foo_space 1 6 2
+
+
+
+def vvv3 := vector_add (vector_literal vvv1) (vector_literal (transform_apply t1 ( vvv2)))
