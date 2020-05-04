@@ -136,6 +136,7 @@ def transform_apply {sp1 sp2 : vector_space} (t : transform sp1 sp2) (inputvec :
 def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform sp1 sp2) (t2 : transform sp2 sp3) : 
     transform sp1 sp3 := 
         transform.mk sp1 sp3
+        --Make transformation take in 3 vectors ('Yanni')
 def t1 := transform.mk foo_vector_space bar_vector_space
 def t2 := transform.mk bar_vector_space foo_vector_space
 #check transform_apply t1 v1 --type error expected
