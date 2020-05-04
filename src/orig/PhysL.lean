@@ -132,6 +132,7 @@ structure transform (inp outp: vector_space): Type
 def transform_apply {sp1 sp2 : vector_space} (t : transform sp1 sp2) (inputvec : vector sp1) : 
     vector sp2 := 
         vector.mk sp2 0 0 0
+        --todo: make transformations take in 3 vectors (col and row)
 def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform sp1 sp2) (t2 : transform sp2 sp3) : 
     transform sp1 sp3 := 
         transform.mk sp1 sp3
