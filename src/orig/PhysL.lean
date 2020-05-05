@@ -37,7 +37,7 @@ def scalar_eval : scalar_expression → scalar_interp → scalar
 /-
     VEC_EXPR := (VEC_EXPR) | VEC_EXPR + VEC_EXPR | VEC_EXPR * SCALAR_EXPR | VEC_VAR | VEC_LITERAL
 -/
-
+--TODO: refactor vector_space and vectors so that they are mutually inducted.
 structure vector_space : Type :=
 mk :: (index : ℕ)
 
@@ -127,25 +127,38 @@ def v_interp : vector_interp bar_vector_space := λ v : vector_variable bar_vect
 #reduce vector_eval bar_vector_space (ve2) init_vector_interp init_scalar_interp
 #reduce vector_eval bar_vector_space (vector_add vv0_e vv1_e) v_interp init_scalar_interp
 
-structure transform (inp outp: vector_space): Type :=
-mk :: (one two three : vector inp)
+structure transform (input output: vector_space): Type :=
+mk :: (one two three : vector output)
+--EVERYTHING IS BASED ON COLUMN VECTORS
+
+
+def matrix_mul_cols {sp1 sp2 : vector_space} (v1 v2 v3 : vector sp2) (v4 : vector sp1) : 
+    (vector sp2) := 
+        vector.mk sp2 
+            (v1.x*v4.x+v2.x*v4.y+v3.x*v4.z) 
+            (v1.y*v4.x+v2.y*v4.y+v3.y*v4.z) 
+            (v1.z*v4.x+v2.z*v4.y+v3.z*v4.z) 
 
 def transform_apply {sp1 sp2 : vector_space} (t : transform sp1 sp2) (inputvec : vector sp1) : 
     vector sp2 := 
-        vector.mk sp2 0 0 0 --STUB 
-        --todo: make transformations use change of basis formula for vectors
-
+        matrix_mul_cols t.one t.two t.three inputvec
 
 def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform sp1 sp2) (t2 : transform sp2 sp3) : 
     transform sp1 sp3 := 
-        transform.mk sp3 (vector.mk sp1 0 0 0) (vector.mk sp1 0 0 0) (vector.mk sp1 0 0 0) --STUB
-        --todo: make compose actually create new basis vectors.
+        transform.mk sp1 
+            (matrix_mul_cols t2.one t2.two t2.three t1.one) 
+            (matrix_mul_cols t2.one t2.two t2.three t1.two)
+            (matrix_mul_cols t2.one t2.two t2.three t1.three)
         --Make transformation take in 3 vectors ('Yanni')
-def t1 := transform.mk bar_vector_space 
-    (vector.mk foo_vector_space 0 0 0) (vector.mk foo_vector_space 0 0 0) (vector.mk foo_vector_space 0 0 0) 
-def t2 := transform.mk foo_vector_space 
-    (vector.mk bar_vector_space 0 0 0) (vector.mk bar_vector_space 0 0 0) (vector.mk bar_vector_space 0 0 0) 
+def t1 := transform.mk foo_vector_space 
+    (vector.mk bar_vector_space 1 0 0) (vector.mk bar_vector_space 1 1 0) (vector.mk bar_vector_space 1 1 1) 
+def t2 := transform.mk bar_vector_space 
+    (vector.mk foo_vector_space 2 0 0) (vector.mk foo_vector_space 0 2 0) (vector.mk foo_vector_space 0 0 2) 
+
+#check t1
+#check v1
 #check transform_apply t1 v1 --type error expected
+#check t2
 #check transform_apply t2 v1
 #check transform_apply t1 (transform_apply t2 v1)
 def res2 : vector _ := 
@@ -155,6 +168,16 @@ def res2 : vector _ :=
 #check t2
 #check transform_compose t1 t2
 
+def t3 := transform_compose t1 t2
+#eval t3.one.x
+#eval t3.one.y
+#eval t3.one.z
+#eval t3.two.x
+#eval t3.two.y
+#eval t3.two.z
+#eval t3.three.x
+#eval t3.three.y
+#eval t3.three.z
 def vvv1 := @vector.mk bar_vector_space 1 2 3
 def vvv2 := @vector.mk foo_vector_space 1 6 2
 
