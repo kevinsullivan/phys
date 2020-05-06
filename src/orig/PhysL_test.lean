@@ -62,9 +62,25 @@ def v_interp : vector_interp bar_vector_space := λ v : vector_variable bar_vect
 #reduce vector_eval bar_vector_space (ve2) init_vector_interp init_scalar_interp
 #reduce vector_eval bar_vector_space (vector_add vv0_e vv1_e) v_interp init_scalar_interp
 
---transformation tests
+--Linear transformation tests
+/-
+t1 : foo_vector_space → bar_vector_space
+Matrix of transformation:
+    [ 1 1 1 ]
+    [ 0 1 1 ]
+    [ 0 0 1 ]
+
+-/
 def t1 := transform.mk foo_vector_space 
     (vector.mk bar_vector_space 1 0 0) (vector.mk bar_vector_space 1 1 0) (vector.mk bar_vector_space 1 1 1) 
+
+/-
+t2 : bar_vector_space → foo_vector_space
+    Matrix of Transformation:
+    [ 2 0 0 ]
+    [ 0 2 0 ]
+    [ 0 0 2 ]
+-/
 def t2 := transform.mk bar_vector_space 
     (vector.mk foo_vector_space 2 0 0) (vector.mk foo_vector_space 0 2 0) (vector.mk foo_vector_space 0 0 2) 
 
@@ -77,8 +93,17 @@ def t2 := transform.mk bar_vector_space
 
 #check t1
 #check t2
-#check transform_compose t1 t2
+--t1 composed with t2: foo_vector_space → foo_vector_space
+#check transform_compose t1 t2 
 
+/-
+t3 : foo_vector_space → foo_vector_space
+    Matrix of Transformation:
+    [ 2 0 0 ]   [ 1 1 1 ]    [ 2 2 2 ]
+    [ 0 2 0 ] * [ 0 1 1 ] =  [ 0 2 2 ] 
+    [ 0 0 2 ]   [ 0 0 1 ]    [ 0 0 2 ]
+       M_T1   *   M_T2    =   M_T3
+-/
 def t3 := transform_compose t1 t2
 #eval t3.one.x
 #eval t3.one.y

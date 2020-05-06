@@ -28,11 +28,6 @@ def scalar_eval : scalar_expression → scalar_interp → scalar
 | (scalar_expression.scalar_var v) i := i v
 
 
-notation (e) := scalar_paren e
-notation e1 * e2 := scalar_mul e1 e2
-notation e1 + e2 := scalar_add e1 e2
-
-
 
 
 
@@ -73,9 +68,6 @@ inductive vector_expression (sp: vector_space) : Type
 
 open vector_expression
 
-notation c * v1 := scalar_vector_mul c v1
-notation (v) := vector_paren v
-notation v1 + v2 := vector_add v1 v2
 
 
 
@@ -128,9 +120,8 @@ def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform sp1 sp2) (t2 :
             (matrix_mul_cols t2.one t2.two t2.three t1.two)
             (matrix_mul_cols t2.one t2.two t2.three t1.three)
        
-
-def res2 : vector _ := 
-    ( transform_apply ( t2 : transform _ _)  ( v2 : vector _ ) : vector _ )
+--def res2 : vector _ := 
+    --( transform_apply ( t2 : transform _ _)  ( v2 : vector _ ) : vector _ )
 
 
 
