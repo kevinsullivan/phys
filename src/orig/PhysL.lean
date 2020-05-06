@@ -20,14 +20,21 @@ inductive scalar_expression : Type
 
 open scalar_expression
 
-
-
 def scalar_eval : scalar_expression → scalar_interp → scalar
 | (scalar_lit n) i :=  n
 | (scalar_paren e) i :=  scalar_eval e i
 | (scalar_mul e1 e2) i := nat.mul (scalar_eval e1 i) (scalar_eval e2 i)
 | (scalar_add e1 e2) i := nat.add (scalar_eval e1 i) (scalar_eval e2 i)
-| (scalar_var v) i := i v
+| (scalar_expression.scalar_var v) i := i v
+
+
+notation (e) := scalar_paren e
+notation e1 * e2 := scalar_mul e1 e2
+notation e1 + e2 := scalar_add e1 e2
+
+
+
+
 
 
 
@@ -65,6 +72,12 @@ inductive vector_expression (sp: vector_space) : Type
 | vector_var : vector_variable sp → vector_expression
 
 open vector_expression
+
+notation c * v1 := scalar_vector_mul c v1
+notation (v) := vector_paren v
+notation v1 + v2 := vector_add v1 v2
+
+
 
 def vector_eval (sp : vector_space) : vector_expression sp → vector_interp sp → scalar_interp → vector sp
 | (vector_literal v) i_v i_s :=  v
