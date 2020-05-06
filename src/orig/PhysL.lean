@@ -40,20 +40,13 @@ def scalar_eval : scalar_expression → scalar_interp → scalar
 structure vector_space : Type :=
 mk :: (index : ℕ)
 
-
-
 structure vector_variable (sp : vector_space) : Type :=
 mk :: (index : ℕ)
 
 structure vector (sp : vector_space) : Type :=
 mk :: (x y z : ℕ)
 
-
-
 def vector_interp (sp : vector_space) := vector_variable sp → vector sp
-
-
-
 
 inductive vector_vector_space_transformation : Type
 
@@ -67,9 +60,6 @@ inductive vector_expression (sp: vector_space) : Type
 | vector_var : vector_variable sp → vector_expression
 
 open vector_expression
-
-
-
 
 def vector_eval (sp : vector_space) : vector_expression sp → vector_interp sp → scalar_interp → vector sp
 | (vector_literal v) i_v i_s :=  v
@@ -92,15 +82,13 @@ def vector_eval (sp : vector_space) : vector_expression sp → vector_interp sp 
         )
 | (vector_var v) i_v i_s := i_v v
 
--- Example code below
--- Note: You need to define vectors, vector variable interpreters, and vector expressions
---       with a vector vector_space argument
-
-
 structure transform (input output: vector_space): Type :=
 mk :: (one two three : vector output)
 --EVERYTHING IS BASED ON COLUMN VECTORS
-
+/-
+note: output vector space is implied, 
+doesn't need to be explicitly stated
+-/
 
 def matrix_mul_cols {sp1 sp2 : vector_space} (v1 v2 v3 : vector sp2) (v4 : vector sp1) : 
     (vector sp2) := 
@@ -119,11 +107,5 @@ def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform sp1 sp2) (t2 :
             (matrix_mul_cols t2.one t2.two t2.three t1.one) 
             (matrix_mul_cols t2.one t2.two t2.three t1.two)
             (matrix_mul_cols t2.one t2.two t2.three t1.three)
-       
---def res2 : vector _ := 
-    --( transform_apply ( t2 : transform _ _)  ( v2 : vector _ ) : vector _ )
-
-
-
-
+            
 end peirce
