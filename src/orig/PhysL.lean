@@ -4,19 +4,19 @@ SCALAR_EXPR := (SCALAR_EXPR) | SCALAR_EXPR + SCALAR_EXPR | SCALAR_EXPR * SCALAR_
 namespace peirce
 def scalar := ℕ
 
-structure scalar_var : Type :=
+structure scalar_variable : Type :=
 mk :: (index : ℕ)
 
-def scalar_interp := scalar_var → scalar
+def scalar_interp := scalar_variable → scalar
 
-def init_scalar_interp := λ (s : scalar_var), 0
+def init_scalar_interp := λ (s : scalar_variable), 0
 
 inductive scalar_expression : Type 
 | scalar_lit : ℕ → scalar_expression
 | scalar_paren : scalar_expression → scalar_expression
 | scalar_mul : scalar_expression → scalar_expression → scalar_expression
 | scalar_add : scalar_expression → scalar_expression → scalar_expression
-| scalar_var : scalar_var → scalar_expression
+| scalar_var : scalar_variable → scalar_expression
 
 open scalar_expression
 
@@ -25,12 +25,7 @@ def scalar_eval : scalar_expression → scalar_interp → scalar
 | (scalar_paren e) i :=  scalar_eval e i
 | (scalar_mul e1 e2) i := nat.mul (scalar_eval e1 i) (scalar_eval e2 i)
 | (scalar_add e1 e2) i := nat.add (scalar_eval e1 i) (scalar_eval e2 i)
-| (scalar_expression.scalar_var v) i := i v
-
-
-
-
-
+| (scalar_var v) i := i v
 
 
 /-
@@ -48,10 +43,6 @@ mk :: (x y z : ℕ)
 
 def vector_interp (sp : vector_space) := vector_variable sp → vector sp
 
-inductive vector_vector_space_transformation : Type
-
-inductive vector_vector_space_transformation_expressions : Type
-
 inductive vector_expression (sp: vector_space) : Type 
 | vector_literal : @vector sp → vector_expression
 | scalar_vector_mul : scalar_expression → vector_expression → vector_expression
@@ -60,6 +51,10 @@ inductive vector_expression (sp: vector_space) : Type
 | vector_var : vector_variable sp → vector_expression
 
 open vector_expression
+
+--Vec v(1, 1, 1);
+
+
 
 def vector_eval (sp : vector_space) : vector_expression sp → vector_interp sp → scalar_interp → vector sp
 | (vector_literal v) i_v i_s :=  v
@@ -82,17 +77,61 @@ def vector_eval (sp : vector_space) : vector_expression sp → vector_interp sp 
         )
 | (vector_var v) i_v i_s := i_v v
 
-structure transform (input output: vector_space): Type :=
-mk :: (one two three : vector output)
 --EVERYTHING IS BASED ON COLUMN VECTORS
 /-
 note: output vector space is implied, 
 doesn't need to be explicitly stated
 -/
 
+
+
+-- C++ : v1 = v2
+-- output: assmt <sp> v1_var v2
+
+--| ifelse :
+
+
+
+
+
+/-
+TRANSFORM_EXPR := (TRANSFORM_EXPR) | TRANSFORM_COMPOSITION | TRANSFORM_VAR | TRANSFORM_LITERAL
+-/
+
+
+structure transform (input output: vector_space): Type :=
+mk :: (one two three : vector output)
+
+inductive transform_variable (input output : vector_space) :  Type
+| mk : ℕ → transform_variable
+
+/-
+mutual inductive even, odd
+with even : ℕ → Prop
+| even_zero : even 0
+| even_succ : ∀ n, odd n → even (n + 1)
+with odd : ℕ → Prop
+| odd_succ : ∀ n, even n → odd (n + 1)
+-/
+def transform_interp (sp1 sp2 : vector_space) := transform_variable sp1 sp2 → transform sp1 sp2
+
+inductive transform_expression (sp1 sp2 : vector_space)
+| lit : (transform sp1 sp2) → transform_expression
+| var : transform_variable sp1 sp2→ transform_expression
+| paren : transform_expression → transform_expression
+
+-- ARG1 : A X B , ARG2 : B X C -> RES A X C
+open transform_expression
+
+def transform_eval (sp1 sp2 : vector_space) : transform_expression sp1 sp2 → transform_interp sp1 sp2 → transform sp1 sp2
+| (lit t1) i := t1
+| (var v) i := i v
+| (paren t1) i := transform_eval t1 i
+
+            
 def matrix_mul_cols {sp1 sp2 : vector_space} (v1 v2 v3 : vector sp2) (v4 : vector sp1) : 
     (vector sp2) := 
-        vector.mk sp2 
+        @vector.mk sp2 
             (v1.x*v4.x+v2.x*v4.y+v3.x*v4.z) 
             (v1.y*v4.x+v2.y*v4.y+v3.y*v4.z) 
             (v1.z*v4.x+v2.z*v4.y+v3.z*v4.z) 
@@ -103,9 +142,37 @@ def transform_apply {sp1 sp2 : vector_space} (t : transform sp1 sp2) (inputvec :
 
 def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform sp1 sp2) (t2 : transform sp2 sp3) : 
     transform sp1 sp3 := 
-        transform.mk sp1 
+        @transform.mk sp1 sp3
             (matrix_mul_cols t2.one t2.two t2.three t1.one) 
             (matrix_mul_cols t2.one t2.two t2.three t1.two)
             (matrix_mul_cols t2.one t2.two t2.three t1.three)
-            
+
+
+
+structure bool_var : Type :=
+mk :: (index : ℕ)
+
+inductive boolean_expression
+| lit (b : bool)
+| var (v : bool_var)
+| and (e1 e2 : boolean_expression)
+
+inductive scalar_cmd : Type
+| SKIP : scalar_cmd
+| assmt : scalar_variable → scalar_expression → scalar_cmd
+| ite : boolean_expression → scalar_cmd →  scalar_cmd → scalar_cmd
+| while : boolean_expression → scalar_cmd → scalar_cmd → scalar_cmd
+
+inductive vector_cmd : Type
+| SKIP : vector_cmd
+| assmt : ∀ sp : vector_space, vector_variable sp → vector_expression sp → vector_cmd
+| ite : boolean_expression → vector_cmd → vector_cmd → vector_cmd
+| while : boolean_expression → vector_cmd → vector_cmd
+
+inductive transform_cmd : Type
+| SKIP : transform_cmd
+| assmt : ∀ sp1 sp2 : vector_space, transform_variable sp1 sp2 → transform_expression sp1 sp2 → transform_cmd
+| ite : boolean_expression → transform_cmd → transform_cmd → transform_cmd
+| while : boolean_expression → transform_cmd → transform_cmd
+
 end peirce

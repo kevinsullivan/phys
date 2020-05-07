@@ -22,7 +22,9 @@ def foo_vector_space := vector_space.mk 1
 def init_vector_interp : vector_interp bar_vector_space := λ v : vector_variable bar_vector_space, @vector.mk bar_vector_space 0 0 0
 
 def v1 := @vector.mk bar_vector_space 1 2 3
-def v2 := @vector.mk bar_vector_space 1 6 2
+#eval v1
+
+--def v2 : vector bar_vector_space := @vector.mk bar_vector_space 1 6 2
 def v3 := @vector.mk bar_vector_space 0 1 3
 def v4 := @vector.mk bar_vector_space 1 2 4
 
@@ -37,9 +39,87 @@ open peirce.vector_expression
 
 def ve1 : vector_expression bar_vector_space := (vector_literal v1)
 def ve2 : vector_expression bar_vector_space := vector_add (vector_literal v2) (ve1)
-def vv0 : vector_variable bar_vector_space := vector_variable.mk _ 0
-def vv1 : vector_variable foo_vector_space := vector_variable.mk _ 1
+def vv0 : vector_variable bar_vector_space := @vector_variable.mk _ 0
+def vv1 : vector_variable foo_vector_space := @vector_variable.mk _ 1
 def vv0_e : vector_expression bar_vector_space := vector_paren (vector_var vv0)
+
+--Vec v[geom] = Vec(1, 0, 0)[time];
+
+-- ... Vector_Def has a (VecIdent, Vector_Expr)
+
+/-
+Suppose you have "def v1 := ..."
+Suppose you encounter, in C++, this expression: "v2 = v1"
+Unparse this as "def v2 := v1"
+-/
+
+/-
+    Vec v2;
+    v2 = v1;
+
+    -- 
+
+    def v2 := v1
+
+
+
+-- 
+
+    (1) declares v2 to be a Vec-valued variable
+
+    def v2_var : vector_variable <some space> := vector_variable.mk ...
+    
+
+
+    (2) it binds this variable to a decl ref expr on the right
+
+    |-DeclStmt 0x55ecd1141fb0 <line:14:3, col:14>
+    | `-VarDecl 0x55ecd1141c50 <col:3, col:12> col:7 used v2 'Vec' cinit
+    |   `-CXXConstructExpr 0x55ecd1141f78 <col:12> 'Vec' 'void (const Vec &) noexcept'
+    |     `-ImplicitCastExpr 0x55ecd1141cd8 <col:12> 'const Vec' lvalue <NoOp>
+    |       `-DeclRefExpr 0x55ecd1141cb0 <col:12> 'Vec' lvalue Var 0x55ecd1140838 'v1' 'Vec'
+    OLD:
+    def v2 : peirce.vec geom  := (v1) : peirce.vec time /*!!!*/
+    NEW:
+    def v2_var : vector_variable geom 1
+
+
+    ...
+    def v2_var : vector_variable.mk geom 
+    def v2 := v1
+
+    v2 = v1;
+    |-CXXOperatorCallExpr 0x55ecd1142610 <line:15:3, col:8> 'Vec' lvalue
+    | |-ImplicitCastExpr 0x55ecd11425f8 <col:6> 'Vec &(*)(const Vec &) noexcept' <FunctionToPointerDecay>
+    | | `-DeclRefExpr 0x55ecd1142228 <col:6> 'Vec &(const Vec &) noexcept' lvalue CXXMethod 0x55ecd1142048 'operator=' 'Vec &(const Vec &) noexcept'
+    | |-DeclRefExpr 0x55ecd1141fc8 <col:3> 'Vec' lvalue Var 0x55ecd1141c50 'v2' 'Vec'
+    | `-ImplicitCastExpr 0x55ecd11421d8 <col:8> 'const Vec' lvalue <NoOp>
+    |   `-DeclRefExpr 0x55ecd1141ff0 <col:8> 'Vec' lvalue Var 0x55ecd1140838 'v1' 'Vec'
+    `-ReturnStmt 0x55ecd1142678 <line:112:3, col:10>
+
+    #check 
+-/
+
+
+-- v2 = v;
+
+def v_var : vector_variable bar_vector_space := @vector_variable.mk bar_vector_space 1
+def v : vector_expression bar_vector_space := vector_var v_var
+#check v == @vector_literal bar_vector_space (@vector.mk bar_vector_space 1 1 1)
+
+-- .... 
+
+
+def v2_var : vector_variable bar_vector_space := @vector_variable.mk bar_vector_space 2
+def v2 : vector_expression bar_vector_space := vector_var v2_var
+#check v2 == @vector_literal bar_vector_space (@vector.mk bar_vector_space 1 1 1)
+
+#check v2 
+
+
+
+
+
 
 def vv1_e : vector_expression bar_vector_space := scalar_vector_mul (scalar_lit 3) (vector_var vv1)  -- Type error expected
 -- This line will fail to typecheck because vv1 was defined with vector_space foo_vector_space,
@@ -54,9 +134,9 @@ def vve_e : vector_expression _ := vector_add (vector_var vv0) (vector_var vv1) 
 
 def v_interp : vector_interp bar_vector_space := λ v : vector_variable bar_vector_space,
         match v.index with,
-            0 := vector.mk _ 1 1 1,
-            1 := vector.mk _ 2 2 2,
-            _ := vector.mk _ 0 0 0
+            0 := @vector.mk _ 1 1 1,
+            1 := @vector.mk _ 2 2 2,
+            _ := @vector.mk _ 0 0 0
         end
 
 #reduce vector_eval bar_vector_space (ve2) init_vector_interp init_scalar_interp
@@ -71,8 +151,8 @@ Matrix of transformation:
     [ 0 0 1 ]
 
 -/
-def t1 := transform.mk foo_vector_space 
-    (vector.mk bar_vector_space 1 0 0) (vector.mk bar_vector_space 1 1 0) (vector.mk bar_vector_space 1 1 1) 
+def t1 := @transform.mk foo_vector_space bar_vector_space
+    (@vector.mk bar_vector_space 1 0 0) (@vector.mk bar_vector_space 1 1 0) (@vector.mk bar_vector_space 1 1 1) 
 
 /-
 t2 : bar_vector_space → foo_vector_space
@@ -81,8 +161,8 @@ t2 : bar_vector_space → foo_vector_space
     [ 0 2 0 ]
     [ 0 0 2 ]
 -/
-def t2 := transform.mk bar_vector_space 
-    (vector.mk foo_vector_space 2 0 0) (vector.mk foo_vector_space 0 2 0) (vector.mk foo_vector_space 0 0 2) 
+def t2 := @transform.mk bar_vector_space foo_vector_space 
+    (@vector.mk foo_vector_space 2 0 0) (@vector.mk foo_vector_space 0 2 0) (@vector.mk foo_vector_space 0 0 2) 
 
 #check t1
 #check v1
