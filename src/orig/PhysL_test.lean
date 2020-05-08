@@ -38,7 +38,6 @@ def v4 := @vector.mk bar_vector_space 1 2 4
 open peirce.vector_expression
 
 def ve1 : vector_expression bar_vector_space := (vector_literal v1)
-def ve2 : vector_expression bar_vector_space := vector_add (vector_literal v2) (ve1)
 def vv0 : vector_variable bar_vector_space := @vector_variable.mk _ 0
 def vv1 : vector_variable foo_vector_space := @vector_variable.mk _ 1
 def vv0_e : vector_expression bar_vector_space := vector_paren (vector_var vv0)
@@ -108,16 +107,6 @@ def v : vector_expression bar_vector_space := vector_var v_var
 #check v == @vector_literal bar_vector_space (@vector.mk bar_vector_space 1 1 1)
 
 -- .... 
-
-
-def v2_var : vector_variable bar_vector_space := @vector_variable.mk bar_vector_space 2
-def v2 : vector_expression bar_vector_space := vector_var v2_var
-#check v2 == @vector_literal bar_vector_space (@vector.mk bar_vector_space 1 1 1)
-
-#check v2 
-
-
-
 
 
 
@@ -198,3 +187,42 @@ def vvv1 := @vector.mk bar_vector_space 1 2 3
 def vvv2 := @vector.mk foo_vector_space 1 6 2
 
 def vvv3 := vector_add (vector_literal vvv1) (vector_literal (transform_apply t1 ( vvv2)))
+
+
+--import vec
+
+def time : peirce.vector_space := peirce.vector_space.mk 4
+def geom : peirce.vector_space := peirce.vector_space.mk 5
+
+def v1_var : @peirce.vector_variable geom := @peirce.vector_variable.mk _ 1
+def v12 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ v1_var (  ( @peirce.vector_expression.vector_literal _  ( @peirce.vector.mk _  0 0 0  : peirce.vector _ ) : peirce.vector_expression _ )  )
+
+def v2_var : @peirce.vector_variable geom := @peirce.vector_variable.mk _ 2
+def v2 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ v2_var ( ( @peirce.vector_expression.vector_var _ v1_var : peirce.vector_expression _ )  )
+
+def r11_var : @peirce.vector_variable geom := @peirce.vector_variable.mk _ 3
+def r11 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ r11_var (  ( @peirce.vector_expression.vector_literal _  ( @peirce.vector.mk _  0 0 0  : peirce.vector _ ) : peirce.vector_expression _ )  )
+
+def r12_var : @peirce.vector_variable geom := @peirce.vector_variable.mk _ 4
+def r12 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ r12_var (  ( @peirce.vector_expression.vector_literal _  ( @peirce.vector.mk _  0 0 0  : peirce.vector _ ) : peirce.vector_expression _ )  )
+
+def r13_var : @peirce.vector_variable geom := @peirce.vector_variable.mk _ 5
+def r13 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ r13_var (  ( @peirce.vector_expression.vector_literal _  ( @peirce.vector.mk _  0 0 0  : peirce.vector _ ) : peirce.vector_expression _ )  )
+
+def res1_var : @peirce.vector_variable geom := @peirce.vector_variable.mk _ 6
+def res1 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ res1_var ( ( @peirce.vector_expression.vector_var _ v1_var : peirce.vector_expression _ )  )
+
+def rotation1_var : @peirce.transform_variable geom geom := @peirce.transform_variable.mk _ _ 7
+def rotation1 : peirce.transform_cmd := @peirce.transform_cmd.assmt _ _ rotation1_var 
+    ( ( @peirce.transform_expression.transform_literal _ _  @peirce.transform.mk _ _  
+        ( @peirce.vector_expression.vector_var _ r11_var : peirce.vector_expression _ )  
+        ( @peirce.vector_expression.vector_var _ r12_var : peirce.vector_expression _ )  
+        ( @peirce.vector_expression.vector_var _ r13_var : peirce.vector_expression _ )  
+            : peirce.transform _ _ ) : peirce.transform_expression _ _ )
+
+def v2_8 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ v2_var ( ( @peirce.vector_expression.vector_var _ v1_var : peirce.vector_expression _ )  )
+
+def res1_9 : peirce.vector_cmd := @peirce.vector_cmd.assmt _ res1_var 
+    ( ( peirce.transform_apply 
+        ( @peirce.transform_expression.transform_var _ _ rotation1_var : peirce.transform_expression _ _ )  
+        ( @peirce.vector_expression.vector_var _ v1_var : peirce.vector_expression _ )  : peirce.vector _ ) )
