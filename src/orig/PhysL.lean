@@ -43,7 +43,7 @@ mk :: (x y z : ℕ)
 
 def vector_interp (sp : vector_space) := vector_variable sp → vector sp
 
-def mk_vector_interp (sp : vector_space ) : vector_interp sp := λ (v : vector_variable sp), @vector.mk sp 0 0 0
+def mk_vector_interp {sp : vector_space } : vector_interp sp := λ (v : vector_variable sp), @vector.mk sp 0 0 0
 
 
 inductive vector_expression (sp: vector_space) : Type 
@@ -59,7 +59,7 @@ open vector_expression
 
 
 
-def vector_eval (sp : vector_space) : vector_expression sp → vector_interp sp → scalar_interp → vector sp
+def vector_eval {sp : vector_space} : vector_expression sp → vector_interp sp → scalar_interp → vector sp
 | (vector_literal v) i_v i_s :=  v
 | (scalar_vector_mul s v) i_v i_s :=
         let interp_v := (vector_eval v i_v i_s) in
@@ -99,7 +99,7 @@ inductive transform_variable (input output : vector_space) :  Type
 
 def transform_interp (sp1 sp2 : vector_space) := transform_variable sp1 sp2 → transform sp1 sp2
 
-def mk_transform_interp (sp1 sp2 : vector_space ) : transform_interp sp1 sp2 := λ (t : transform_variable sp1 sp2), @transform.mk sp1 sp2 (vector_literal (@vector.mk sp2 0 0 0)) (vector_literal (@vector.mk sp2 0 0 0))  (vector_literal (@vector.mk sp2 0 0 0)) 
+def mk_transform_interp {sp1 sp2 : vector_space } : transform_interp sp1 sp2 := λ (t : transform_variable sp1 sp2), @transform.mk sp1 sp2 (vector_literal (@vector.mk sp2 0 0 0)) (vector_literal (@vector.mk sp2 0 0 0))  (vector_literal (@vector.mk sp2 0 0 0)) 
 
 inductive transform_expression (sp1 sp2 : vector_space)
 | transform_literal : (transform sp1 sp2) → transform_expression
@@ -108,7 +108,7 @@ inductive transform_expression (sp1 sp2 : vector_space)
 
 open transform_expression
 
-def transform_eval (sp1 sp2 : vector_space) : transform_expression sp1 sp2 → transform_interp sp1 sp2 → transform sp1 sp2
+def transform_eval {sp1 sp2 : vector_space} : transform_expression sp1 sp2 → transform_interp sp1 sp2 → transform sp1 sp2
 | (transform_literal t1) i := t1
 | (transform_var v) i := i v
 | (transform_paren t1) i := transform_eval t1 i
@@ -125,18 +125,18 @@ def transform_apply {sp1 sp2 : vector_space} (t : transform_expression sp1 sp2) 
     vector_expression sp2 := 
         vector_expression.vector_literal
             (matrix_mul_cols 
-                (vector_eval sp2 (transform_eval sp1 sp2 t (mk_transform_interp sp1 sp2)).one (mk_vector_interp sp2) init_scalar_interp)
-                (vector_eval sp2 (transform_eval sp1 sp2 t (mk_transform_interp sp1 sp2)).two (mk_vector_interp sp2) init_scalar_interp)
-                (vector_eval sp2 (transform_eval sp1 sp2 t (mk_transform_interp sp1 sp2)).three (mk_vector_interp sp2) init_scalar_interp)
-                (vector_eval sp1 inputvec (mk_vector_interp sp1) init_scalar_interp))
+                (vector_eval (transform_eval t (mk_transform_interp)).one (mk_vector_interp) init_scalar_interp)
+                (vector_eval (transform_eval t (mk_transform_interp)).two (mk_vector_interp) init_scalar_interp)
+                (vector_eval (transform_eval t (mk_transform_interp)).three (mk_vector_interp) init_scalar_interp)
+                (vector_eval inputvec (mk_vector_interp) init_scalar_interp))
 
 def transform_compose {sp1 sp2 sp3: vector_space} (t1 : transform_expression sp2 sp1) (t2 : transform_expression sp3 sp2) : 
     transform_expression sp3 sp1 := 
         transform_expression.transform_literal
             (@transform.mk sp3 sp1
-                ((transform_apply t1 (transform_eval sp3 sp2 t2 (mk_transform_interp sp3 sp2)).one))
-                ((transform_apply t1 (transform_eval sp3 sp2 t2 (mk_transform_interp sp3 sp2)).two))
-                ((transform_apply t1 (transform_eval sp3 sp2 t2 (mk_transform_interp sp3 sp2)).three)))
+                ((transform_apply t1 (transform_eval t2 (mk_transform_interp)).one))
+                ((transform_apply t1 (transform_eval t2 (mk_transform_interp)).two))
+                ((transform_apply t1 (transform_eval t2 (mk_transform_interp)).three)))
             --(matrix_mul_cols t2.one t2.two t2.three t1.one) 
             --(matrix_mul_cols t2.one t2.two t2.three t1.two)
             --(matrix_mul_cols t2.one t2.two t2.three t1.three)
