@@ -84,7 +84,7 @@ def r3_zero : R3 := ⟨[0,0,0], rfl⟩
 /-- R3 has a zero element, the zero vector. -/
 instance : has_zero R3 := ⟨r3_zero⟩
 
-#print add_group
+#print add_comm_group
 
 /-- WTS that adding x to the zero vector gives zero. -/
 lemma r3_zero_add : ∀ x : R3, 0 + x = x := sorry
