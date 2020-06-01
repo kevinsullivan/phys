@@ -91,3 +91,14 @@ lemma r3_zero_add : ∀ x : R3, 0 + x = x := sorry
 
 /-- WTs that adding the zero vector to x gives zero. -/
 lemma r3_add_zero : ∀ x : R3, x + 0 = x := sorry
+
+/-
+  TODO:
+  prove zero_add, add_zero, add_comm, add_assoc, add_left_neg
+    instantiate R3 as an add_comm_group
+  
+  implement scaling of vectors by multiplication in ℝ
+  show R3/Q3 is a vector space over ℝ
+
+  generalize to Rn
+-/
