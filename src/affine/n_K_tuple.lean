@@ -1,6 +1,6 @@
-import affine.orig.n_K_tuple
+import orig.n_K_tuple
 import algebra.module
-import data.list.zip
+import affine.data_list_zip -- rw to data.list.zip if you have a working version of mathlib
 
 open list
 
