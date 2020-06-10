@@ -1,6 +1,8 @@
-import topology.basic group_theory.group_action
-import topology.instances.real topology.algebra.group
-import affine.add_group_action
+import topology.basic 
+import group_theory.group_action
+import topology.instances.real 
+import topology.algebra.group
+import .add_group_action
 
 -- Charlie Conneen, May 2020
 -- TODO: implement additive and multiplicative torsors separately.
