@@ -1,6 +1,7 @@
 import data.vector
 import data.real.basic
 
+
 /-
 The type of n-tuples over a field, K.
 Note: Mis-naming: "vector" in Lean is "tuple" in math. 
