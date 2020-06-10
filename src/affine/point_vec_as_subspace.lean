@@ -1,5 +1,6 @@
-import orig.n_K_tuple
-import algebra.module affine.data_list_zip
+import ..orig.n_K_tuple
+import algebra.module 
+import data.list.zip
 
 open list
 
