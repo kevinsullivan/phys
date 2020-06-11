@@ -1,4 +1,4 @@
-import group_theory.group_action a_code.affine.add_group_action
+import group_theory.group_action affine_rework.add_group_action
 
 -- g-spaces
 
