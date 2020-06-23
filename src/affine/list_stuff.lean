@@ -10,7 +10,7 @@ variables (K : Type u) [field K]
 
 /-- returns list rep of 0 vector of given length. -/
 def list.field_zero : ℕ → list K
-| 0 := []
+| 0 := [0]
 | (nat.succ n) := 0 :: (list.field_zero n)
 
 /-- returns a list multiplied element-wise by a scalar. -/
