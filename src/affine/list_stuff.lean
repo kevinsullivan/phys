@@ -64,3 +64,21 @@ def list.neg'' : list K → list K
 | (x :: xl) := (-x) :: list.neg'' xl
 
 lemma neg_cons : list.neg K (x :: xl) = (-x) :: list.neg K xl := rfl
+
+lemma neg_nil_nil : list.neg K nil = nil := rfl
+
+lemma len_succ : ∀ a : α, ∀ al : list α, length (a :: al) = length al + 1 := by intros; refl
+
+@[simp] theorem list.len_neg : ∀ a : list K, length (list.neg K a) = length a := 
+begin
+intro a,
+induction a,
+{
+  rw neg_nil_nil
+},
+{
+  have t : list.neg K (a_hd :: a_tl) = (-a_hd :: list.neg K a_tl) := rfl,
+  simp only [t, len_succ, a_ih],
+},
+end
+

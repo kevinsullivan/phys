@@ -1,5 +1,7 @@
-import affine.affine affine.list_stuff
-import data.list.zip data.real.basic
+import .affine
+import .list_stuff
+import data.list.zip
+import data.real.basic
 
 universes u v w
 
@@ -60,7 +62,8 @@ simp [x_fst_zero, y_fst_zero, sum_test, add_cons_cons 0 0 x_l_tl y_l_tl],
 end
 
 /-- the head of the sum of two vectors is 0 -/
-lemma sum_fst_fixed : head (x.1 + y.1) = 0 := by simp [eq.symm (head_sum K n x y), x.3, y.3]
+lemma sum_fst_fixed : head (x.1 + y.1) = 0 :=
+    by simp only [eq.symm (head_sum K n x y), x.3, y.3]; exact add_zero 0
 
 /-- the length of the zero vector is n+1 -/
 lemma len_zero : length (field_zero K n) = n + 1 :=
@@ -79,7 +82,8 @@ end
 /-- the head of the zero vector is zero -/
 lemma head_zero : head (field_zero K n) = 0 := by {cases n, refl, refl}
 
-lemma len_neg : length (neg K x.1) = n + 1 := sorry -- following proof is unfinished
+lemma vec_len_neg : length (neg K x.1) = n + 1 := by {simp only [len_neg], exact x.2}
+
 /-
 begin
 cases x,
@@ -116,7 +120,7 @@ def vec_add : aff_vec K n → aff_vec K n → aff_vec K n :=
 def vec_zero : aff_vec K n := ⟨field_zero K n, len_zero K n, head_zero K n⟩
 
 def vec_neg : aff_vec K n → aff_vec K n
-| ⟨l, len, fst⟩ := ⟨list.neg K l, len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩ -- TODO: write out lemmata for these sorrys
+| ⟨l, len, fst⟩ := ⟨list.neg K l, vec_len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩ -- TODO: write out lemmata for these sorrys
 
 
 
