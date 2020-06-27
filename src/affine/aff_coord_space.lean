@@ -41,6 +41,32 @@ variables (x y : aff_vec K n) (a b : aff_pt K n)
 lemma list_sum_fixed : length (x.1 + y.1) = n + 1 := 
     by simp only [sum_test K x.1 y.1, length_sum x.1 y.1, x.2, y.2, min_self]
 
+lemma aff_not_nil : x.1 ≠ [] := 
+begin
+intro h,
+have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
+have len_x_nil : length x.1 = length nil := by rw h,
+have len_fixed : length nil = n + 1 := eq.trans (eq.symm len_x_nil) x.2,
+have bad : 0 = n + 1 := eq.trans (eq.symm nil_len) len_fixed,
+contradiction,
+end
+
+lemma aff_cons : ∃ x_hd : K, ∃ x_tl : list K, x.1 = x_hd :: x_tl :=
+begin
+cases x,
+cases x_l,
+{
+    have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
+    have bad := eq.trans (eq.symm nil_len) x_len_fixed,
+    contradiction
+},
+{
+    apply exists.intro x_l_hd,
+    apply exists.intro x_l_tl,
+    exact rfl
+}
+end
+
 /-- head is compatible with addition -/
 lemma head_sum : head x.1 + head y.1 = head (x.1 + y.1) := 
 begin
@@ -84,18 +110,6 @@ lemma head_zero : head (field_zero K n) = 0 := by {cases n, refl, refl}
 
 lemma vec_len_neg : length (neg K x.1) = n + 1 := by {simp only [len_neg], exact x.2}
 
-/-
-begin
-cases x,
-induction n,
-cases x_l,
-
-have f : 0 ≠ 1 := zero_ne_one,
-have bad := eq.trans (eq.symm nil_len) x_len_fixed,
-contradiction,
-end
--/
-
 lemma head_neg_0 : head (neg K x.1) = 0 :=
 begin
 cases x,
@@ -138,11 +152,31 @@ lemma vec_add_assoc : ∀ x y z : aff_vec K n,  x + y + z = x + (y + z) := sorry
 
 lemma vec_zero_add : ∀ x : aff_vec K n, 0 + x = x := sorry
 
-lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x := sorry
+lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
+begin
+intro x,
+cases x,
+induction x_l,
+{sorry},
+{
+    -- have sep_head : (x_l_hd :: x_l_tl) + 0 = (x_l_hd + 0) :: (x_l_tl + 0) := sorry,
+    {sorry}
+}
+end
 
 lemma vec_add_left_neg : ∀ x : aff_vec K n, -x + x = 0 := sorry
 
-lemma vec_add_comm : ∀ x y : aff_vec K n, x + y = y + x := sorry
+lemma vec_add_comm : ∀ x y : aff_vec K n, x + y = y + x :=
+begin
+intros x y,
+have x_l_hd : K := sorry,
+have y_l_hd : K := sorry,
+have x_l_tl : list K := sorry,
+have y_l_tl : list K := sorry,
+-- have add_def : (x_l_hd :: x_l_tl) + (y_l_hd :: y_l_tl) = (x_l_hd + y_l_hd) :: (x_l_tl + y_l_tl) := sorry,
+have head_comm : x_l_hd + y_l_hd = y_l_hd + x_l_hd := sorry,
+{sorry}
+end
 
 instance : add_comm_group (aff_vec K n) :=
 begin

@@ -1,5 +1,7 @@
-import group_theory.group_action a_code.affine.add_group_action
-import affine_rework.g_space algebra.module
+import group_theory.group_action
+import .add_group_action
+import .g_space
+import algebra.module
 
 universes u v w
 variables (X : Type u) (K : Type v) (V : Type w)
