@@ -2,7 +2,7 @@ open list
 
 universes u v
 variables (K : Type u) [field K] {α : Type v} [has_add α]
-(x : K) (xl : list K)
+(x y : K) (xl : list K)
 
 /-- addition function on `list α`, where `α` has an addition function -/
 def ladd : list α → list α → list α := zip_with has_add.add
@@ -32,7 +32,9 @@ by cases l; refl
 | (a::l₁) (b::l₂) := by simp only [length, add_cons_cons, length_sum l₁ l₂, min_add_add_right]
 
 /-- the length of nil is 0 -/
-lemma nil_len : length ([] : list α) = 0 := rfl
+lemma len_nil : length ([] : list α) = 0 := rfl
+
+lemma len_cons : length (x :: xl) = length xl + 1 := rfl
 
 /-- Implements list addition coordinate-wise w.r.t. the addition function on the list entries. -/
 instance (α : Type*) [has_add α] : has_add (list α) := ⟨ladd⟩
@@ -53,6 +55,20 @@ def list.field_scalar : K → list K → list K
 | x (a :: l) := (x * a) :: (list.field_scalar x l)
 
 
+lemma scalar_nil : list.field_scalar K x [] = [] := rfl
+
+lemma scalar_cons : list.field_scalar K y (x :: xl) = (y * x) :: (list.field_scalar K y xl) := rfl
+
+lemma scale_len : length (list.field_scalar K x xl) = length xl := 
+begin
+induction xl,
+rw scalar_nil,
+simp only [scalar_cons, len_cons, xl_ih],
+end
+
+
+--below are functions. TODO: remove 2 of the neg functions
+
 def field_neg : K → K := λ a, -a
 
 def list.neg : list K → list K := map (field_neg K)
@@ -69,16 +85,15 @@ lemma neg_nil_nil : list.neg K nil = nil := rfl
 
 lemma len_succ : ∀ a : α, ∀ al : list α, length (a :: al) = length al + 1 := by intros; refl
 
-@[simp] theorem list.len_neg : ∀ a : list K, length (list.neg K a) = length a := 
+@[simp] theorem list.len_neg : length (list.neg K xl) = length xl := 
 begin
-intro a,
-induction a,
+induction xl,
 {
   rw neg_nil_nil
 },
 {
-  have t : list.neg K (a_hd :: a_tl) = (-a_hd :: list.neg K a_tl) := rfl,
-  simp only [t, len_succ, a_ih],
+  have t : list.neg K (xl_hd :: xl_tl) = (-xl_hd :: list.neg K xl_tl) := rfl,
+  simp only [t, len_succ, xl_ih],
 },
 end
 
@@ -92,6 +107,7 @@ induction n with n',
 {refl}
 end
 
+-- TODO: clean up this lemma
 lemma list.add_zero : ∀ x : list K, x + (list.field_zero K (length x - 1)) = x :=
 begin
 intro x,
@@ -102,12 +118,11 @@ induction x,
   rw tl_len,
   induction x_tl,
   {
-    rw nil_len,
+    rw len_nil,
     have field_zero_zero : list.field_zero K 0 = [0] := rfl,
     rw field_zero_zero,
     have add_list : [x_hd] + [0] = [x_hd + 0] := rfl,
-    rw add_list,
-    simp
+    rw [add_list, add_zero],
   },
   {
     have zero_tl : list.field_zero K (length (x_tl_hd :: x_tl_tl)) = 0 :: list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1) :=
