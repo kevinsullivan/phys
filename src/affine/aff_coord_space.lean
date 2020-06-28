@@ -153,25 +153,36 @@ lemma vec_add_assoc : ∀ x y z : aff_vec K n,  x + y + z = x + (y + z) := sorry
 
 lemma vec_zero_add : ∀ x : aff_vec K n, 0 + x = x := sorry
 
+lemma vec_zero_list' : (0 : aff_vec K n).1 = field_zero K n := rfl
+
 lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
 begin
 intro x,
 cases x,
 rw vec_zero_is,
 cases vec_zero K n with zero_l zero_len_fixed zero_fst_zero,
-have list_eq : x_l + zero_l = x_l :=
-    begin
-    have zero_vec_zero : zero_l = field_zero K n := sorry,
-    have vec_field_zero : n = length x_l - 1 := sorry,
-    have zero_field_zero : zero_l = field_zero K (length x_l - 1) :=
+induction zero_l,
+{sorry},
+{
+    have list_eq : x_l + (zero_l_hd :: zero_l_tl) = x_l :=
         begin
-        rw (eq.symm vec_field_zero),
-        exact zero_vec_zero
+        have zero_list_is : (0 : aff_vec K n).1 = (zero_l_hd :: zero_l_tl) := sorry,
+        have zero_vec_zero : (list.cons zero_l_hd zero_l_tl) = field_zero K n :=
+            begin
+            rw (eq.symm zero_list_is),
+            apply vec_zero_list'
+            end,
+        have vec_field_zero : n = length x_l - 1 := sorry,
+        have zero_field_zero : (list.cons zero_l_hd zero_l_tl) = field_zero K (length x_l - 1) :=
+            begin
+            rw (eq.symm vec_field_zero),
+            exact zero_vec_zero
+            end,
+        rw zero_field_zero,
+        apply list.add_zero
         end,
-    rw zero_field_zero,
-    apply list.add_zero
-    end,
-{sorry}
+    {sorry}
+}
 end
 
 -- lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=

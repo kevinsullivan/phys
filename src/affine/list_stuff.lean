@@ -146,3 +146,54 @@ induction x,
   }
 }
 end
+
+lemma list.add_comm : ∀ x y : list K, x + y = y + x :=
+begin
+intros x y,
+induction x,
+{
+  have nil_y : nil + y = nil := rfl,
+  rw nil_y,
+  induction y,
+  {refl},
+  {refl}
+},
+{
+  induction y,
+  {refl},
+  {
+    have sep_head_xy : (x_hd :: x_tl) + (y_hd :: y_tl) = (x_hd + y_hd) :: (x_tl + y_tl) := rfl,
+    rw sep_head_xy,
+    have sep_head_yx : (y_hd :: y_tl) + (x_hd :: x_tl) = (y_hd + x_hd) :: (y_tl + x_tl) := rfl,
+    rw sep_head_yx,
+    have hd_comm : x_hd + y_hd = y_hd + x_hd := by apply add_comm,
+    rw hd_comm,
+    have tl_comm : x_tl + y_tl = y_tl + x_tl := sorry,
+      -- begin
+      -- induction x_tl,
+      -- {
+      --   have nil_y : nil + y_tl = nil := rfl,
+      --   rw nil_y,
+      --   induction y_tl,
+      --   {refl},
+      --   {refl}
+      -- },
+      -- {
+      --   induction y_tl,
+      --   {refl},
+      --   {
+      --   have sep_head_xty : x_tl_hd :: x_tl_tl + y_tl_hd :: y_tl_tl = (x_tl_hd + y_tl_hd) :: (x_tl_tl + y_tl_tl) := rfl,
+      --   rw sep_head_xty,
+      --   have sep_head_yxt : y_tl_hd :: y_tl_tl + x_tl_hd :: x_tl_tl = (y_tl_hd + x_tl_hd) :: (y_tl_tl + x_tl_tl) := rfl,
+      --   rw sep_head_yxt,
+      --   have tl_hd_comm : x_tl_hd + y_tl_hd = y_tl_hd + x_tl_hd := by apply add_comm,
+      --   rw tl_hd_comm,
+      --   have tl_tl_comm : x_tl_tl + y_tl_tl = y_tl_tl + x_tl_tl := sorry,
+      --   rw tl_tl_comm
+      --   }
+      -- }
+      -- end,
+    rw tl_comm
+  }
+}
+end
