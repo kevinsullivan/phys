@@ -136,14 +136,14 @@ def vec_zero : aff_vec K n := ⟨field_zero K n, len_zero K n, head_zero K n⟩
 def vec_neg : aff_vec K n → aff_vec K n
 | ⟨l, len, fst⟩ := ⟨list.neg K l, vec_len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩ -- TODO: write out lemmata for these sorrys
 
-
-
 -- type class instances for the abelian group operations
 instance : has_add (aff_vec K n) := ⟨vec_add K n⟩
 instance : has_zero (aff_vec K n) := ⟨vec_zero K n⟩
 instance : has_neg (aff_vec K n) := ⟨vec_neg K n⟩
 
 
+-- misc
+lemma vec_zero_is : (0 : aff_vec K n) = vec_zero K n := rfl
 
 -- properties necessary to show aff_vec K n is an instance of add_comm_group
 #print add_comm_group
@@ -159,8 +159,42 @@ cases x,
 induction x_l,
 {sorry},
 {
-    -- have sep_head : (x_l_hd :: x_l_tl) + 0 = (x_l_hd + 0) :: (x_l_tl + 0) := sorry,
-    {sorry}
+    simp only [vec_zero_is],
+    cases (0 : aff_vec K n) with zero_l zero_len_fixed zero_fst_zero,
+    cases zero_l,
+    {sorry},
+    {
+        have zero_hd_hd : head (zero_l_hd :: zero_l_tl) = zero_l_hd := rfl,
+        have zero_hd_zero : zero_l_hd = 0 :=
+            begin
+            transitivity,
+            exact eq.symm zero_hd_hd,
+            exact zero_fst_zero
+            end,
+        have sep_head' : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons (x_l_hd + zero_l_hd) (x_l_tl + zero_l_tl) := rfl,
+        have sep_head : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd (x_l_tl + zero_l_tl) :=
+            begin
+            have hd_0 : x_l_hd = x_l_hd + 0 := by simp,
+            rw hd_0,
+            rw (eq.symm zero_hd_zero),
+            have f : list.cons (x_l_hd + zero_l_hd) x_l_tl = list.cons x_l_hd x_l_tl :=
+                begin
+                rw zero_hd_zero,
+                rw (eq.symm hd_0)
+                end,
+            rw f,
+            exact sep_head'
+            end,
+        have add_tl : x_l_tl + zero_l_tl = x_l_tl := sorry,
+        have add_array : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd x_l_tl :=
+            begin
+            rw sep_head,
+            rw add_tl
+            end,
+        -- have add_vec_array : aff_vec.cons (x_l_hd :: x_l_tl) x_len_fixed x_fst_zero + vec_zero K n =
+        --     aff_vec.cons ((x_l_hd :: x_l_tl) + (zero_l_hd + zero_l_tl)) x_len_fixed x_fst_zero := sorry,
+        {sorry}
+    }
 }
 end
 

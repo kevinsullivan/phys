@@ -82,3 +82,52 @@ induction a,
 },
 end
 
+
+
+lemma field_zero_sep : ∀ n : ℕ, n ≠ 0 → list.field_zero K n = 0 :: list.field_zero K (n - 1) :=
+begin
+intros n h,
+induction n with n',
+{contradiction},
+{refl}
+end
+
+lemma list.add_zero : ∀ x : list K, x + (list.field_zero K (length x - 1)) = x :=
+begin
+intro x,
+induction x,
+{refl},
+{
+  have tl_len : length (x_hd :: x_tl) - 1 = length x_tl := rfl,
+  rw tl_len,
+  induction x_tl,
+  {
+    rw nil_len,
+    have field_zero_zero : list.field_zero K 0 = [0] := rfl,
+    rw field_zero_zero,
+    have add_list : [x_hd] + [0] = [x_hd + 0] := rfl,
+    rw add_list,
+    simp
+  },
+  {
+    have zero_tl : list.field_zero K (length (x_tl_hd :: x_tl_tl)) = 0 :: list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1) :=
+      begin
+      have len_x : length (x_tl_hd :: x_tl_tl) ≠ 0 :=
+        begin
+        intro h,
+        have len_x' : length (x_tl_hd :: x_tl_tl) = length x_tl_tl + 1 := rfl,
+        contradiction
+        end,
+      apply field_zero_sep,
+      exact len_x
+      end,
+    rw zero_tl,
+    have sep_head : x_hd :: (x_tl_hd :: x_tl_tl) + 0 :: list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1) =
+      (x_hd + 0) :: ((x_tl_hd :: x_tl_tl) + list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1)) := rfl,
+    rw sep_head,
+    have head_add : x_hd + 0 = x_hd := by simp,
+    rw head_add,
+    rw x_ih
+  }
+}
+end
