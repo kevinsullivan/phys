@@ -157,47 +157,68 @@ lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
 begin
 intro x,
 cases x,
-induction x_l,
-{sorry},
-{
-    simp only [vec_zero_is],
-    cases (0 : aff_vec K n) with zero_l zero_len_fixed zero_fst_zero,
-    cases zero_l,
-    {sorry},
-    {
-        have zero_hd_hd : head (zero_l_hd :: zero_l_tl) = zero_l_hd := rfl,
-        have zero_hd_zero : zero_l_hd = 0 :=
-            begin
-            transitivity,
-            exact eq.symm zero_hd_hd,
-            exact zero_fst_zero,
-            end,
-        have sep_head' : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons (x_l_hd + zero_l_hd) (x_l_tl + zero_l_tl) := rfl,
-        have sep_head : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd (x_l_tl + zero_l_tl) :=
-            begin
-            have hd_0 : x_l_hd = x_l_hd + 0 := by simp,
-            rw hd_0,
-            rw (eq.symm zero_hd_zero),
-            have f : list.cons (x_l_hd + zero_l_hd) x_l_tl = list.cons x_l_hd x_l_tl :=
-                begin
-                rw zero_hd_zero,
-                rw (eq.symm hd_0),
-                end,
-            rw f,
-            exact sep_head'
-            end,
-        have add_tl : x_l_tl + zero_l_tl = x_l_tl := sorry,
-        have add_array : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd x_l_tl :=
-            begin
-            rw sep_head,
-            rw add_tl
-            end,
-        -- have add_vec_array : aff_vec.cons (x_l_hd :: x_l_tl) x_len_fixed x_fst_zero + vec_zero K n =
-        --     aff_vec.cons ((x_l_hd :: x_l_tl) + (zero_l_hd + zero_l_tl)) x_len_fixed x_fst_zero := sorry,
-        {sorry}
-    }
-}
+rw vec_zero_is,
+cases vec_zero K n with zero_l zero_len_fixed zero_fst_zero,
+have list_eq : x_l + zero_l = x_l :=
+    begin
+    have zero_vec_zero : zero_l = field_zero K n := sorry,
+    have vec_field_zero : n = length x_l - 1 := sorry,
+    have zero_field_zero : zero_l = field_zero K (length x_l - 1) :=
+        begin
+        rw (eq.symm vec_field_zero),
+        exact zero_vec_zero
+        end,
+    rw zero_field_zero,
+    apply list.add_zero
+    end,
+{sorry}
 end
+
+-- lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
+-- begin
+-- intro x,
+-- cases x,
+-- induction x_l,
+-- {sorry},
+-- {
+--     simp only [vec_zero_is],
+--     cases (0 : aff_vec K n) with zero_l zero_len_fixed zero_fst_zero,
+--     cases zero_l,
+--     {sorry},
+--     {
+--         have zero_hd_hd : head (zero_l_hd :: zero_l_tl) = zero_l_hd := rfl,
+--         have zero_hd_zero : zero_l_hd = 0 :=
+--             begin
+--             transitivity,
+--             exact eq.symm zero_hd_hd,
+--             exact zero_fst_zero,
+--             end,
+--         have sep_head' : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons (x_l_hd + zero_l_hd) (x_l_tl + zero_l_tl) := rfl,
+--         have sep_head : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd (x_l_tl + zero_l_tl) :=
+--             begin
+--             have hd_0 : x_l_hd = x_l_hd + 0 := by simp,
+--             rw hd_0,
+--             rw (eq.symm zero_hd_zero),
+--             have f : list.cons (x_l_hd + zero_l_hd) x_l_tl = list.cons x_l_hd x_l_tl :=
+--                 begin
+--                 rw zero_hd_zero,
+--                 rw (eq.symm hd_0),
+--                 end,
+--             rw f,
+--             exact sep_head'
+--             end,
+--         have add_tl : x_l_tl + zero_l_tl = x_l_tl := sorry,
+--         have add_array : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd x_l_tl :=
+--             begin
+--             rw sep_head,
+--             rw add_tl
+--             end,
+--         -- have add_vec_array : aff_vec.cons (x_l_hd :: x_l_tl) x_len_fixed x_fst_zero + vec_zero K n =
+--         --     aff_vec.cons ((x_l_hd :: x_l_tl) + (zero_l_hd + zero_l_tl)) x_len_fixed x_fst_zero := sorry,
+--         {sorry}
+--     }
+-- }
+-- end
 
 lemma vec_add_left_neg : ∀ x : aff_vec K n, -x + x = 0 := sorry
 
