@@ -5,7 +5,7 @@ import data.real.basic
 
 universes u v w
 
-variables (X : Type u) (K : Type v) (V : Type w) (n : ℕ) (id : ℕ)
+variables (X : Type u) (K : Type v) (V : Type w) (n : ℕ) (id : ℕ) (k : K)
 [inhabited K] [field K] [add_comm_group V] [vector_space K V] [affine_space X K V]
 
 open list
@@ -47,7 +47,7 @@ intro h,
 have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
 have len_x_nil : length x.1 = length nil := by rw h,
 have len_fixed : length nil = n + 1 := eq.trans (eq.symm len_x_nil) x.2,
-have bad : 0 = n + 1 := eq.trans (eq.symm nil_len) len_fixed,
+have bad : 0 = n + 1 := eq.trans (eq.symm len_nil) len_fixed,
 contradiction,
 end
 
@@ -57,7 +57,7 @@ cases x,
 cases x_l,
 {
     have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
-    have bad := eq.trans (eq.symm nil_len) x_len_fixed,
+    have bad := eq.trans (eq.symm len_nil) x_len_fixed,
     contradiction
 },
 {
@@ -74,11 +74,11 @@ cases x,
 cases y,
 cases x_l,
     have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
-    have bad := eq.trans (eq.symm nil_len) x_len_fixed,
+    have bad := eq.trans (eq.symm len_nil) x_len_fixed,
     contradiction,
 cases y_l,
     have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
-    have bad := eq.trans (eq.symm nil_len) y_len_fixed,
+    have bad := eq.trans (eq.symm len_nil) y_len_fixed,
     contradiction,
 have head_xh : head (x_l_hd :: x_l_tl) = x_l_hd := rfl,
 have head_yh : head (y_l_hd :: y_l_tl) = y_l_hd := rfl,
@@ -116,7 +116,7 @@ cases x,
 cases x_l,
 
 have f : 0 ≠ 1 := zero_ne_one,
-have bad := eq.trans (eq.symm nil_len) x_len_fixed,
+have bad := eq.trans (eq.symm len_nil) x_len_fixed,
 contradiction,
 
 rw neg_cons K x_l_hd x_l_tl,
@@ -126,7 +126,7 @@ rw head_xh at x_fst_zero,
 simp only [x_fst_zero, neg_zero, head_0],
 end
 
--- abelian group operations
+/-! ### abelian group operations -/
 
 def vec_add : aff_vec K n → aff_vec K n → aff_vec K n :=
     λ x y, ⟨x.1 + y.1, list_sum_fixed K n x y, sum_fst_fixed K n x y⟩
@@ -136,7 +136,8 @@ def vec_zero : aff_vec K n := ⟨field_zero K n, len_zero K n, head_zero K n⟩
 def vec_neg : aff_vec K n → aff_vec K n
 | ⟨l, len, fst⟩ := ⟨list.neg K l, vec_len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩ -- TODO: write out lemmata for these sorrys
 
--- type class instances for the abelian group operations
+/-! ### type class instances for the abelian group operations -/
+
 instance : has_add (aff_vec K n) := ⟨vec_add K n⟩
 instance : has_zero (aff_vec K n) := ⟨vec_zero K n⟩
 instance : has_neg (aff_vec K n) := ⟨vec_neg K n⟩
@@ -169,7 +170,7 @@ induction x_l,
             begin
             transitivity,
             exact eq.symm zero_hd_hd,
-            exact zero_fst_zero
+            exact zero_fst_zero,
             end,
         have sep_head' : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons (x_l_hd + zero_l_hd) (x_l_tl + zero_l_tl) := rfl,
         have sep_head : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd (x_l_tl + zero_l_tl) :=
@@ -180,7 +181,7 @@ induction x_l,
             have f : list.cons (x_l_hd + zero_l_hd) x_l_tl = list.cons x_l_hd x_l_tl :=
                 begin
                 rw zero_hd_zero,
-                rw (eq.symm hd_0)
+                rw (eq.symm hd_0),
                 end,
             rw f,
             exact sep_head'
@@ -212,6 +213,8 @@ have head_comm : x_l_hd + y_l_hd = y_l_hd + x_l_hd := sorry,
 {sorry}
 end
 
+/-! ### Type class instance for abelian group -/
+
 instance : add_comm_group (aff_vec K n) :=
 begin
 split,
@@ -222,6 +225,29 @@ exact vec_zero_add K n,
 exact vec_add_zero K n,
 end
 
+/-! ### Scalar action -/
+
+#check semimodule
+#check distrib_mul_action
+
+lemma scale_head : head (field_scalar K k x.1) = 0 :=
+begin
+cases x,
+cases x_l,
+rw scalar_nil,
+have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
+have bad := eq.trans (eq.symm len_nil) x_len_fixed,
+contradiction,
+have hd0 : x_l_hd = 0 := x_fst_zero,
+rw [scalar_cons, hd0, mul_zero],
+refl,
+end
+
+def vec_scalar : K → aff_vec K n → aff_vec K n :=
+    λ a x, ⟨field_scalar K a x.1, trans (scale_len K a x.1) x.2, scale_head K n a x⟩
+
+
+instance : has_scalar K (aff_vec K n) := sorry
 
 -- need to define scalar multiplication to show it's a module
 instance : vector_space K (aff_vec K n) := sorry
