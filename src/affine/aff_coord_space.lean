@@ -16,16 +16,6 @@ structure aff_vec :=
 (len_fixed : l.length = n + 1)
 (fst_zero : head l = 0)
 
-
-/-
--- Note: Preceding definition equivalent to the following.
--- Just a notational difference to avoid nested <<>,_>s
-def vec_list := { l : vector K n // head l.1 = 0 }
-def v1 : vec_list ℝ 3 := ⟨ ⟨[0,1,2], rfl⟩, sorry ⟩
-def v2 : vec_list ℝ 3 := ⟨ ⟨[0,3,-2], rfl⟩, sorry ⟩
-#check @vec_list
--/
-
 /-- type class for affine points for coordinate spaces. -/
 structure aff_pt :=
 (l : list K)
@@ -58,12 +48,12 @@ cases x_l,
 {
     have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
     have bad := eq.trans (eq.symm len_nil) x_len_fixed,
-    contradiction
+    contradiction,
 },
 {
     apply exists.intro x_l_hd,
     apply exists.intro x_l_tl,
-    exact rfl
+    exact rfl,
 }
 end
 
@@ -114,11 +104,7 @@ lemma head_neg_0 : head (neg K x.1) = 0 :=
 begin
 cases x,
 cases x_l,
-
-have f : 0 ≠ 1 := zero_ne_one,
-have bad := eq.trans (eq.symm len_nil) x_len_fixed,
 contradiction,
-
 rw neg_cons K x_l_hd x_l_tl,
 have head_xh : head (x_l_hd :: x_l_tl) = x_l_hd := rfl,
 have head_0 : head (0 :: neg K x_l_tl) = 0 := rfl,
@@ -144,6 +130,16 @@ instance : has_neg (aff_vec K n) := ⟨vec_neg K n⟩
 
 
 -- misc
+def pt_zero_f : ℕ → list K 
+| 0 := [1]
+| (nat.succ n) := [1] ++ list.field_zero K n
+
+lemma pt_zero_len : length (pt_zero_f K n) = n + 1 := sorry
+
+lemma pt_zero_hd : head (pt_zero_f K n) = 1 := by {cases n, refl, refl} 
+
+def pt_zero : aff_pt K n := ⟨pt_zero_f K n, pt_zero_len K n, pt_zero_hd K n⟩
+
 lemma vec_zero_is : (0 : aff_vec K n) = vec_zero K n := rfl
 
 lemma vec_zero_list' : (0 : aff_vec K n).1 = field_zero K n := rfl
@@ -236,13 +232,14 @@ lemma vec_add_left_neg : ∀ x : aff_vec K n, -x + x = 0 := sorry
 lemma vec_add_comm : ∀ x y : aff_vec K n, x + y = y + x :=
 begin
 intros x y,
-have x_l_hd : K := sorry,
-have y_l_hd : K := sorry,
-have x_l_tl : list K := sorry,
-have y_l_tl : list K := sorry,
--- have add_def : (x_l_hd :: x_l_tl) + (y_l_hd :: y_l_tl) = (x_l_hd + y_l_hd) :: (x_l_tl + y_l_tl) := sorry,
-have head_comm : x_l_hd + y_l_hd = y_l_hd + x_l_hd := sorry,
-{sorry}
+cases x,
+cases y,
+induction x_l,
+contradiction,
+induction y_l,
+contradiction,
+repeat{sorry},
+
 end
 
 /-! ### Type class instance for abelian group -/
@@ -267,8 +264,6 @@ begin
 cases x,
 cases x_l,
 rw scalar_nil,
-have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
-have bad := eq.trans (eq.symm len_nil) x_len_fixed,
 contradiction,
 have hd0 : x_l_hd = 0 := x_fst_zero,
 rw [scalar_cons, hd0, mul_zero],

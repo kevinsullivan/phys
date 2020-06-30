@@ -13,7 +13,7 @@ structure frame :=
 
 #print fin
 
-def std_origin : aff_vec K n := vec_zero K n
+def std_origin : aff_pt K n := pt_zero K n
 
 open list
 def list.std_basis : fin n → list K
@@ -23,3 +23,5 @@ def std_basis : fin n → aff_vec K n
 | ⟨m, _⟩ := ⟨list.std_basis K n ⟨m, _x⟩, sorry, sorry⟩
 
 theorem std_basis_li : linear_independent K (std_basis K n) := sorry
+
+def std_frame : frame K n := ⟨std_origin K n, std_basis K n, std_basis_li K n⟩
