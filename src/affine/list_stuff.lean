@@ -2,7 +2,7 @@ open list
 
 universes u v
 variables (K : Type u) [field K] {α : Type v} [has_add α]
-(x : K) (xl : list K)
+(x y : K) (xl yl : list K)
 
 /-- addition function on `list α`, where `α` has an addition function -/
 def ladd : list α → list α → list α := zip_with has_add.add
@@ -32,7 +32,9 @@ by cases l; refl
 | (a::l₁) (b::l₂) := by simp only [length, add_cons_cons, length_sum l₁ l₂, min_add_add_right]
 
 /-- the length of nil is 0 -/
-lemma nil_len : length ([] : list α) = 0 := rfl
+lemma len_nil : length ([] : list α) = 0 := rfl
+
+lemma len_cons : length (x :: xl) = length xl + 1 := rfl
 
 /-- Implements list addition coordinate-wise w.r.t. the addition function on the list entries. -/
 instance (α : Type*) [has_add α] : has_add (list α) := ⟨ladd⟩
@@ -53,6 +55,36 @@ def list.field_scalar : K → list K → list K
 | x (a :: l) := (x * a) :: (list.field_scalar x l)
 
 
+lemma scalar_nil : list.field_scalar K x [] = [] := rfl
+
+lemma scalar_cons : list.field_scalar K y (x :: xl) = (y * x) :: (list.field_scalar K y xl) := rfl
+
+lemma scale_len : length (list.field_scalar K x xl) = length xl := 
+begin
+induction xl,
+rw scalar_nil,
+simp only [scalar_cons, len_cons, xl_ih],
+end
+
+lemma list.one_smul_cons : list.field_scalar K 1 xl = xl :=
+begin
+induction xl,
+refl,
+rw [scalar_cons, one_mul, xl_ih],
+end
+
+lemma list.smul_assoc : list.field_scalar K (x*y) xl = list.field_scalar K x (list.field_scalar K y xl) :=
+begin
+induction xl,
+refl,
+simp only [scalar_cons],
+split,
+rw mul_assoc,
+exact xl_ih,
+end
+
+--below are functions. TODO: remove 2 of the neg functions
+
 def field_neg : K → K := λ a, -a
 
 def list.neg : list K → list K := map (field_neg K)
@@ -69,16 +101,15 @@ lemma neg_nil_nil : list.neg K nil = nil := rfl
 
 lemma len_succ : ∀ a : α, ∀ al : list α, length (a :: al) = length al + 1 := by intros; refl
 
-@[simp] theorem list.len_neg : ∀ a : list K, length (list.neg K a) = length a := 
+@[simp] theorem list.len_neg : length (list.neg K xl) = length xl := 
 begin
-intro a,
-induction a,
+induction xl,
 {
   rw neg_nil_nil
 },
 {
-  have t : list.neg K (a_hd :: a_tl) = (-a_hd :: list.neg K a_tl) := rfl,
-  simp only [t, len_succ, a_ih],
+  have t : list.neg K (xl_hd :: xl_tl) = (-xl_hd :: list.neg K xl_tl) := rfl,
+  simp only [t, len_succ, xl_ih],
 },
 end
 
@@ -92,6 +123,7 @@ induction n with n',
 {refl}
 end
 
+-- TODO: clean up this lemma
 lemma list.add_zero : ∀ x : list K, x + (list.field_zero K (length x - 1)) = x :=
 begin
 intro x,
@@ -102,12 +134,11 @@ induction x,
   rw tl_len,
   induction x_tl,
   {
-    rw nil_len,
+    rw len_nil,
     have field_zero_zero : list.field_zero K 0 = [0] := rfl,
     rw field_zero_zero,
     have add_list : [x_hd] + [0] = [x_hd + 0] := rfl,
-    rw add_list,
-    simp
+    rw [add_list, add_zero],
   },
   {
     have zero_tl : list.field_zero K (length (x_tl_hd :: x_tl_tl)) = 0 :: list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1) :=
@@ -128,6 +159,57 @@ induction x,
     have head_add : x_hd + 0 = x_hd := by simp,
     rw head_add,
     rw x_ih
+  }
+}
+end
+
+lemma list.add_comm : ∀ x y : list K, x + y = y + x :=
+begin
+intros x y,
+induction x,
+{
+  have nil_y : nil + y = nil := rfl,
+  rw nil_y,
+  induction y,
+  {refl},
+  {refl}
+},
+{
+  induction y,
+  {refl},
+  {
+    have sep_head_xy : (x_hd :: x_tl) + (y_hd :: y_tl) = (x_hd + y_hd) :: (x_tl + y_tl) := rfl,
+    rw sep_head_xy,
+    have sep_head_yx : (y_hd :: y_tl) + (x_hd :: x_tl) = (y_hd + x_hd) :: (y_tl + x_tl) := rfl,
+    rw sep_head_yx,
+    have hd_comm : x_hd + y_hd = y_hd + x_hd := by apply add_comm,
+    rw hd_comm,
+    have tl_comm : x_tl + y_tl = y_tl + x_tl := sorry,
+      -- begin
+      -- induction x_tl,
+      -- {
+      --   have nil_y : nil + y_tl = nil := rfl,
+      --   rw nil_y,
+      --   induction y_tl,
+      --   {refl},
+      --   {refl}
+      -- },
+      -- {
+      --   induction y_tl,
+      --   {refl},
+      --   {
+      --   have sep_head_xty : x_tl_hd :: x_tl_tl + y_tl_hd :: y_tl_tl = (x_tl_hd + y_tl_hd) :: (x_tl_tl + y_tl_tl) := rfl,
+      --   rw sep_head_xty,
+      --   have sep_head_yxt : y_tl_hd :: y_tl_tl + x_tl_hd :: x_tl_tl = (y_tl_hd + x_tl_hd) :: (y_tl_tl + x_tl_tl) := rfl,
+      --   rw sep_head_yxt,
+      --   have tl_hd_comm : x_tl_hd + y_tl_hd = y_tl_hd + x_tl_hd := by apply add_comm,
+      --   rw tl_hd_comm,
+      --   have tl_tl_comm : x_tl_tl + y_tl_tl = y_tl_tl + x_tl_tl := sorry,
+      --   rw tl_tl_comm
+      --   }
+      -- }
+      -- end,
+    rw tl_comm
   }
 }
 end

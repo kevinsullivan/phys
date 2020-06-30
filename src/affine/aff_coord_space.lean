@@ -5,7 +5,7 @@ import data.real.basic
 
 universes u v w
 
-variables (X : Type u) (K : Type v) (V : Type w) (n : ℕ) (id : ℕ)
+variables (X : Type u) (K : Type v) (V : Type w) (n : ℕ) (id : ℕ) (k : K)
 [inhabited K] [field K] [add_comm_group V] [vector_space K V] [affine_space X K V]
 
 open list
@@ -15,16 +15,6 @@ structure aff_vec :=
 (l : list K)
 (len_fixed : l.length = n + 1)
 (fst_zero : head l = 0)
-
-
-/-
--- Note: Preceding definition equivalent to the following.
--- Just a notational difference to avoid nested <<>,_>s
-def vec_list := { l : vector K n // head l.1 = 0 }
-def v1 : vec_list ℝ 3 := ⟨ ⟨[0,1,2], rfl⟩, sorry ⟩
-def v2 : vec_list ℝ 3 := ⟨ ⟨[0,3,-2], rfl⟩, sorry ⟩
-#check @vec_list
--/
 
 /-- type class for affine points for coordinate spaces. -/
 structure aff_pt :=
@@ -47,7 +37,7 @@ intro h,
 have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
 have len_x_nil : length x.1 = length nil := by rw h,
 have len_fixed : length nil = n + 1 := eq.trans (eq.symm len_x_nil) x.2,
-have bad : 0 = n + 1 := eq.trans (eq.symm nil_len) len_fixed,
+have bad : 0 = n + 1 := eq.trans (eq.symm len_nil) len_fixed,
 contradiction,
 end
 
@@ -57,13 +47,13 @@ cases x,
 cases x_l,
 {
     have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
-    have bad := eq.trans (eq.symm nil_len) x_len_fixed,
-    contradiction
+    have bad := eq.trans (eq.symm len_nil) x_len_fixed,
+    contradiction,
 },
 {
     apply exists.intro x_l_hd,
     apply exists.intro x_l_tl,
-    exact rfl
+    exact rfl,
 }
 end
 
@@ -74,11 +64,11 @@ cases x,
 cases y,
 cases x_l,
     have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
-    have bad := eq.trans (eq.symm nil_len) x_len_fixed,
+    have bad := eq.trans (eq.symm len_nil) x_len_fixed,
     contradiction,
 cases y_l,
     have f : 0 ≠ n + 1 := ne.symm (nat.succ_ne_zero n),
-    have bad := eq.trans (eq.symm nil_len) y_len_fixed,
+    have bad := eq.trans (eq.symm len_nil) y_len_fixed,
     contradiction,
 have head_xh : head (x_l_hd :: x_l_tl) = x_l_hd := rfl,
 have head_yh : head (y_l_hd :: y_l_tl) = y_l_hd := rfl,
@@ -114,11 +104,7 @@ lemma head_neg_0 : head (neg K x.1) = 0 :=
 begin
 cases x,
 cases x_l,
-
-have f : 0 ≠ 1 := zero_ne_one,
-have bad := eq.trans (eq.symm nil_len) x_len_fixed,
 contradiction,
-
 rw neg_cons K x_l_hd x_l_tl,
 have head_xh : head (x_l_hd :: x_l_tl) = x_l_hd := rfl,
 have head_0 : head (0 :: neg K x_l_tl) = 0 := rfl,
@@ -126,7 +112,7 @@ rw head_xh at x_fst_zero,
 simp only [x_fst_zero, neg_zero, head_0],
 end
 
--- abelian group operations
+/-! ### abelian group operations -/
 
 def vec_add : aff_vec K n → aff_vec K n → aff_vec K n :=
     λ x y, ⟨x.1 + y.1, list_sum_fixed K n x y, sum_fst_fixed K n x y⟩
@@ -134,16 +120,29 @@ def vec_add : aff_vec K n → aff_vec K n → aff_vec K n :=
 def vec_zero : aff_vec K n := ⟨field_zero K n, len_zero K n, head_zero K n⟩
 
 def vec_neg : aff_vec K n → aff_vec K n
-| ⟨l, len, fst⟩ := ⟨list.neg K l, vec_len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩ -- TODO: write out lemmata for these sorrys
+| ⟨l, len, fst⟩ := ⟨list.neg K l, vec_len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩
 
--- type class instances for the abelian group operations
+/-! ### type class instances for the abelian group operations -/
+
 instance : has_add (aff_vec K n) := ⟨vec_add K n⟩
 instance : has_zero (aff_vec K n) := ⟨vec_zero K n⟩
 instance : has_neg (aff_vec K n) := ⟨vec_neg K n⟩
 
 
 -- misc
+def pt_zero_f : ℕ → list K 
+| 0 := [1]
+| (nat.succ n) := [1] ++ list.field_zero K n
+
+lemma pt_zero_len : length (pt_zero_f K n) = n + 1 := sorry
+
+lemma pt_zero_hd : head (pt_zero_f K n) = 1 := by {cases n, refl, refl} 
+
+def pt_zero : aff_pt K n := ⟨pt_zero_f K n, pt_zero_len K n, pt_zero_hd K n⟩
+
 lemma vec_zero_is : (0 : aff_vec K n) = vec_zero K n := rfl
+
+lemma vec_zero_list' : (0 : aff_vec K n).1 = field_zero K n := rfl
 
 -- properties necessary to show aff_vec K n is an instance of add_comm_group
 #print add_comm_group
@@ -156,61 +155,94 @@ lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
 begin
 intro x,
 cases x,
-induction x_l,
+rw vec_zero_is,
+cases vec_zero K n with zero_l zero_len_fixed zero_fst_zero,
+induction zero_l,
 {sorry},
 {
-    simp only [vec_zero_is],
-    cases (0 : aff_vec K n) with zero_l zero_len_fixed zero_fst_zero,
-    cases zero_l,
-    {sorry},
-    {
-        have zero_hd_hd : head (zero_l_hd :: zero_l_tl) = zero_l_hd := rfl,
-        have zero_hd_zero : zero_l_hd = 0 :=
+    have list_eq : x_l + (zero_l_hd :: zero_l_tl) = x_l :=
+        begin
+        have zero_list_is : (0 : aff_vec K n).1 = (zero_l_hd :: zero_l_tl) := sorry,
+        have zero_vec_zero : (list.cons zero_l_hd zero_l_tl) = field_zero K n :=
             begin
-            transitivity,
-            exact eq.symm zero_hd_hd,
-            exact zero_fst_zero
+            rw (eq.symm zero_list_is),
+            rw vec_zero_list',
             end,
-        have sep_head' : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons (x_l_hd + zero_l_hd) (x_l_tl + zero_l_tl) := rfl,
-        have sep_head : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd (x_l_tl + zero_l_tl) :=
+        have vec_field_zero : n = length x_l - 1 := sorry,
+        have zero_field_zero : (list.cons zero_l_hd zero_l_tl) = field_zero K (length x_l - 1) :=
             begin
-            have hd_0 : x_l_hd = x_l_hd + 0 := by simp,
-            rw hd_0,
-            rw (eq.symm zero_hd_zero),
-            have f : list.cons (x_l_hd + zero_l_hd) x_l_tl = list.cons x_l_hd x_l_tl :=
-                begin
-                rw zero_hd_zero,
-                rw (eq.symm hd_0)
-                end,
-            rw f,
-            exact sep_head'
+            rw (eq.symm vec_field_zero),
+            exact zero_vec_zero
             end,
-        have add_tl : x_l_tl + zero_l_tl = x_l_tl := sorry,
-        have add_array : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd x_l_tl :=
-            begin
-            rw sep_head,
-            rw add_tl
-            end,
-        -- have add_vec_array : aff_vec.cons (x_l_hd :: x_l_tl) x_len_fixed x_fst_zero + vec_zero K n =
-        --     aff_vec.cons ((x_l_hd :: x_l_tl) + (zero_l_hd + zero_l_tl)) x_len_fixed x_fst_zero := sorry,
-        {sorry}
-    }
+        rw zero_field_zero,
+        apply list.add_zero,
+        end,
+    {sorry}
 }
 end
+
+-- lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
+-- begin
+-- intro x,
+-- cases x,
+-- induction x_l,
+-- {sorry},
+-- {
+--     simp only [vec_zero_is],
+--     cases (0 : aff_vec K n) with zero_l zero_len_fixed zero_fst_zero,
+--     cases zero_l,
+--     {sorry},
+--     {
+--         have zero_hd_hd : head (zero_l_hd :: zero_l_tl) = zero_l_hd := rfl,
+--         have zero_hd_zero : zero_l_hd = 0 :=
+--             begin
+--             transitivity,
+--             exact eq.symm zero_hd_hd,
+--             exact zero_fst_zero,
+--             end,
+--         have sep_head' : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons (x_l_hd + zero_l_hd) (x_l_tl + zero_l_tl) := rfl,
+--         have sep_head : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd (x_l_tl + zero_l_tl) :=
+--             begin
+--             have hd_0 : x_l_hd = x_l_hd + 0 := by simp,
+--             rw hd_0,
+--             rw (eq.symm zero_hd_zero),
+--             have f : list.cons (x_l_hd + zero_l_hd) x_l_tl = list.cons x_l_hd x_l_tl :=
+--                 begin
+--                 rw zero_hd_zero,
+--                 rw (eq.symm hd_0),
+--                 end,
+--             rw f,
+--             exact sep_head'
+--             end,
+--         have add_tl : x_l_tl + zero_l_tl = x_l_tl := sorry,
+--         have add_array : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd x_l_tl :=
+--             begin
+--             rw sep_head,
+--             rw add_tl
+--             end,
+--         -- have add_vec_array : aff_vec.cons (x_l_hd :: x_l_tl) x_len_fixed x_fst_zero + vec_zero K n =
+--         --     aff_vec.cons ((x_l_hd :: x_l_tl) + (zero_l_hd + zero_l_tl)) x_len_fixed x_fst_zero := sorry,
+--         {sorry}
+--     }
+-- }
+-- end
 
 lemma vec_add_left_neg : ∀ x : aff_vec K n, -x + x = 0 := sorry
 
 lemma vec_add_comm : ∀ x y : aff_vec K n, x + y = y + x :=
 begin
 intros x y,
-have x_l_hd : K := sorry,
-have y_l_hd : K := sorry,
-have x_l_tl : list K := sorry,
-have y_l_tl : list K := sorry,
--- have add_def : (x_l_hd :: x_l_tl) + (y_l_hd :: y_l_tl) = (x_l_hd + y_l_hd) :: (x_l_tl + y_l_tl) := sorry,
-have head_comm : x_l_hd + y_l_hd = y_l_hd + x_l_hd := sorry,
-{sorry}
+cases x,
+cases y,
+induction x_l,
+contradiction,
+induction y_l,
+contradiction,
+repeat{sorry},
+
 end
+
+/-! ### Type class instance for abelian group -/
 
 instance : add_comm_group (aff_vec K n) :=
 begin
@@ -222,6 +254,33 @@ exact vec_zero_add K n,
 exact vec_add_zero K n,
 end
 
+/-! ### Scalar action -/
+
+#check semimodule
+#check distrib_mul_action
+
+lemma scale_head : head (field_scalar K k x.1) = 0 :=
+begin
+cases x,
+cases x_l,
+rw scalar_nil,
+contradiction,
+have hd0 : x_l_hd = 0 := x_fst_zero,
+rw [scalar_cons, hd0, mul_zero],
+refl,
+end
+
+def vec_scalar : K → aff_vec K n → aff_vec K n :=
+    λ a x, ⟨field_scalar K a x.1, trans (scale_len K a x.1) x.2, scale_head K n a x⟩
+
+
+instance : has_scalar K (aff_vec K n) := ⟨vec_scalar K n⟩
+
+lemma vec_one_smul : (1 : K) • x = x := sorry
+
+lemma vec_mul_smul : ∀ g h : K, ∀ x : aff_vec K n, (g * h) • x = g • h • x := sorry
+
+instance : mul_action K (aff_vec K n) := ⟨vec_one_smul K n, vec_mul_smul K n⟩
 
 -- need to define scalar multiplication to show it's a module
 instance : vector_space K (aff_vec K n) := sorry
@@ -243,3 +302,4 @@ noncomputable def std_origin : time := ⟨[1, 0], rfl, rfl⟩
 def length   := aff_vec ℝ 3 geom3
 def phys_pt  := aff_pt  ℝ 3 geom3
 -/
+
