@@ -2,7 +2,7 @@ open list
 
 universes u v
 variables (K : Type u) [field K] {α : Type v} [has_add α]
-(x y : K) (xl : list K)
+(x y : K) (xl yl : list K)
 
 /-- addition function on `list α`, where `α` has an addition function -/
 def ladd : list α → list α → list α := zip_with has_add.add
@@ -66,6 +66,22 @@ rw scalar_nil,
 simp only [scalar_cons, len_cons, xl_ih],
 end
 
+lemma list.one_smul_cons : list.field_scalar K 1 xl = xl :=
+begin
+induction xl,
+refl,
+rw [scalar_cons, one_mul, xl_ih],
+end
+
+lemma list.smul_assoc : list.field_scalar K (x*y) xl = list.field_scalar K x (list.field_scalar K y xl) :=
+begin
+induction xl,
+refl,
+simp only [scalar_cons],
+split,
+rw mul_assoc,
+exact xl_ih,
+end
 
 --below are functions. TODO: remove 2 of the neg functions
 

@@ -134,7 +134,7 @@ def vec_add : aff_vec K n → aff_vec K n → aff_vec K n :=
 def vec_zero : aff_vec K n := ⟨field_zero K n, len_zero K n, head_zero K n⟩
 
 def vec_neg : aff_vec K n → aff_vec K n
-| ⟨l, len, fst⟩ := ⟨list.neg K l, vec_len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩ -- TODO: write out lemmata for these sorrys
+| ⟨l, len, fst⟩ := ⟨list.neg K l, vec_len_neg K n ⟨l, len, fst⟩, head_neg_0 K n ⟨l, len, fst⟩⟩
 
 /-! ### type class instances for the abelian group operations -/
 
@@ -146,14 +146,14 @@ instance : has_neg (aff_vec K n) := ⟨vec_neg K n⟩
 -- misc
 lemma vec_zero_is : (0 : aff_vec K n) = vec_zero K n := rfl
 
+lemma vec_zero_list' : (0 : aff_vec K n).1 = field_zero K n := rfl
+
 -- properties necessary to show aff_vec K n is an instance of add_comm_group
 #print add_comm_group
 
 lemma vec_add_assoc : ∀ x y z : aff_vec K n,  x + y + z = x + (y + z) := sorry
 
 lemma vec_zero_add : ∀ x : aff_vec K n, 0 + x = x := sorry
-
-lemma vec_zero_list' : (0 : aff_vec K n).1 = field_zero K n := rfl
 
 lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
 begin
@@ -170,7 +170,7 @@ induction zero_l,
         have zero_vec_zero : (list.cons zero_l_hd zero_l_tl) = field_zero K n :=
             begin
             rw (eq.symm zero_list_is),
-            apply vec_zero_list'
+            rw vec_zero_list',
             end,
         have vec_field_zero : n = length x_l - 1 := sorry,
         have zero_field_zero : (list.cons zero_l_hd zero_l_tl) = field_zero K (length x_l - 1) :=
@@ -179,7 +179,7 @@ induction zero_l,
             exact zero_vec_zero
             end,
         rw zero_field_zero,
-        apply list.add_zero
+        apply list.add_zero,
         end,
     {sorry}
 }
@@ -279,7 +279,13 @@ def vec_scalar : K → aff_vec K n → aff_vec K n :=
     λ a x, ⟨field_scalar K a x.1, trans (scale_len K a x.1) x.2, scale_head K n a x⟩
 
 
-instance : has_scalar K (aff_vec K n) := sorry
+instance : has_scalar K (aff_vec K n) := ⟨vec_scalar K n⟩
+
+lemma vec_one_smul : (1 : K) • x = x := sorry
+
+lemma vec_mul_smul : ∀ g h : K, ∀ x : aff_vec K n, (g * h) • x = g • h • x := sorry
+
+instance : mul_action K (aff_vec K n) := ⟨vec_one_smul K n, vec_mul_smul K n⟩
 
 -- need to define scalar multiplication to show it's a module
 instance : vector_space K (aff_vec K n) := sorry
@@ -301,3 +307,4 @@ noncomputable def std_origin : time := ⟨[1, 0], rfl, rfl⟩
 def length   := aff_vec ℝ 3 geom3
 def phys_pt  := aff_pt  ℝ 3 geom3
 -/
+
