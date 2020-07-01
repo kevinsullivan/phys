@@ -16,33 +16,33 @@ is equivalent for both.
 
 
 /-- g-space w.r.t. multiplicative action. -/
-class mul_space (X G : Type*) [group G] extends mul_action G X
+class mul_space (G X : Type*) [group G] extends mul_action G X
 
 /-- g-space w.r.t. additive action. -/
-class add_space (X G : Type*) [add_group G] extends add_action G X
+class add_space (G X : Type*) [add_group G] extends add_action G X
 
 
 /-- homogeneous spaces w.r.t. multiplicative action. -/
-class mul_homogeneous_space (X G : Type*) [group G] extends mul_space X G :=
+class mul_homogeneous_space (G X : Type*) [group G] extends mul_space G X :=
 (mul_trans : ∀ x y : X, ∃ g : G, g • x = y)
 
 /-- homogeneous spaces w.r.t. additive action. -/
-class add_homogeneous_space (X G : Type*) [add_group G] extends add_space X G :=
+class add_homogeneous_space (G X : Type*) [add_group G] extends add_space G X :=
 (add_trans : ∀ x y : X, ∃ g : G, g ⊹ x = y)
 
 
 /-- torsors w.r.t. multiplicative action. -/
-class mul_torsor (X G : Type*) [group G] extends mul_homogeneous_space X G :=
+class mul_torsor (G X : Type*) [group G] extends mul_homogeneous_space G X :=
 (mul_free : ∀ x : X, ∀ g h : G, g • x = h • x → g = h)
 
 /-- torsors w.r.t. additive action. -/
-class add_torsor (X G : Type*) [add_group G] extends add_space X G :=
+class add_torsor (G X : Type*) [add_group G] extends add_space G X :=
 (add_free : ∀ x : X, ∀ g h : G, g ⊹ x = h ⊹ x → g = h)
 
 -- TODO: mul_ and add_torsor with diff function
 
 universes u v
-variables (X : Type u) (G : Type v) [add_group G] [add_torsor X G]
+variables (X : Type u) (G : Type v) [add_group G] [add_torsor G X]
 
 #check exists_unique
 

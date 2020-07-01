@@ -1,7 +1,7 @@
 import .affine
 import .list_stuff
-import data.list.zip
-import data.real.basic
+import .add_group_action
+
 
 universes u v w
 
@@ -147,7 +147,17 @@ lemma vec_zero_list' : (0 : aff_vec K n).1 = field_zero K n := rfl
 -- properties necessary to show aff_vec K n is an instance of add_comm_group
 #print add_comm_group
 
-lemma vec_add_assoc : ∀ x y z : aff_vec K n,  x + y + z = x + (y + z) := sorry
+lemma vec_add_assoc : ∀ x y z : aff_vec K n,  x + y + z = x + (y + z) :=
+begin
+intros,
+cases x,
+cases y,
+cases z,
+induction x_l, contradiction,
+induction y_l, contradiction,
+induction z_l, contradiction,
+sorry, -- issue with these lemmata is the obtuse tactic state. Needs fixing. 
+end
 
 lemma vec_zero_add : ∀ x : aff_vec K n, 0 + x = x := sorry
 
@@ -158,7 +168,11 @@ cases x,
 rw vec_zero_is,
 cases vec_zero K n with zero_l zero_len_fixed zero_fst_zero,
 induction zero_l,
-{sorry},
+contradiction,
+induction x_l,
+contradiction,
+sorry,
+/-
 {
     have list_eq : x_l + (zero_l_hd :: zero_l_tl) = x_l :=
         begin
@@ -179,53 +193,8 @@ induction zero_l,
         end,
     {sorry}
 }
+-/
 end
-
--- lemma vec_add_zero : ∀ x : aff_vec K n, x + 0 = x :=
--- begin
--- intro x,
--- cases x,
--- induction x_l,
--- {sorry},
--- {
---     simp only [vec_zero_is],
---     cases (0 : aff_vec K n) with zero_l zero_len_fixed zero_fst_zero,
---     cases zero_l,
---     {sorry},
---     {
---         have zero_hd_hd : head (zero_l_hd :: zero_l_tl) = zero_l_hd := rfl,
---         have zero_hd_zero : zero_l_hd = 0 :=
---             begin
---             transitivity,
---             exact eq.symm zero_hd_hd,
---             exact zero_fst_zero,
---             end,
---         have sep_head' : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons (x_l_hd + zero_l_hd) (x_l_tl + zero_l_tl) := rfl,
---         have sep_head : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd (x_l_tl + zero_l_tl) :=
---             begin
---             have hd_0 : x_l_hd = x_l_hd + 0 := by simp,
---             rw hd_0,
---             rw (eq.symm zero_hd_zero),
---             have f : list.cons (x_l_hd + zero_l_hd) x_l_tl = list.cons x_l_hd x_l_tl :=
---                 begin
---                 rw zero_hd_zero,
---                 rw (eq.symm hd_0),
---                 end,
---             rw f,
---             exact sep_head'
---             end,
---         have add_tl : x_l_tl + zero_l_tl = x_l_tl := sorry,
---         have add_array : (list.cons x_l_hd x_l_tl) + (list.cons zero_l_hd zero_l_tl) = list.cons x_l_hd x_l_tl :=
---             begin
---             rw sep_head,
---             rw add_tl
---             end,
---         -- have add_vec_array : aff_vec.cons (x_l_hd :: x_l_tl) x_len_fixed x_fst_zero + vec_zero K n =
---         --     aff_vec.cons ((x_l_hd :: x_l_tl) + (zero_l_hd + zero_l_tl)) x_len_fixed x_fst_zero := sorry,
---         {sorry}
---     }
--- }
--- end
 
 lemma vec_add_left_neg : ∀ x : aff_vec K n, -x + x = 0 := sorry
 
@@ -282,12 +251,51 @@ lemma vec_mul_smul : ∀ g h : K, ∀ x : aff_vec K n, (g * h) • x = g • h �
 
 instance : mul_action K (aff_vec K n) := ⟨vec_one_smul K n, vec_mul_smul K n⟩
 
--- need to define scalar multiplication to show it's a module
-instance : vector_space K (aff_vec K n) := sorry
+lemma vec_smul_add : ∀ g : K, ∀ x y : aff_vec K n, g • (x + y) = g•x + g•y := sorry
 
+lemma vec_smul_zero : ∀ g : K, g • (0 : aff_vec K n) = 0 := sorry
+
+instance : distrib_mul_action K (aff_vec K n) := ⟨vec_smul_add K n, vec_smul_zero K n⟩
+
+lemma vec_add_smul : ∀ g h : K, ∀ x : aff_vec K n, (g + h) • x = g•x + h•x := sorry
+
+lemma vec_zero_smul : ∀ x : aff_vec K n, (0 : K) • x = 0 := sorry
+
+instance : semimodule K (aff_vec K n) := ⟨vec_add_smul K n, vec_zero_smul K n⟩
+
+instance aff_module : module K (aff_vec K n) := module.mk
+
+-- need to define scalar multiplication to show it's a module
+instance : vector_space K (aff_vec K n) := aff_module K n
+
+/-! ### group action of aff_vec on aff_pt -/
+
+
+-- need to actually write out the function
+
+def aff_group_action : aff_vec K n → aff_pt K n → aff_pt K n :=
+    λ x y, sorry
+
+instance : has_trans (aff_vec K n) (aff_pt K n) := ⟨aff_group_action K n⟩
+
+lemma aff_zero_sadd : ∀ x : aff_pt K n, (0 : aff_vec K n) ⊹ x = x := sorry
+
+lemma aff_add_sadd : ∀ x y : aff_vec K n, ∀ a : aff_pt K n, (x + y) ⊹ a = x ⊹ y ⊹ a := sorry
+
+instance : add_action (aff_vec K n) (aff_pt K n) := ⟨aff_zero_sadd K n, aff_add_sadd K n⟩
+
+instance : add_space (aff_vec K n) (aff_pt K n) := add_space.mk
+
+lemma aff_add_trans : ∀ a b : aff_pt K n, ∃ x : aff_vec K n, x ⊹ a = b := sorry
+
+instance : add_homogeneous_space (aff_vec K n) (aff_pt K n) := ⟨aff_add_trans K n⟩
+
+lemma aff_add_free : ∀ a : aff_pt K n, ∀ g h : aff_vec K n, g ⊹ a = h ⊹ a → g = h := sorry
+
+instance aff_torsor : add_torsor (aff_vec K n) (aff_pt K n) := ⟨aff_add_free K n⟩
 
 -- WTS the pair aff_vec and aff_pt form an affine space
-instance : affine_space (aff_pt K n) K (aff_vec K n) := sorry
+instance : affine_space (aff_pt K n) K (aff_vec K n) := aff_torsor K n
 
 -- Different file, physical quantities
 /-
