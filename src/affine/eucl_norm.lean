@@ -1,5 +1,6 @@
 import analysis.normed_space.real_inner_product
-import affine.aff_coord_space
+import ..affine.aff_coord_space
+
 
 variable n : ℕ
 
