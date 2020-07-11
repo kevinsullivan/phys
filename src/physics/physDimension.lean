@@ -153,29 +153,29 @@ def vel' := VelocitySpace "vel" 3
 for line: 
     @@GeometricPoint geom_start_(geom3, [0.0,0.0,0.0], geom3.stdFrame)
 -/
-def start_pt : GeometricPoint :=
-    GeometricPoint.mk geom3 (aff_pt.mk [1,0,0,0] rfl rfl) geom3.std_frame
+def start_pt : GeometricPointStruct :=
+    GeometricPoint geom3 0 0 0
 
 /-
 for line: 
     @@GeometricPoint geom_end_(geom3, [10.0,10.0,10.0], geom3.stdFrame)
 -/
-def end_pt : GeometricPoint :=
-    GeometricPoint.mk geom3 (aff_pt.mk [1,10,10,10] rfl rfl) geom3.std_frame
+def end_pt : GeometricPointStruct :=
+    GeometricPoint geom3 10 10 10
 
 /-
 for line: 
     @@TimePoint time_then_(time, [-10.0], time.stdFrame);
 -/
-def start_time : TimePoint :=
-    TimePoint.mk time (aff_pt.mk [1,0] rfl rfl) time.std_frame
+def start_time : TimePointStruct :=
+    TimePoint time 0
 
 /-
 for line: 
     @@TimePoint time_now_(time, [0.0], time.stdFrame);
 -/
-def end_time : TimePoint :=
-    TimePoint.mk time (aff_pt.mk [1,10] rfl rfl) time.std_frame
+def end_time : TimePointStruct :=
+    TimePoint time 10
 
 /-
 for line: 
