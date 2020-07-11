@@ -1,5 +1,7 @@
-import affine.affine affine.list_stuff
-import data.list.zip data.real.basic
+import ..affine.affine 
+import ..affine.list_stuff
+import data.list.zip 
+import data.real.basic
 
 universes u v w
 
