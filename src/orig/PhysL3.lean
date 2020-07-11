@@ -2,7 +2,7 @@ import ..physics.physDimension
 
 noncomputable theory
 
-#check 3
+
 
 abbreviation real_zero := (0 : ℝ)
 abbreviation nat_zero := (0 : ℕ)

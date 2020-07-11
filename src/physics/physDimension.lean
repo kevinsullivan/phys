@@ -18,6 +18,13 @@ inductive physicalDimension : Type
 def velocity : physicalDimension :=
     physicalDimension.multiply physicalDimension.distance (physicalDimension.inverse physicalDimension.time)
 
+inductive phys_unit (d : physicalDimension) : Type
+| std : phys_unit
+| mk : ℝ → phys_unit
+
+def meters : phys_unit physicalDimension.distance := phys_unit.std
+def kilometers : phys_unit physicalDimension.distance := phys_unit.mk 0.001
+
 --take affine_frame to be a type 
 --since we want some notion of a frame attached to any points/vectors we define
 axiom affine_frame : Type
@@ -38,17 +45,20 @@ structure phys_space (d : physicalDimension) : Type :=
 axiom std : affine_frame
 
 
-structure GeometricPointStruct : Type :=
+structure Geometric3PointStruct : Type :=
     mk :: (sp : phys_space physicalDimension.distance) (pt : aff_pt ℝ 3) (B : affine_frame)
 
 structure TimePointStruct : Type :=
     mk :: (sp : phys_space physicalDimension.time) (pt : aff_pt ℝ 1) (B : affine_frame)
 
+structure Velocity3PointStruct : Type :=
+    mk :: (sp : phys_space velocity) (pt : aff_pt ℝ 3) (B : affine_frame)
+
 --expression.add (x : TimeVector y : GeometricVector)
 
 
 
-structure GeometricVector : Type :=
+structure Geometric3Vector : Type :=
     mk :: (sp : phys_space physicalDimension.distance) (vec : aff_vec ℝ 3) (B : affine_frame)
 
 
@@ -69,7 +79,7 @@ structure TimeVector : Type :=
 
 
 
-structure VelocityVector : Type :=
+structure Velocity3Vector : Type :=
     mk :: (sp : phys_space velocity) (vec : aff_vec ℝ 3) (B : affine_frame)
 
 
@@ -84,15 +94,23 @@ def magnitude : TimeVector → ℝ
 /-
 Example function for creating GeometricPoint from 3 reals and a physical space
 -/
-def GeometricPoint (p : phys_space physicalDimension.distance) (x y z : ℝ) : GeometricPointStruct :=
-    GeometricPointStruct.mk p (aff_pt.mk [1,x,y,z] rfl rfl) p.std_frame
+def Geometric3Point (p : phys_space physicalDimension.distance) (x y z : ℝ) : Geometric3PointStruct :=
+    Geometric3PointStruct.mk p (aff_pt.mk [1,x,y,z] rfl rfl) p.std_frame
 
 def TimePoint (p : phys_space physicalDimension.time) (t : ℝ) : TimePointStruct :=
     TimePointStruct.mk p (aff_pt.mk [1, t] rfl rfl) p.std_frame
 
+def Velocity3Point (p : phys_space velocity) (x y z : ℝ) : Velocity3PointStruct :=
+    Velocity3PointStruct.mk p (aff_pt.mk [1,x,y,z] rfl rfl) p.std_frame
 --def example_point := GeometricPoint geom3 1 1 1
 --def example_time := TimePoint time 10
 
+
+def geom3 : phys_space physicalDimension.distance := phys_space.mk 3 std
+
+def vel : phys_space velocity := phys_space.mk 3 std
+
+def time : phys_space physicalDimension.time := phys_space.mk 1 std
 
 
 
