@@ -1,5 +1,6 @@
 import data.real.basic
 import ..affine.aff_coord_space
+ 
 
 noncomputable theory
 
@@ -27,39 +28,56 @@ def kilometers : phys_unit physicalDimension.distance := phys_unit.mk 0.001
 
 --take affine_frame to be a type 
 --since we want some notion of a frame attached to any points/vectors we define
-axiom affine_frame : Type
+
+
+inductive affine_frame (dimension : ℕ): Type
+| std : affine_frame
+| mk : (aff_vec ℝ dimension) → (aff_vec ℝ dimension) → (aff_vec ℝ dimension) → (aff_pt ℝ dimension) → affine_frame
+
 
 
 
 /-
 phys_space
 
+torsor field vector
+
 can construct any physical space for a given dimension and physical dimension
 i.e. 3D Geometric space (distance as its physical dimension)
     1D time space (time as its physical dimension)
 -/
-structure phys_space (d : physicalDimension) : Type :=
-    mk ::  (dimension : ℕ) (std_frame : affine_frame)
+
+def mk_real_affine_space (dimension : ℕ) : Type := 
+    affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
+
+def p : _ := mk_real_affine_space 3
+
+structure PhysSpace (d : physicalDimension) (dimension : ℕ) : Type :=
+    mk :: (std_frame : affine_frame dimension) 
+
+
+
+
 
 --take std to be some affine frame
-axiom std : affine_frame
+
 
 
 structure Geometric3PointStruct : Type :=
-    mk :: (sp : phys_space physicalDimension.distance) (pt : aff_pt ℝ 3) (B : affine_frame)
+    mk :: (sp : PhysSpace physicalDimension.distance 3) (pt : aff_pt ℝ 3) (B : affine_frame 3)
 
 structure TimePointStruct : Type :=
-    mk :: (sp : phys_space physicalDimension.time) (pt : aff_pt ℝ 1) (B : affine_frame)
+    mk :: (sp : PhysSpace physicalDimension.time 1) (pt : aff_pt ℝ 1) (B : affine_frame 1)
 
 structure Velocity3PointStruct : Type :=
-    mk :: (sp : phys_space velocity) (pt : aff_pt ℝ 3) (B : affine_frame)
+    mk :: (sp : PhysSpace velocity 3) (pt : aff_pt ℝ 3) (B : affine_frame 3)
 
 --expression.add (x : TimeVector y : GeometricVector)
 
 
 
 structure Geometric3Vector : Type :=
-    mk :: (sp : phys_space physicalDimension.distance) (vec : aff_vec ℝ 3) (B : affine_frame)
+    mk :: (sp : PhysSpace physicalDimension.distance 3) (vec : aff_vec ℝ 3) (B : affine_frame 3)
 
 
 
@@ -74,13 +92,13 @@ instance : has_add GeometricVector := ⟨GeomAdd⟩
 
 
 structure TimeVector : Type :=
-    mk :: (sp : phys_space physicalDimension.time) (vec : aff_vec ℝ 1) (B : affine_frame)
+    mk :: (sp : PhysSpace physicalDimension.time 1) (vec : aff_vec ℝ 1) (B : affine_frame 1)
 
 
 
 
 structure Velocity3Vector : Type :=
-    mk :: (sp : phys_space velocity) (vec : aff_vec ℝ 3) (B : affine_frame)
+    mk :: (sp : PhysSpace velocity 3) (vec : aff_vec ℝ 3) (B : affine_frame 3)
 
 
 /-
@@ -94,32 +112,34 @@ def magnitude : TimeVector → ℝ
 /-
 Example function for creating GeometricPoint from 3 reals and a physical space
 -/
-def Geometric3Point (p : phys_space physicalDimension.distance) (x y z : ℝ) : Geometric3PointStruct :=
+def Geometric3Point (p : PhysSpace physicalDimension.distance 3) (x y z : ℝ) : Geometric3PointStruct :=
     Geometric3PointStruct.mk p (aff_pt.mk [1,x,y,z] rfl rfl) p.std_frame
 
-def TimePoint (p : phys_space physicalDimension.time) (t : ℝ) : TimePointStruct :=
+def TimePoint (p : PhysSpace physicalDimension.time 1) (t : ℝ) : TimePointStruct :=
     TimePointStruct.mk p (aff_pt.mk [1, t] rfl rfl) p.std_frame
 
-def Velocity3Point (p : phys_space velocity) (x y z : ℝ) : Velocity3PointStruct :=
+def Velocity3Point (p : PhysSpace velocity 3) (x y z : ℝ) : Velocity3PointStruct :=
     Velocity3PointStruct.mk p (aff_pt.mk [1,x,y,z] rfl rfl) p.std_frame
 --def example_point := GeometricPoint geom3 1 1 1
 --def example_time := TimePoint time 10
 
 
-def geom3 : phys_space physicalDimension.distance := phys_space.mk 3 std
+def geom3 : PhysSpace physicalDimension.distance 3 := PhysSpace.mk affine_frame.std
 
-def vel : phys_space velocity := phys_space.mk 3 std
+def vel : PhysSpace velocity 3 := PhysSpace.mk affine_frame.std
 
-def time : phys_space physicalDimension.time := phys_space.mk 1 std
+def time : PhysSpace physicalDimension.time 1 := PhysSpace.mk affine_frame.std
 
 
 
-def EuclideanGeometry (name : string) (n : nat): phys_space physicalDimension.distance :=
-    phys_space.mk n std
+def EuclideanGeometry (name : string) (n : nat): PhysSpace physicalDimension.distance 3 :=
+    PhysSpace.mk affine_frame.std
 
-def ClassicalTime (name : string) : phys_space physicalDimension.time :=
-    phys_space.mk 1 std
+def ClassicalTime (name : string) : PhysSpace physicalDimension.time 1 :=
+    PhysSpace.mk affine_frame.std
 
-def ClassicalVelocity (name : string) (n : nat) : phys_space velocity :=
-    phys_space.mk n std
+def ClassicalVelocity (name : string) (n : nat) : PhysSpace velocity 3 :=
+    PhysSpace.mk affine_frame.std
 
+
+def vel2 := ClassicalVelocity "hi" 3
