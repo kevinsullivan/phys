@@ -11,6 +11,8 @@ abbreviation TimeScalarDefault := (0 : ℝ)
 abbreviation VelocityScalarDefault := (0 : ℝ)
 
 
+
+
 abbreviation NatDefault := (0 : ℕ)
 abbreviation RationalDefault := (0 : ℚ)
 
@@ -185,7 +187,7 @@ notation e1 / e2 := RealScalarExpression.RealDivScalarScalar e1 e2
 notation -e := RealScalarExpression.RealNegScalar e
 notation e⁻¹ := RealScalarExpression.RealInvScalar e
 notation (e := RealScalarExpression.RealParenScalar e
-notation %e := RealScalarExpression.RealScalarLiteral e
+notation ⊹e := RealScalarExpression.RealScalarLiteral e
 
 --GeometricScalarExpression Notations
 notation #e := GeometricScalarExpression.GeometricVarScalar e
@@ -197,7 +199,7 @@ notation -e := GeometricScalarExpression.GeometricNegScalar e
 notation e⁻¹ := GeometricScalarExpression.GeometricInvScalar e
 notation (e := GeometricScalarExpression.GeometricParenScalar e
 notation |e| := GeometricScalarExpression.GeometricNormVector e
-notation =e := GeometricScalarExpression.GeometricScalarLiteral e
+notation ⊹e := GeometricScalarExpression.GeometricScalarLiteral e
 
 
 --def p : GeometricScalarExpression := %GeometricScalarDefault : GeometricScalarExpression
@@ -212,7 +214,7 @@ notation -e := TimeScalarExpression.TimeNegScalar e
 notation e¬⁻¹⁻¹ := TimeScalarExpression.TimeInvScalar e
 notation (e := TimeScalarExpression.TimeParenScalar e
 notation |e| := TimeScalarExpression.TimeNormVector e
-notation %e := TimeScalarExpression.TimeScalarLiteral e
+notation ⊹e := TimeScalarExpression.TimeScalarLiteral e
 --VelocityScalarExpression Notations
 notation #e := VelocityScalarExpression.VelocityVarScalar e
 notation e1 + e2 := VelocityScalarExpression.VelocityAddScalarScalar e1 e2
@@ -259,10 +261,24 @@ notation %e := TimeVectorExpression.TimeVectorLiteral e
 --Geometric3Point Notations
 notation #e := Geometric3PointExpression.Geometric3PointVar e
 notation e1 - e2 := Geometric3PointExpression.Geometric3SubVectorVector e1 e2
-notation -e := Geometric3PointExpression.Geometric3NegPoint e
-notation e1 + e2 := Geometric3PointExpression.Geometric3AddVectorPoint e1 e2
-notation e1 + e2 := Geometric3PointExpression.Geometric3AddPointVector e1 e2
-notation c * e := Geometric3PointExpression.Geometric3ScalarPoint c e
+
+
+instance : has_neg Geometric3PointExpression := ⟨Geometric3PointExpression.Geometric3NegPoint⟩
+
+instance : has_trans Geometric3VectorExpression Geometric3PointExpression  := 
+⟨Geometric3PointExpression.Geometric3AddVectorPoint⟩
+
+notation e1 ⊹ e2 := Geometric3PointExpression.Geometric3AddPointVector e1 e2
+
+/-
+\ cdot
+\ b u 
+⋆
+\ +	
+\ +
+\ *
+-/
+notation c • e := Geometric3PointExpression.Geometric3ScalarPoint c e
 notation e * c := Geometric3PointExpression.Geometric3PointScalar e c
 notation (e := Geometric3PointExpression.Geometric3ParenPoint e
 notation %e := Geometric3PointExpression.TimePointLiteral e
@@ -470,6 +486,33 @@ CTRLH ℝ → ℚ
 --import .physlang
 
 
+--def geoscalar : GeometricScalarExpression := ⊹GeometricScalarDefault
+
+
+
+structure GeometricScalar := 
+(num : ℝ)
+(unit : phys_unit physicalDimension.distance)
+
+def geom_add : GeometricScalar → GeometricScalar → GeometricScalar :=
+λ x y, ⟨x.1 + y.1, x.2⟩
+
+instance : has_add GeometricScalar := ⟨geom_add⟩
+
+
+/-
+def geoscalar : GeometricScalarExpression := $GeometricScalarDefault
+
+
+
+
+def worldGeometry := EuclideanGeometry  "worldGeometry" 3
+
+def worldTime := ClassicalTime  "worldTime"  
+
+def worldVelocity := ClassicalVelocity  "worldVelocity" 3
+
+
 def worldGeometry := EuclideanGeometry  "worldGeometry" 3
 
 def worldTime := ClassicalTime  "worldTime"  
@@ -478,36 +521,44 @@ def worldVelocity := ClassicalVelocity  "worldVelocity" 3
 
 
 
-def REAL3_VAR_IDENT_tf_start_point : Geometric3PointVar  :=  !1
+def REAL3.VAR.IDENT.tf.start.point : Geometric3VectorVar  :=  !1
 
 
-def REAL1.LITERAL.B.L105C36.E.L105C36 : _ :=  GeometricScalarExpression.GeometricLitScalar 1
+def REAL1.LITERAL..B.L105C36.E.L105C36 : :=  %0 
 
-def REAL1.LITERAL.B.L105C40.E.L105C40 : _ :=  %_ 
+def REAL1.LITERAL..B.L105C40.E.L105C40 : _ :=  %. 
 
-def REAL1.LITERAL.B.L105C44.E.L105C44 : GeometricScalarExpression  :=  %GeometricScalarDefault 
-def REAL3.LITERAL.B.L105C26.E.L105C46 : _ := % (REAL1.EXPR.B.L105C36.E.L105C36)  (REAL1.EXPR_.B.L105C40.E.L105C40)  (REAL1.EXPR.B.L105C44.E.L105C44) 
-def DECLARE.B.L104C5.E.L105C47 : _ := (REAL3.VAR.IDENT.tf.start.point) = (REAL3.EXPR_.B.L105C26.E.L105C46)
-
-
-def REAL3.VAR.IDENT.tf.end.point : Geometric3PointVar  :=  !2
+def REAL1.LITERAL..B.L105C44.E.L105C44 : _ :=  %. 
+def REAL3.LITERAL..B.L105C26.E.L105C46 : VelocityVectorExpression  :=  % (REAL1.EXPR..B.L105C36.E.L105C36)  (REAL1.EXPR..B.L105C40.E.L105C40)  (REAL1.EXPR..B.L105C44.E.L105C44) 
+def DECLARE..B.L104C5.E.L105C47 : _ := (REAL3.VAR.IDENT.tf.start.point)=(REAL3.EXPR..B.L105C26.E.L105C46)
 
 
-def REAL1.LITERAL.B.L107C34.E.L107C34 : _ :=  %_ 
-
-def REAL1.LITERAL.B.L107C38.E.L107C39 : _ :=  %_ 
-
-def REAL1.LITERAL.B.L107C42.E.L107C42 : _ :=  %_ 
-def REAL3.LITERAL.B.L107C24.E.L107C44 : _ := % (REAL1.EXPR_.B.L107C34.E.L107C34)  (REAL1.EXPR_.B.L107C38.E.L107C39)  (REAL1.EXPR.B.L107C42.E.L107C42) 
-def DECLARE.B.L106C5.E.L107C45 : _ := (REAL3.VAR.IDENT.tf.end.point) = (REAL3.EXPR_.B.L107C24.E.L107C44)
+def REAL3.VAR.IDENT.tf.end.point : _ := !2
 
 
-def REAL3_VAR_IDENT_tf_displacement : GeometricVectorVar  :=  !3
+def REAL1.LITERAL..B.L107C34.E.L107C34 : _ :=  %. 
+
+def REAL1.LITERAL..B.L107C38.E.L107C39 : _ :=  %. 
+
+def REAL1.LITERAL..B.L107C42.E.L107C42 : _ :=  %. 
+def REAL3.LITERAL..B.L107C24.E.L107C44 : GeometricPointExpression  :=  % (REAL1.EXPR..B.L107C34.E.L107C34)  (REAL1.EXPR..B.L107C38.E.L107C39)  (REAL1.EXPR..B.L107C42.E.L107C42) 
+def DECLARE..B.L106C5.E.L107C45 : _ := (REAL3.VAR.IDENT.tf.end.point)=(REAL3.EXPR..B.L107C24.E.L107C44)
 
 
-def REAL3.EXPR_tf_end_point.B.L109C35.E.L109C35 : _ := # (REAL3.VAR.IDENT.tf.end.point) 
+def REAL3.VAR.IDENT.tf.displacement : _ := !3
 
-def REAL3.EXPR_tf_start_point.B.L109C50.E.L109C50 : _ := # (REAL3.VAR.IDENT.tf.start.point) 
-def REAL3.EXPR_.B.L109C35.E.L109C50 : _ := (REAL3.EXPR_tf_end_point.B.L109C35.E.L109C35) - (REAL3.EXPR_tf_start_point.B.L109C50.E.L109C50)
-def DECLARE_.B.L109C5.E.L109C64 : _ := (REAL3.VAR.IDENT.tf.displacement) = (REAL3.EXPR_.B.L109C35.E.L109C50)
 
+def REAL3.EXPR.tf.end.point.B.L109C35.E.L109C35 : _ := #(REAL3.VAR.IDENT.tf.end.point) 
+
+def REAL3.EXPR.tf.start.point.B.L109C50.E.L109C50 : _ := # (REAL3.VAR.IDENT.tf.start.point) 
+def REAL3.EXPR..B.L109C35.E.L109C50 : _ := (REAL3.EXPR.tf.end.point.B.L109C35.E.L109C35)-(REAL3.EXPR.tf.start.point.B.L109C50.E.L109C50)
+def DECLARE..B.L109C5.E.L109C64 : _ := (REAL3.VAR.IDENT.tf.displacement)=(REAL3.EXPR..B.L109C35.E.L109C50)
+-/
+
+
+
+
+inductive f 
+| blank : ℕ → ℕ → f
+
+def random : f := f.blank 1 1
