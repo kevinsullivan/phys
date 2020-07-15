@@ -47,17 +47,26 @@ i.e. 3D Geometric space (distance as its physical dimension)
     1D time space (time as its physical dimension)
 -/
 
-def mk_real_affine_space (dimension : ℕ) : Type := 
-    affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
+--def mk_real_affine_space (dimension : ℕ) : Type := 
+--    affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
 
-def p : _ := mk_real_affine_space 3
+--def p : _ := mk_real_affine_space 3
 
 structure PhysSpace (d : physicalDimension) (dimension : ℕ) : Type :=
     mk :: (std_frame : affine_frame dimension) 
 
 
+structure GeometricScalar  : Type :=
+mk :: (val : ℝ) (u : phys_unit physicalDimension.distance)
 
+structure TimeScalar  : Type :=
+mk :: (val : ℝ) (u : phys_unit physicalDimension.time)
 
+structure VelocityScalar : Type :=
+mk :: (val : ℝ) (u : phys_unit velocity)
+
+structure RealScalar : Type :=
+mk :: (val : ℝ)
 
 --take std to be some affine frame
 
@@ -105,8 +114,8 @@ structure Velocity3Vector : Type :=
 Norm Function:
 takes in some 1-dimensional Time vector and returns its magnitude (i.e. first element in the list)
 -/
-def magnitude : TimeVector → ℝ
-| _ := 0
+--def magnitude : TimeVector → ℝ
+--| _ := 0
 
 
 /-
@@ -132,6 +141,7 @@ def time : PhysSpace physicalDimension.time 1 := PhysSpace.mk affine_frame.std
 
 
 
+
 def EuclideanGeometry (name : string) (n : nat): PhysSpace physicalDimension.distance 3 :=
     PhysSpace.mk affine_frame.std
 
@@ -142,4 +152,7 @@ def ClassicalVelocity (name : string) (n : nat) : PhysSpace velocity 3 :=
     PhysSpace.mk affine_frame.std
 
 
-def vel2 := ClassicalVelocity "hi" 3
+--def vel2 := ClassicalVelocity "hi" 3
+
+
+--def 
