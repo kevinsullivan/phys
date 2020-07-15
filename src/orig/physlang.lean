@@ -4,11 +4,11 @@ noncomputable theory
 
 
 
-abbreviation RealScalarDefault := (0 : ℝ)
+abbreviation RealScalarDefault : RealScalar := RealScalar.mk 0
 --for peirce:
-abbreviation GeometricScalarDefault := (0 : ℝ)
-abbreviation TimeScalarDefault := (0 : ℝ)
-abbreviation VelocityScalarDefault := (0 : ℝ)
+abbreviation GeometricScalarDefault : GeometricScalar := GeometricScalar.mk 0 phys_unit.std
+abbreviation TimeScalarDefault : TimeScalar := TimeScalar.mk 0 phys_unit.std
+abbreviation VelocityScalarDefault : VelocityScalar := VelocityScalar.mk 0 phys_unit.std
 
 
 
@@ -67,7 +67,7 @@ mutual inductive RealScalarExpression, GeometricScalarExpression,
 	Velocity3VectorExpression, TimeVectorExpression, Geometric3PointExpression, 
 	/-Velocity3PointExpression,-/ TimePointExpression
 with RealScalarExpression : Type
-| RealLitScalar : ℝ → RealScalarExpression
+| RealLitScalar : RealScalar → RealScalarExpression
 | RealVarScalar : RealScalarVar → RealScalarExpression
 | RealAddScalarScalar : RealScalarExpression → RealScalarExpression → RealScalarExpression
 | RealSubScalarScalar : RealScalarExpression → RealScalarExpression → RealScalarExpression
@@ -77,7 +77,7 @@ with RealScalarExpression : Type
 | RealInvScalar : RealScalarExpression → RealScalarExpression
 | RealParenScalar : RealScalarExpression → RealScalarExpression
 with GeometricScalarExpression : Type
-| GeometricLitScalar : ℝ → GeometricScalarExpression
+| GeometricLitScalar : GeometricScalar → GeometricScalarExpression
 | GeometricVarScalar : GeometricScalarVar → GeometricScalarExpression
 | GeometricAddScalarScalar : GeometricScalarExpression → GeometricScalarExpression → GeometricScalarExpression
 | GeometricSubScalarScalar : GeometricScalarExpression → GeometricScalarExpression → GeometricScalarExpression
@@ -88,7 +88,7 @@ with GeometricScalarExpression : Type
 | GeometricParenScalar : GeometricScalarExpression → GeometricScalarExpression
 | GeometricNormVector : Geometric3VectorExpression → GeometricScalarExpression
 with TimeScalarExpression : Type
-| TimeLitScalar : ℝ → TimeScalarExpression
+| TimeLitScalar : TimeScalar → TimeScalarExpression
 | TimeVarScalar : TimeScalarVar → TimeScalarExpression
 | TimeAddScalarScalar : TimeScalarExpression → TimeScalarExpression → TimeScalarExpression
 | TimeSubScalarScalar : TimeScalarExpression → TimeScalarExpression → TimeScalarExpression
@@ -137,6 +137,7 @@ with TimeVectorExpression : Type
 | TimeParenVector : TimeVectorExpression → TimeVectorExpression
 with Geometric3PointExpression : Type
 | Geometric3LitPoint : Geometric3PointStruct → Geometric3PointExpression
+| Geometric3VarPoint : Geometric3PointVar → Geometric3PointExpression
 | Geometric3SubVectorVector : Geometric3VectorExpression → Geometric3VectorExpression → Geometric3PointExpression
 | Geometric3NegPoint : Geometric3PointExpression → Geometric3PointExpression
 | Geometric3AddPointVector : Geometric3PointExpression → Geometric3VectorExpression → Geometric3PointExpression
@@ -155,6 +156,7 @@ with Geometric3PointExpression : Type
 | Velocity3ParenPoint : Velocity3PointExpression → Velocity3PointExpression-/
 with TimePointExpression : Type
 | TimeLitPoint : TimePointStruct → TimePointExpression
+| TimeVarPoint : TimePointVar → TimePointExpression
 | TimeSubVectorVector : TimeVectorExpression → TimeVectorExpression → TimePointExpression
 | TimeNegPoint : TimePointExpression → TimePointExpression
 | TimeAddPointVector : TimePointExpression → TimeVectorExpression → TimePointExpression
@@ -179,87 +181,101 @@ CASE 2: I DONT PROVIDE A TYPE FOR VARIABLE
 
 
 --RealScalarExpression Notations
-notation #e := RealScalarExpression.RealScalarVar e
-notation e1 + e2 := RealScalarExpression.RealAddScalarScalar e1 e2
+notation #e := RealScalarExpression.RealVarScalar e
+instance : has_add RealScalarExpression := ⟨RealScalarExpression.RealAddScalarScalar⟩ 
+--notation e1 + e2 := RealScalarExpression.RealAddScalarScalar e1 e2
 notation e1 - e2 := RealScalarExpression.RealSubScalarScalar e1 e2
-notation e1 * e2 := RealScalarExpression.RealMulScalarScalar e1 e2
+notation e1 ⬝ e2 := RealScalarExpression.RealMulScalarScalar e1 e2
 notation e1 / e2 := RealScalarExpression.RealDivScalarScalar e1 e2
-notation -e := RealScalarExpression.RealNegScalar e
+--notation -e := RealScalarExpression.RealNegScalar e
+instance : has_neg RealScalarExpression := ⟨RealScalarExpression.RealNegScalar⟩ 
 notation e⁻¹ := RealScalarExpression.RealInvScalar e
-notation (e := RealScalarExpression.RealParenScalar e
-notation ⊹e := RealScalarExpression.RealScalarLiteral e
+notation $e := RealScalarExpression.RealParenScalar e
+notation %e := RealScalarExpression.RealLitScalar e
 
 --GeometricScalarExpression Notations
 notation #e := GeometricScalarExpression.GeometricVarScalar e
-notation e1 + e2 := GeometricScalarExpression.GeometricAddScalarScalar e1 e2
+--notation e1 + e2 := GeometricScalarExpression.GeometricAddScalarScalar e1 e2
+instance : has_add GeometricScalarExpression := ⟨GeometricScalarExpression.GeometricAddScalarScalar⟩ 
 notation e1 - e2 := GeometricScalarExpression.GeometricSubScalarScalar e1 e2
-notation e1 * e2 := GeometricScalarExpression.GeometricMulScalarScalar e1 e2
+notation e1 ⬝ e2 := GeometricScalarExpression.GeometricMulScalarScalar e1 e2
 notation e1 / e2 := GeometricScalarExpression.GeometricDivScalarScalar e1 e2
-notation -e := GeometricScalarExpression.GeometricNegScalar e
+--notation -e := GeometricScalarExpression.GeometricNegScalar e
+instance : has_neg GeometricScalarExpression := ⟨GeometricScalarExpression.GeometricNegScalar⟩  
 notation e⁻¹ := GeometricScalarExpression.GeometricInvScalar e
-notation (e := GeometricScalarExpression.GeometricParenScalar e
+notation $e := GeometricScalarExpression.GeometricParenScalar e
 notation |e| := GeometricScalarExpression.GeometricNormVector e
-notation ⊹e := GeometricScalarExpression.GeometricScalarLiteral e
+notation %e := GeometricScalarExpression.GeometricLitScalar e
 
 
 --def p : GeometricScalarExpression := %GeometricScalarDefault : GeometricScalarExpression
 
 --TimeScalarExpression Notations
 notation #e := TimeScalarExpression.TimeVarScalar  
-notation e1 + e2 := TimeScalarExpression.TimeAddScalarScalar e1 e2
+--notation e1 + e2 := TimeScalarExpression.TimeAddScalarScalar e1 e2
+instance : has_add TimeScalarExpression := ⟨TimeScalarExpression.TimeAddScalarScalar⟩ 
 notation e1 - e2 := TimeScalarExpression.TimeSubScalarScalar e1 e2
-notation e1 * e2 := TimeScalarExpression.TimeMulScalarScalar e1 e2
+notation e1 ⬝ e2 := TimeScalarExpression.TimeMulScalarScalar e1 e2
 notation e1 / e2 := TimeScalarExpression.TimeDivScalarScalar e1 e2
-notation -e := TimeScalarExpression.TimeNegScalar e
-notation e¬⁻¹⁻¹ := TimeScalarExpression.TimeInvScalar e
-notation (e := TimeScalarExpression.TimeParenScalar e
+--notation -e := TimeScalarExpression.TimeNegScalar e
+instance : has_neg TimeScalarExpression := ⟨TimeScalarExpression.TimeNegScalar⟩ 
+notation e⁻¹ := TimeScalarExpression.TimeInvScalar e
+notation $e := TimeScalarExpression.TimeParenScalar e
 notation |e| := TimeScalarExpression.TimeNormVector e
-notation ⊹e := TimeScalarExpression.TimeScalarLiteral e
+notation %e := TimeScalarExpression.TimeLitScalar e
 --VelocityScalarExpression Notations
 notation #e := VelocityScalarExpression.VelocityVarScalar e
-notation e1 + e2 := VelocityScalarExpression.VelocityAddScalarScalar e1 e2
+--notation e1 + e2 := VelocityScalarExpression.VelocityAddScalarScalar e1 e2
+instance : has_add VelocityScalarExpression := ⟨VelocityScalarExpression.VelocityAddScalarScalar⟩ 
 notation e1 - e2 := VelocityScalarExpression.VelocitySubScalarScalar e1 e2
-notation e1 * e2 := VelocityScalarExpression.VelocityMulScalarScalar e1 e2
+notation e1 ⬝ e2 := VelocityScalarExpression.VelocityMulScalarScalar e1 e2
 notation e1 / e2 := VelocityScalarExpression.VelocityDivScalarScalar e1 e2
-notation -e := VelocityScalarExpression.VelocityNegScalar e
+--notation -e := VelocityScalarExpression.VelocityNegScalar e
+instance : has_neg VelocityScalarExpression := ⟨VelocityScalarExpression.VelocityNegScalar⟩ 
 notation e⁻¹ := VelocityScalarExpression.VelocityInvScalar e
-notation (e := VelocityScalarExpression.VelocityParenScalar e
+notation $e := VelocityScalarExpression.VelocityParenScalar e
 notation |e| := VelocityScalarExpression.VelocityNormVector e
-notation %e := VelocityScalarExpression.VelocityScalarLiteral e
+notation %e := VelocityScalarExpression.VelocityLitScalar e
 
 --Gemoetric3Vector Notations
-notation #e := Geometric3VectorExpression.Geometric3VectorVar e
-notation e1 + e2 := Geometric3VectorExpression.Geometric3AddVectorVector e1 e2
-notation -e := Geometric3VectorExpression.Geometric3NegVector e
-notation c * e := Geometric3VectorExpression.Geometric3MulScalarVector c e
-notation e * c := Geometric3VectorExpression.Geometric3MulVectorScalar e c
+notation #e := Geometric3VectorExpression.Geometric3VarVector e
+--notation e1 + e2 := Geometric3VectorExpression.Geometric3AddVectorVector e1 e2
+instance : has_add Geometric3VectorExpression := ⟨Geometric3VectorExpression.Geometric3AddVectorVector⟩ 
+--notation -e := Geometric3VectorExpression.Geometric3NegVector e
+instance : has_neg Geometric3VectorExpression := ⟨Geometric3VectorExpression.Geometric3NegVector⟩ 
+notation c ⬝ e := Geometric3VectorExpression.Geometric3MulScalarVector c e
+notation e ⬝ c := Geometric3VectorExpression.Geometric3MulVectorScalar e c
 notation e1 - e2 := Geometric3VectorExpression.Geometric3SubPointPoint e1 e2
-notation (e := Geometric3VectorExpression.Geometric3ParenVector e
-notation %e := Geometric3VectorExpression.Geometric3VectorLiteral e
+notation $e := Geometric3VectorExpression.Geometric3ParenVector e
+notation %e := Geometric3VectorExpression.Geometric3LitVector e
 
 --Velocity3Vector Notations
-notation #e := Velocity3VectorExpression.Velocity3VectorVar e
-notation e1 + e2 := Velocity3VectorExpression.Velocity3AddVectorVector e1 e2
-notation -e := Velocity3VectorExpression.Velocity3NegVector e
-notation c * e := Velocity3VectorExpression.Velocity3MulScalarVector c e
-notation e * c := Velocity3VectorExpression.Velocity3MulVectorScalar e c
+notation #e := Velocity3VectorExpression.Velocity3VarVector e
+--notation e1 + e2 := Velocity3VectorExpression.Velocity3AddVectorVector e1 e2
+instance : has_add Velocity3VectorExpression := ⟨Velocity3VectorExpression.Velocity3AddVectorVector⟩ 
+--notation -e := Velocity3VectorExpression.Velocity3NegVector e
+instance : has_neg Velocity3VectorExpression := ⟨Velocity3VectorExpression.Velocity3NegVector⟩ 
+notation c ⬝ e := Velocity3VectorExpression.Velocity3MulScalarVector c e
+notation e ⬝ c := Velocity3VectorExpression.Velocity3MulVectorScalar e c
 notation e1 - e2 := Velocity3VectorExpression.Velocity3SubPointPoint e1 e2
-notation (e := Velocity3VectorExpression.Velocity3ParenVector e
-notation %e := Velocity3VectorExpression.Velocity3VectorLiteral e
+notation $e := Velocity3VectorExpression.Velocity3ParenVector e
+notation %e := Velocity3VectorExpression.Velocity3LitVector e
 
 --TimeVector Notations
-notation #e := TimeVectorExpression.TimeVectorVar e
-notation e1 + e2 := TimeVectorExpression.TimeAddVectorVector e1 e2
-notation -e := TimeVectorExpression.TimeNegVector e
-notation c * e := TimeVectorExpression.TimeMulScalarVector c e
-notation e * c := TimeVectorExpression.TimeMulVectorScalar e c
+notation #e := TimeVectorExpression.TimeVarVector e
+--notation e1 + e2 := TimeVectorExpression.TimeAddVectorVector e1 e2
+instance : has_add TimeVectorExpression := ⟨TimeVectorExpression.TimeAddVectorVector⟩ 
+--notation -e := TimeVectorExpression.TimeNegVector e
+instance : has_neg TimeVectorExpression := ⟨TimeVectorExpression.TimeNegVector⟩ 
+notation c ⬝ e := TimeVectorExpression.TimeMulScalarVector c e
+notation e ⬝ c := TimeVectorExpression.TimeMulVectorScalar e c
 notation e1 - e2 := TimeVectorExpression.TimeSubPointPoint e1 e2
-notation (e := TimeVectorExpression.TimeParenVector e
-notation %e := TimeVectorExpression.TimeVectorLiteral e
+notation $e := TimeVectorExpression.TimeParenVector e
+notation %e := TimeVectorExpression.TimeLitVector e
 
 
 --Geometric3Point Notations
-notation #e := Geometric3PointExpression.Geometric3PointVar e
+notation #e := Geometric3PointExpression.Geometric3VarPoint e
 notation e1 - e2 := Geometric3PointExpression.Geometric3SubVectorVector e1 e2
 
 
@@ -279,9 +295,9 @@ notation e1 ⊹ e2 := Geometric3PointExpression.Geometric3AddPointVector e1 e2
 \ *
 -/
 notation c • e := Geometric3PointExpression.Geometric3ScalarPoint c e
-notation e * c := Geometric3PointExpression.Geometric3PointScalar e c
+notation e • c := Geometric3PointExpression.Geometric3PointScalar e c
 notation (e := Geometric3PointExpression.Geometric3ParenPoint e
-notation %e := Geometric3PointExpression.TimePointLiteral e
+notation %e := Geometric3PointExpression.Geometric3LitPoint e
 
 --Andrew : Remove this
 --Velocity3Point Notations
@@ -294,15 +310,17 @@ notation e * c := Velocity3PointExpression.Velocity3PointScalar e c
 notation (e := Velocity3PointExpression.Velocity3ParenPoint e
 -/
 --TimePoint Notations
-notation #e := TimePointExpression.TimePointVar e
-notation e1 + e2 := TimePointExpression.TimeAddPointVector e1 e2
-notation e1 + e2 := TimePointExpression.TimeAddVectorPoint e1 e2
+notation #e := TimePointExpression.TimeVarPoint e
+notation e1 ⊹ e2 := TimePointExpression.TimeAddPointVector e1 e2
+instance : has_trans TimeVectorExpression TimePointExpression  := 
+⟨TimePointExpression.TimeAddVectorPoint⟩
 notation (e := TimePointExpression.TimeParenPoint e
 notation e1 - e2 := TimePointExpression.TimeSubVectorVector e1 e2
-notation -e := TimePointExpression.TimeNegPoint e
-notation c * e := TimePointExpression.TimeScalarPoint c e
-notation e * c := TimePointExpression.TimePointScalar e c
-notation %e := TimePointExpression.TimePointLiteral e
+
+instance : has_neg TimePointExpression := ⟨TimePointExpression.TimeNegPoint⟩ 
+notation c • e := TimePointExpression.TimeScalarPoint c e
+notation e • c := TimePointExpression.TimePointScalar e c
+notation %e := TimePointExpression.TimeLitPoint e
 
 
 
@@ -312,11 +330,11 @@ notation %e := TimePointExpression.TimePointLiteral e
 
 
 
-abbreviation RealScalarInterp := RealScalarVar → ℝ
+abbreviation RealScalarInterp := RealScalarVar → RealScalar
 
-abbreviation GeometricScalarInterp := GeometricScalarVar → ℝ
-abbreviation TimeScalarInterp := TimeScalarVar → ℝ
-abbreviation VelocityScalarInterp := VelocityScalarVar → ℝ
+abbreviation GeometricScalarInterp := GeometricScalarVar → GeometricScalar
+abbreviation TimeScalarInterp := TimeScalarVar → TimeScalar
+abbreviation VelocityScalarInterp := VelocityScalarVar → VelocityScalar
 
 abbreviation Geometric3VectorInterp := Geometric3VectorVar → Geometric3Vector
 abbreviation TimeVectorInterp := TimeVectorVar → TimeVector
@@ -328,9 +346,9 @@ abbreviation TimePointInterp := TimePointVar → TimePointStruct
 
 
 def DefaultRealScalarInterp : RealScalarInterp := λ scalar, RealScalarDefault
-def DefaultGeometricScalarInterp : GeometricScalarInterp := λ scalar, RealScalarDefault
-def DefaultTimeScalarInterp : TimeScalarInterp := λ scalar, RealScalarDefault
-def DefaultVelocityScalarInterp : VelocityScalarInterp := λ scalar, RealScalarDefault
+def DefaultGeometricScalarInterp : GeometricScalarInterp := λ scalar, GeometricScalarDefault
+def DefaultTimeScalarInterp : TimeScalarInterp := λ scalar, TimeScalarDefault
+def DefaultVelocityScalarInterp : VelocityScalarInterp := λ scalar, VelocityScalarDefault
 def DefaultGeometric3VectorInterp : Geometric3VectorInterp := λ vector, Geometric3VectorDefault
 def DefaultTimeVectorInterp : TimeVectorInterp := λ vector, TimeVectorDefault
 def DefaultVelocity3VectorInterp : Velocity3VectorInterp := λ vector, Velocity3VectorDefault
@@ -386,7 +404,7 @@ notation v = e := TimePointCommand.Assignment v e
 def realScalarEval : RealScalarExpression → RealScalarInterp → ℝ 
 | (RealScalarExpression.RealLitScalar r) i := r
 | (RealScalarExpression.RealVarScalar v) i := i v
-| (RealScalarExpression.RealAddScalarScalar e1 e2) i := (realScalarEval e1 i) + (realScalarEval e2 i)
+| (RealScalarExpression.RealAddScalarScalar e1 e2) i := 
 | (RealScalarExpression.RealSubScalarScalar e1 e2) i := (realScalarEval e1 i) - (realScalarEval e2 i)
 | (RealScalarExpression.RealMulScalarScalar e1 e2) i := (realScalarEval e1 i) * (realScalarEval e2 i)
 | _ _ := 0 --dividing with reals causes "rec_fn_macro only allowed in meta definitions" error
@@ -489,23 +507,23 @@ CTRLH ℝ → ℚ
 --def geoscalar : GeometricScalarExpression := ⊹GeometricScalarDefault
 
 
-
+/--/
 structure GeometricScalar := 
 (num : ℝ)
 (unit : phys_unit physicalDimension.distance)
-
-def geom_add : GeometricScalar → GeometricScalar → GeometricScalar :=
+-/
+/-def geom_add : GeometricScalar → GeometricScalar → GeometricScalar :=
 λ x y, ⟨x.1 + y.1, x.2⟩
 
 instance : has_add GeometricScalar := ⟨geom_add⟩
+-/
+
+
+def geoscalar : RealScalarExpression := %RealScalarDefault
+
 
 
 /-
-def geoscalar : GeometricScalarExpression := $GeometricScalarDefault
-
-
-
-
 def worldGeometry := EuclideanGeometry  "worldGeometry" 3
 
 def worldTime := ClassicalTime  "worldTime"  
@@ -557,8 +575,3 @@ def DECLARE..B.L109C5.E.L109C64 : _ := (REAL3.VAR.IDENT.tf.displacement)=(REAL3.
 
 
 
-
-inductive f 
-| blank : ℕ → ℕ → f
-
-def random : f := f.blank 1 1
