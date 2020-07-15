@@ -12,9 +12,8 @@ can create derived types with the inverse and multiplication operations
 inductive physicalDimension : Type
 | time
 | distance
-| inverse : (physicalDimension → physicalDimension)
 | multiply : (physicalDimension → physicalDimension → physicalDimension)
-
+| inverse : (physicalDimension → physicalDimension)
 --define velocity to be physical dimension of (distance / time)
 def velocity : physicalDimension :=
     physicalDimension.multiply physicalDimension.distance (physicalDimension.inverse physicalDimension.time)
@@ -38,7 +37,7 @@ inductive affine_frame (dimension : ℕ): Type
 
 
 /-
-phys_space
+phys_space%
 
 torsor field vector
 
@@ -55,18 +54,6 @@ i.e. 3D Geometric space (distance as its physical dimension)
 structure PhysSpace (d : physicalDimension) (dimension : ℕ) : Type :=
     mk :: (std_frame : affine_frame dimension) 
 
-
-structure GeometricScalar  : Type :=
-mk :: (val : ℝ) (u : phys_unit physicalDimension.distance)
-
-structure TimeScalar  : Type :=
-mk :: (val : ℝ) (u : phys_unit physicalDimension.time)
-
-structure VelocityScalar : Type :=
-mk :: (val : ℝ) (u : phys_unit velocity)
-
-structure RealScalar : Type :=
-mk :: (val : ℝ)
 
 --take std to be some affine frame
 
@@ -133,11 +120,11 @@ def Velocity3Point (p : PhysSpace velocity 3) (x y z : ℝ) : Velocity3PointStru
 --def example_time := TimePoint time 10
 
 
-def geom3 : PhysSpace physicalDimension.distance 3 := PhysSpace.mk affine_frame.std
+--def geom3 : PhysSpace physicalDimension.distance 3 := PhysSpace.mk affine_frame.std
 
-def vel : PhysSpace velocity 3 := PhysSpace.mk affine_frame.std
+--def vel : PhysSpace velocity 3 := PhysSpace.mk affine_frame.std
 
-def time : PhysSpace physicalDimension.time 1 := PhysSpace.mk affine_frame.std
+--def time : PhysSpace physicalDimension.time 1 := PhysSpace.mk affine_frame.std
 
 
 
@@ -156,3 +143,17 @@ def ClassicalVelocity (name : string) (n : nat) : PhysSpace velocity 3 :=
 
 
 --def 
+
+
+
+structure Geometric3Scalar  : Type :=
+mk :: (val : ℝ) (sp : PhysSpace physicalDimension.distance 3)
+
+structure TimeScalar : Type :=
+mk :: (val : ℝ) (sp : PhysSpace physicalDimension.time 1)
+    
+structure Velocity3Scalar : Type :=
+mk :: (val : ℝ) (sp : PhysSpace velocity 3)
+
+structure RealScalar : Type :=
+mk :: (val : ℝ)
