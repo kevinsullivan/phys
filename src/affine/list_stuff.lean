@@ -1,40 +1,4 @@
-Skip to content
-Search or jump to…
 
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@drewjel 
-Learn Git and GitHub without any code!
-Using the Hello World guide, you’ll start a branch, write comments, and open a pull request.
-
-
-kevinsullivan
-/
-phys
-4
-01
-Code
-Issues
-6
-Pull requests
-1
-Actions
-Projects
-Wiki
-Security
-Insights
-phys/src/affine/list_stuff.lean
-@ukdl123
-ukdl123 Implemented scaling vectors in aff_vec
-Latest commit 2471668 18 days ago
- History
- 3 contributors
-@ukdl123@arh4uwe@drewjel
-215 lines (181 sloc)  6.36 KB
-  
 open list
 
 universes u v
@@ -250,15 +214,3 @@ induction x,
   }
 }
 end
-© 2020 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
