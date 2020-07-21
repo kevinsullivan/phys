@@ -114,14 +114,96 @@ induction xl,
 },
 end
 
-
-
 lemma field_zero_sep : ∀ n : ℕ, n ≠ 0 → list.field_zero K n = 0 :: list.field_zero K (n - 1) :=
 begin
 intros n h,
 induction n with n',
 {contradiction},
 {refl}
+end
+
+lemma list.add_assoc : ∀ x y z : list K, (x + y) + z = x + (y + z) :=
+begin
+intros x y z,
+induction x,
+{
+  have sum_nil_y : nil + y = nil := rfl,
+  have sum_nil_z : nil + z = nil := rfl,
+  have sum_nil_yz : nil + (y + z) = nil := rfl,
+  rw [sum_nil_y, sum_nil_z, sum_nil_yz]
+},
+{
+  sorry
+}
+end
+
+lemma list.add_assoc' : ∀ x y z : list K, (x + y) + z = x + (y + z) :=
+begin
+intros x y z,
+induction x,
+{
+  have sum_nil_y : nil + y = nil := rfl,
+  have sum_nil_z : nil + z = nil := rfl,
+  have sum_nil_yz : nil + (y + z) = nil := rfl,
+  rw [sum_nil_y, sum_nil_z, sum_nil_yz]
+},
+induction y,
+{
+  have sum_x_nil : x_hd :: x_tl + nil = nil := rfl,
+  have sum_nil_z : nil + z = nil := rfl,
+  rw [sum_x_nil, sum_nil_z, sum_x_nil]
+},
+induction z,
+{
+  have sum_xy_nil : (x_hd :: x_tl + y_hd :: y_tl) + nil = nil := rfl,
+  have sum_y_nil : (y_hd :: y_tl) + nil = nil := rfl,
+  have sum_x_nil : (x_hd :: x_tl) + nil = nil := rfl,
+  rw [sum_xy_nil, sum_y_nil, sum_x_nil]
+},
+{
+  have sum_x_y : x_hd :: x_tl + y_hd :: y_tl = (x_hd + y_hd) :: (x_tl + y_tl) := rfl,
+  have sum_xy_z : (x_hd + y_hd) :: (x_tl + y_tl) + z_hd :: z_tl = (x_hd + y_hd + z_hd) :: (x_tl + y_tl + z_tl) := rfl,
+  have sum_y_z : y_hd :: y_tl + z_hd :: z_tl = (y_hd + z_hd) :: (y_tl + z_tl) := rfl,
+  have sum_x_yz : x_hd :: x_tl + (y_hd + z_hd) :: (y_tl + z_tl) = (x_hd + (y_hd + z_hd)) :: (x_tl + (y_tl + z_tl)) := rfl,
+  have sum_hd : x_hd + y_hd + z_hd = x_hd + (y_hd + z_hd) := by apply add_assoc,
+  have sum_tl : x_tl + y_tl + z_tl = x_tl + (y_tl + z_tl) := sorry,
+  rw [sum_x_y, sum_xy_z, sum_y_z, sum_x_yz, sum_hd, sum_tl]
+}
+end
+
+lemma list.zero_add : ∀ x : list K, (list.field_zero K (length x - 1)) + x = x :=
+begin
+intro x,
+induction x,
+{refl},
+{
+  have tl_len : length (x_hd :: x_tl) - 1 = length x_tl := rfl,
+  rw tl_len,
+  induction x_tl,
+  {
+    have field_zero_zero : list.field_zero K 0 = [0] := rfl,
+    have add_list : [0] + [x_hd] = [0 + x_hd] := rfl,
+    rw [len_nil, field_zero_zero, add_list, zero_add]
+  },
+  {
+    have zero_tl : list.field_zero K (length (x_tl_hd :: x_tl_tl)) = 0 :: list.field_zero K (length x_tl_tl) :=
+      begin
+      have len_x : length (x_tl_hd :: x_tl_tl) ≠ 0 :=
+        begin
+        intro h,
+        have len_x' : length (x_tl_hd :: x_tl_tl) = length x_tl_tl + 1 := rfl,
+        contradiction
+        end,
+      apply field_zero_sep,
+      exact len_x
+      end,
+      have sep_head : 0 :: list.field_zero K (length x_tl_tl) + x_hd :: (x_tl_hd :: x_tl_tl) =
+        (0 + x_hd) :: (list.field_zero K (length x_tl_tl) + (x_tl_hd :: x_tl_tl)) := rfl,
+      have head_add : 0 + x_hd = x_hd := by rw zero_add,
+      have len_x_tl : length x_tl_tl = length (x_tl_hd :: x_tl_tl) - 1 := rfl,
+      rw [zero_tl, sep_head, head_add, len_x_tl, x_ih]
+  }
+}
 end
 
 -- TODO: clean up this lemma
@@ -135,11 +217,9 @@ induction x,
   rw tl_len,
   induction x_tl,
   {
-    rw len_nil,
     have field_zero_zero : list.field_zero K 0 = [0] := rfl,
-    rw field_zero_zero,
     have add_list : [x_hd] + [0] = [x_hd + 0] := rfl,
-    rw [add_list, add_zero],
+    rw [len_nil, field_zero_zero, add_list, add_zero]
   },
   {
     have zero_tl : list.field_zero K (length (x_tl_hd :: x_tl_tl)) = 0 :: list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1) :=
@@ -153,13 +233,48 @@ induction x,
       apply field_zero_sep,
       exact len_x
       end,
-    rw zero_tl,
     have sep_head : x_hd :: (x_tl_hd :: x_tl_tl) + 0 :: list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1) =
       (x_hd + 0) :: ((x_tl_hd :: x_tl_tl) + list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1)) := rfl,
-    rw sep_head,
-    have head_add : x_hd + 0 = x_hd := by simp,
-    rw head_add,
-    rw x_ih
+    have head_add : x_hd + 0 = x_hd := by rw add_zero,
+    rw [zero_tl, sep_head, head_add, x_ih]
+  }
+}
+end
+
+lemma list.add_left_neg : ∀ x : list K, x ≠ [] → list.neg K x + x = list.field_zero K ((length x) - 1) :=
+begin
+intros x x_h,
+induction x,
+/-
+This theorem won't work if x = []
+-x + x = -[] + [] = []
+length x - 1 = 0 - 1 = 0 (because 0 is a ℕ)
+list.field_zero K 0 = [0]
+[] ≠ [0]
+-/
+{contradiction},
+{
+  induction x_tl,
+  {
+    have neg_x : list.neg K [x_hd] = [-x_hd] := rfl,
+    have list_sum : [-x_hd] + [x_hd] = [-x_hd + x_hd] := rfl,
+    have x_hd_sum : -x_hd + x_hd = 0 := by apply add_left_neg,
+    have zero_is : list.field_zero K (length [x_hd] - 1) = [0] := rfl,
+    rw [neg_x, list_sum, x_hd_sum, zero_is]
+  },
+  {
+    have neg_x : list.neg K (x_hd :: x_tl_hd :: x_tl_tl) = (-x_hd) :: (list.neg K (x_tl_hd :: x_tl_tl)) := rfl,
+    have list_sum : -x_hd :: list.neg K (x_tl_hd :: x_tl_tl) + x_hd :: x_tl_hd :: x_tl_tl =
+      (-x_hd + x_hd) :: (list.neg K (x_tl_hd :: x_tl_tl) + x_tl_hd :: x_tl_tl) := rfl,
+    have x_hd_sum : -x_hd + x_hd = 0 := by apply add_left_neg,
+    have x_tl_sum : list.neg K (x_tl_hd :: x_tl_tl) + x_tl_hd :: x_tl_tl = list.field_zero K (length (x_tl_hd :: x_tl_tl) - 1) :=
+      begin
+      apply x_ih,
+      contradiction
+      end,
+    have zero_is : list.field_zero K (length (x_hd :: x_tl_hd :: x_tl_tl) - 1) = 0 :: list.field_zero K (length (x_hd :: x_tl_tl) - 1) := rfl,
+    rw [neg_x, list_sum, x_hd_sum, x_tl_sum, zero_is],
+    refl
   }
 }
 end
@@ -172,19 +287,16 @@ induction x,
   have nil_y : nil + y = nil := rfl,
   rw nil_y,
   induction y,
-  {refl},
-  {refl}
+  repeat {refl}
 },
 {
   induction y,
   {refl},
   {
     have sep_head_xy : (x_hd :: x_tl) + (y_hd :: y_tl) = (x_hd + y_hd) :: (x_tl + y_tl) := rfl,
-    rw sep_head_xy,
     have sep_head_yx : (y_hd :: y_tl) + (x_hd :: x_tl) = (y_hd + x_hd) :: (y_tl + x_tl) := rfl,
-    rw sep_head_yx,
     have hd_comm : x_hd + y_hd = y_hd + x_hd := by apply add_comm,
-    rw hd_comm,
+    rw [sep_head_xy, sep_head_yx, hd_comm],
     have tl_comm : x_tl + y_tl = y_tl + x_tl := sorry,
       -- begin
       -- induction x_tl,
