@@ -222,15 +222,15 @@ with PhysDimensionalVar : Type
 | EuclideanGeometry3Point : EuclideanGeometry3PointVar → PhysDimensionalVar
 | ClassicalTimePoint : ClassicalTimePointVar → PhysDimensionalVar 
 with PhysDimensionalExpression : Type
-| RealScalar : RealScalarVar → PhysDimensionalExpression
-| EuclideanGeometry3Scalar : EuclideanGeometry3ScalarVar → PhysDimensionalExpression
-| ClassicalTimeScalar : ClassicalTimeScalarVar → PhysDimensionalExpression
-| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarVar → PhysDimensionalExpression
-| EuclideanGeometry3Vector : EuclideanGeometry3VectorVar → PhysDimensionalExpression
-| ClassicalTimeVector : ClassicalTimeVectorVar → PhysDimensionalExpression
-| ClassicalVelocity3Vector : ClassicalVelocity3VectorVar → PhysDimensionalExpression
-| EuclideanGeometry3Point : EuclideanGeometry3PointVar → PhysDimensionalExpression
-| ClassicalTimePoint : ClassicalTimePointVar → PhysDimensionalExpression
+| RealScalar : RealScalarExpression → PhysDimensionalExpression
+| EuclideanGeometry3ScalarExpression : EuclideanGeometry3ScalarExpression → PhysDimensionalExpression
+| ClassicalTimeScalar : ClassicalTimeScalarExpression → PhysDimensionalExpression
+| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarExpression → PhysDimensionalExpression
+| EuclideanGeometry3Vector : EuclideanGeometry3VectorExpression → PhysDimensionalExpression
+| ClassicalTimeVector : ClassicalTimeVectorExpression → PhysDimensionalExpression
+| ClassicalVelocity3Vector : ClassicalVelocity3VectorExpression → PhysDimensionalExpression
+| EuclideanGeometry3Point : EuclideanGeometry3PointExpression → PhysDimensionalExpression
+| ClassicalTimePoint : ClassicalTimePointExpression → PhysDimensionalExpression
 with PhysSpaceExpression : Type
 | EuclideanGeometry3Expr : EuclideanGeometry3SpaceExpression → PhysSpaceExpression
 | ClassicalTimeExpr : ClassicalTimeSpaceExpression → PhysSpaceExpression
@@ -282,11 +282,58 @@ notation ?e := PhysSpaceVar.EuclideanGeometryLiteral e
 notation ?e := PhysSpaceVar.ClassicalTimeLiteral e
 notation ?e := PhysSpaceVar.ClassicalVelocityLiteral 3
 
-def a : PhysSpaceExpression := PhysSpaceExpression.ClassicalTimeLiteral (ClassicalTimeSpaceExpression.ClassicalTimeLiteral (BuildClassicalTimeSpace "hi") )
+notation a=b := PhysCommand.Assignment a b
+
+/-
+with PhysDimensionalExpression : Type
+| RealScalar : RealScalarExpression → PhysDimensionalExpression
+| EuclideanGeometry3ScalarExpression : EuclideanGeometry3ScalarExpression → PhysDimensionalExpression
+| ClassicalTimeScalar : ClassicalTimeScalarExpression → PhysDimensionalExpression
+| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarExpression → PhysDimensionalExpression
+| EuclideanGeometry3Vector : EuclideanGeometry3VectorExpression → PhysDimensionalExpression
+| ClassicalTimeVector : ClassicalTimeVectorExpression → PhysDimensionalExpression
+| ClassicalVelocity3Vector : ClassicalVelocity3VectorExpression → PhysDimensionalExpression
+| EuclideanGeometry3Point : EuclideanGeometry3PointExpression → PhysDimensionalExpression
+| ClassicalTimePoint : ClassicalTimePointExpression → PhysDimensionalExpression
+with PhysDimensionalVar : Type
+| RealScalar : RealScalarVar → PhysDimensionalVar
+| EuclideanGeometry3Scalar : EuclideanGeometry3ScalarVar → PhysDimensionalVar
+| ClassicalTimeScalar : ClassicalTimeScalarVar → PhysDimensionalVar
+| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarVar → PhysDimensionalVar
+| EuclideanGeometry3Vector : EuclideanGeometry3VectorVar → PhysDimensionalVar
+| ClassicalTimeVector : ClassicalTimeVectorVar → PhysDimensionalVar
+| ClassicalVelocity3Vector : ClassicalVelocity3VectorVar → PhysDimensionalVar
+| EuclideanGeometry3Point : EuclideanGeometry3PointVar → PhysDimensionalVar
+| ClassicalTimePoint : ClassicalTimePointVar → PhysDimensionalVar 
+-/
+notation ⊢e := PhysDimensionalVar.RealScalar e
+notation ⊢e := PhysDimensionalVar.EuclideanGeometry3Scalar e
+notation ⊢e := PhysDimensionalVar.ClassicalTimeScalar e
+notation ⊢e := PhysDimensionalVar.ClassicalVelocity3Scalar e
+notation ⊢e := PhysDimensionalVar.EuclideanGeometry3Vector e
+notation ⊢e := PhysDimensionalVar.ClassicalTimeVector e
+notation ⊢e := PhysDimensionalVar.ClassicalVelocity3Vector e
+notation ⊢e := PhysDimensionalVar.EuclideanGeometry3Point e
+notation ⊢e := PhysDimensionalVar.ClassicalTimePoint e
+
+notation ⊢e := PhysDimensionalExpression.RealScalarExpression e
+notation ⊢e := PhysDimensionalExpression.EuclideanGeometry3Scalar e
+notation ⊢e := PhysDimensionalExpression.ClassicalTimeScalar e
+notation ⊢e := PhysDimensionalExpression.ClassicalVelocity3Scalar e
+notation ⊢e := PhysDimensionalExpression.EuclideanGeometry3Vector e
+notation ⊢e := PhysDimensionalExpression.ClassicalTimeVector e
+notation ⊢e := PhysDimensionalExpression.ClassicalVelocity3Vector e
+notation ⊢e := PhysDimensionalExpression.EuclideanGeometry3Point e
+notation ⊢e := PhysDimensionalExpression.ClassicalTimePoint e
+
+
+def a : PhysSpaceExpression := PhysSpaceExpression.ClassicalTimeExpr (ClassicalTimeSpaceExpression.ClassicalTimeLiteral (BuildClassicalTimeSpace "hi") )
 
 def b : PhysSpaceVar := PhysSpaceVar.ClassicalTime (!3)
 
 def c : PhysGlobalCommand := PhysGlobalCommand.GlobalSpace b a 
+
+
 
 /-
 What exactly does the DSL instance look like for our 0-line program
