@@ -282,4 +282,6 @@ noncomputable def std_origin : time := ⟨[1, 0], rfl, rfl⟩
 def length   := aff_vec ℝ 3 geom3
 def phys_pt  := aff_pt  ℝ 3 geom3
 -/
+-- WTS the pair aff_vec and aff_pt form an affine space
+instance aff_coord_inst : affine_space (aff_pt K n) K (aff_vec K n) := aff_torsor K n
 
