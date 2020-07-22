@@ -2,6 +2,8 @@
 Provides definitions so that we can have additive group actions.
 -/
 
+import algebra.group.basic
+
 universes u v
 variables {α : Type u} {β : Type v}
 
