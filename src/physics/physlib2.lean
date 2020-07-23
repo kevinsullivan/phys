@@ -102,7 +102,7 @@ inductive PhysAffineFrame {space_dimension : ℕ} {physical_dimension : PhysDime
 | Standard (sp : PhysAffineSpace (aff_pt ℝ space_dimension) (aff_vec ℝ space_dimension) space_dimension physical_dimension physical_units) :  
     PhysAffineFrame sp
 | Derived (sp : PhysAffineSpace (aff_pt ℝ space_dimension) (aff_vec ℝ space_dimension) space_dimension physical_dimension physical_units) : 
-    PhysAffineFrame sp → vector (aff_vec ℝ space_dimension) space_dimension → (aff_pt ℝ space_dimension) → PhysAffineFrame sp
+    PhysAffineFrame sp /-→ vector (aff_vec ℝ space_dimension) space_dimension → (aff_pt ℝ space_dimension)-/ → PhysAffineFrame sp
 
 def PhysAffineFrame.GetAffineSpace {space_dimension : ℕ} {physical_dimension : PhysDimension} {physical_units : PhysUnit} {aff_sp : PhysAffineSpace (aff_pt ℝ space_dimension) (aff_vec ℝ space_dimension) space_dimension physical_dimension physical_units}
     : PhysAffineFrame aff_sp → PhysAffineSpace (aff_pt ℝ space_dimension) (aff_vec ℝ space_dimension) space_dimension physical_dimension physical_units
@@ -149,6 +149,15 @@ def BuildAffinePhysPoint3 {physical_dimension : PhysDimension} {physical_units :
     (aff_fr : PhysAffineFrame aff_sp) (x y z : ℝ) : PhysPoint aff_sp := 
     PhysPoint.AffineLiteral aff_sp aff_fr (aff_pt.mk [1, x ,y ,z] rfl rfl)
 
+/-
+def BuildVectorOfVecsInner {dim : ℕ} (sz : ℕ) (current : ℕ) (v : vector (aff_vec ℝ dim) (sz - current)) : vector (aff_vec ℝ dim) (sz - current + 1) :=
+    v.head_cons (aff_pt.mk [1, 0 ,0 ,0] rfl rfl)
+
+def BuildVectorOfVecs (dim : ℕ) (sz : ℕ) : vector (aff_vec ℝ dim) sz
+| BuildVectorOfVecsInner sz, 
+-/
+
+
 abbreviation EuclideanGeometrySpace (space_dimension : ℕ) := 
     PhysAffineSpace (aff_pt ℝ space_dimension) (aff_vec ℝ space_dimension) space_dimension meters si_standard
 abbreviation EuclideanGeometryFrame {space_dimension : ℕ} (sp : EuclideanGeometrySpace space_dimension) :=
@@ -164,6 +173,8 @@ def BuildEuclideanGeometry3Space (name : string): EuclideanGeometrySpace 3 :=
     BuildPhysSpace name 3 meters si_standard
 def GetEuclideanGeometryStandardFrame {space_dimension : ℕ} (sp : EuclideanGeometrySpace space_dimension) : EuclideanGeometryFrame sp :=
     PhysAffineFrame.Standard sp
+def BuildEuclideanGeometryFrame {space_dimension : ℕ} {sp : EuclideanGeometrySpace space_dimension} : EuclideanGeometryFrame sp → EuclideanGeometryFrame sp
+| (fr : EuclideanGeometryFrame sp) := PhysAffineFrame.Derived sp fr
 def BuildEuclideanGeometry3Vector {sp : EuclideanGeometrySpace 3} (fr : PhysAffineFrame sp) (x y z : ℝ)
         : EuclideanGeometryVector sp :=
     BuildAffinePhysVector3 fr x y z
@@ -184,6 +195,8 @@ def BuildClassicalVelocity3Space (name : string) : ClassicalVelocitySpace 3 :=
     BuildPhysSpace name 3 velocity si_standard
 def GetClassicalVelocityStandardFrame {space_dimension : ℕ} (sp : ClassicalVelocitySpace space_dimension) : ClassicalVelocityFrame sp :=
     PhysAffineFrame.Standard sp
+def BuildClassicalVelocityFrame {space_dimension : ℕ} {sp : ClassicalVelocitySpace space_dimension} : ClassicalVelocityFrame sp → ClassicalVelocityFrame sp
+| (fr : ClassicalVelocityFrame sp) := PhysAffineFrame.Derived sp fr
 def BuildClassicalVelocity3Vector {sp : ClassicalVelocitySpace 3} (fr : PhysAffineFrame sp) (x y z : ℝ)
         : ClassicalVelocityVector sp :=
     BuildAffinePhysVector3 fr x y z
@@ -199,8 +212,10 @@ abbreviation ClassicalTimePoint (sp : ClassicalTimeSpace) :=
 
 def BuildClassicalTimeSpace (name : string) : ClassicalTimeSpace := 
     BuildPhysSpace name 1 time si_standard
-def GetClassicalTimeStandardFrame {space_dimension : ℕ} (sp : ClassicalTimeSpace) : ClassicalTimeFrame sp :=
+def GetClassicalTimeStandardFrame (sp : ClassicalTimeSpace) : ClassicalTimeFrame sp :=
     PhysAffineFrame.Standard sp
+def BuildClassicalTimeFrame {sp : ClassicalTimeSpace } : ClassicalTimeFrame sp → ClassicalTimeFrame sp
+| (fr : ClassicalTimeFrame sp) := PhysAffineFrame.Derived sp fr
 def BuildClassicalTimeVector {sp : ClassicalTimeSpace} (fr : PhysAffineFrame sp) (x : ℝ)
         : ClassicalTimeVector sp :=
     BuildAffinePhysVector1 fr x 
@@ -221,9 +236,9 @@ abbreviation ClassicalVelocity3Scalar := ClassicalVelocityScalar
 
 
 def RealScalarDefault : RealScalar := ⟨0⟩
-def EuclideanGeometryScalarDefault : EuclideanGeometryScalar := ⟨0⟩
-def ClassicalTimeScalarDefault : ClassicalTimeScalar := ⟨0⟩
-def ClassicalVelocityScalarDefault : ClassicalVelocityScalar := ⟨0⟩
+def EuclideanGeometry3ScalarDefault (sp : EuclideanGeometrySpace 3) : EuclideanGeometryScalar := ⟨0⟩
+def ClassicalTimeScalarDefault (sp : ClassicalTimeSpace ) : ClassicalTimeScalar := ⟨0⟩
+def ClassicalVelocity3ScalarDefault (sp : ClassicalVelocitySpace 3)  : ClassicalVelocityScalar := ⟨0⟩
 
 
 abbreviation NatDefault := (0 : ℕ)

@@ -9,7 +9,6 @@ noncomputable theory
 
 
 --7/14 why is aff_vec in this file? - needs to go
-
 mutual inductive
 	--variables
 	PhysSpaceVar,
@@ -28,17 +27,7 @@ mutual inductive
 	ClassicalTimeVectorVar,
 	ClassicalVelocity3VectorVar,
 	EuclideanGeometry3PointVar,
-	ClassicalTimePointVar,
-	--dimensionful (or less) expressions
-	RealScalarExpression, 
-	EuclideanGeometry3ScalarExpression, 
-	ClassicalTimeScalarExpression, 
-	ClassicalVelocity3ScalarExpression, 
-	EuclideanGeometry3VectorExpression, 
-	ClassicalVelocity3VectorExpression, 
-	ClassicalTimeVectorExpression, 
-	EuclideanGeometry3PointExpression, 
-	ClassicalTimePointExpression
+	ClassicalTimePointVar
 with PhysSpaceVar : Type
 | EuclideanGeometry3 : EuclideanGeometry3SpaceVar → PhysSpaceVar
 | ClassicalTime : ClassicalTimeSpaceVar → PhysSpaceVar
@@ -77,6 +66,19 @@ with EuclideanGeometry3PointVar : Type
 | mk : ℕ → EuclideanGeometry3PointVar
 with ClassicalTimePointVar : Type
 | mk : ℕ → ClassicalTimePointVar
+
+mutual inductive
+	--dimensionful (or less) expressions
+	RealScalarExpression, 
+	EuclideanGeometry3ScalarExpression, 
+	ClassicalTimeScalarExpression, 
+	ClassicalVelocity3ScalarExpression, 
+	EuclideanGeometry3VectorExpression, 
+	ClassicalVelocity3VectorExpression, 
+	ClassicalTimeVectorExpression, 
+	EuclideanGeometry3PointExpression, 
+	ClassicalTimePointExpression
+
 with RealScalarExpression : Type
 | RealLitScalar : RealScalar → RealScalarExpression
 | RealVarScalar : RealScalarVar → RealScalarExpression
@@ -237,9 +239,9 @@ with PhysSpaceExpression : Type
 | ClassicalVelocity3Expr : ClassicalVelocity3SpaceExpression → PhysSpaceExpression
 | Var : PhysSpaceVar → PhysSpaceExpression 
 with PhysFrameExpression :  Type
-| EuclideanGeometry3Frame : EuclideanGeometry3FrameExpression → PhysFrameExpression
-| ClassicalTimeFrame : ClassicalTimeFrameExpression → PhysFrameExpression
-| ClassicalVelocity3Frame : ClassicalVelocity3FrameExpression → PhysFrameExpression
+| EuclideanGeometry3FrameExpr : EuclideanGeometry3FrameExpression → PhysFrameExpression
+| ClassicalTimeFrameExpr : ClassicalTimeFrameExpression → PhysFrameExpression
+| ClassicalVelocity3FrameExpr : ClassicalVelocity3FrameExpression → PhysFrameExpression
 | Var : PhysFrameVar → PhysFrameExpression
 with EuclideanGeometry3SpaceExpression: Type
 | EuclideanGeometry3Literal (sp : EuclideanGeometrySpace 3) : EuclideanGeometry3SpaceExpression
@@ -248,11 +250,11 @@ with ClassicalTimeSpaceExpression: Type
 with ClassicalVelocity3SpaceExpression : Type
 | ClassicalVelocity3Literal : ClassicalVelocitySpace 3 → ClassicalVelocity3SpaceExpression
 with EuclideanGeometry3FrameExpression: Type
-| FrameLiteral (sp : EuclideanGeometrySpace 3) : EuclideanGeometryFrame sp → EuclideanGeometry3FrameExpression
+| FrameLiteral {sp : EuclideanGeometrySpace 3} : EuclideanGeometryFrame sp → EuclideanGeometry3FrameExpression
 with ClassicalTimeFrameExpression: Type
-| FrameLiteral (sp : ClassicalTimeSpace) : ClassicalTimeFrame sp → ClassicalTimeFrameExpression
+| FrameLiteral {sp : ClassicalTimeSpace} : ClassicalTimeFrame sp → ClassicalTimeFrameExpression
 with ClassicalVelocity3FrameExpression : Type
-| FrameLiteral (sp : ClassicalVelocitySpace 3) : ClassicalVelocityFrame sp → ClassicalVelocity3FrameExpression
+| FrameLiteral {sp : ClassicalVelocitySpace 3} : ClassicalVelocityFrame sp → ClassicalVelocity3FrameExpression
 with PhysBooleanExpression : Type
 | BooleanTrue : PhysBooleanExpression
 | BooleanFalse : PhysBooleanExpression
@@ -326,6 +328,21 @@ notation ⊢e := PhysDimensionalExpression.ClassicalVelocity3Vector e
 notation ⊢e := PhysDimensionalExpression.EuclideanGeometry3Point e
 notation ⊢e := PhysDimensionalExpression.ClassicalTimePoint e
 
+
+notation ⊢v := PhysSpaceVar.ClassicalTime v
+notation ⊢v := PhysSpaceVar.ClassicalVelocity3 v
+notation ⊢v := PhysSpaceVar.EuclideanGeometry3 v
+notation ⊢e := PhysSpaceExpression.ClassicalTimeExpr e
+notation ⊢e := PhysSpaceExpression.ClassicalVelocity3Expr e
+notation ⊢e := PhysSpaceExpression.EuclideanGeometry3Expr e
+
+
+notation ⊢v := PhysFrameVar.ClassicalTime v
+notation ⊢v := PhysFrameVar.ClassicalVelocity3 v
+notation ⊢v := PhysFrameVar.EuclideanGeometry3 v
+notation ⊢e := PhysFrameExpression.ClassicalTimeFrameExpr e
+notation ⊢e := PhysFrameExpression.ClassicalVelocity3FrameExpr e
+notation ⊢e := PhysFrameExpression.EuclideanGeometry3FrameExpr e
 
 def a : PhysSpaceExpression := PhysSpaceExpression.ClassicalTimeExpr (ClassicalTimeSpaceExpression.ClassicalTimeLiteral (BuildClassicalTimeSpace "hi") )
 
@@ -541,6 +558,25 @@ abbreviation ClassicalTimePointInterp (sp : ClassicalTimeSpace) := ClassicalTime
 
 
 def DefaultRealScalarInterp : RealScalarInterp := λ scalar, RealScalarDefault
+
+
+def EvalEuclideanGeometry3SpaceExpression : EuclideanGeometry3SpaceExpression → EuclideanGeometrySpace 3
+| (EuclideanGeometry3SpaceExpression.EuclideanGeometry3Literal sp) := sp
+def EvalClassicalVelocity3SpaceExpression : ClassicalVelocity3SpaceExpression → ClassicalVelocitySpace 3
+| (ClassicalVelocity3SpaceExpression.ClassicalVelocity3Literal sp) := sp
+def EvalClassicalTimeSpaceExpression : ClassicalTimeSpaceExpression → ClassicalTimeSpace
+| (ClassicalTimeSpaceExpression.ClassicalTimeLiteral sp) := sp
+
+/-
+def EvalEuclideanGeometry3FrameExpression : EuclideanGeometry3SpaceExpression → EuclideanGeometrySpace 3
+| (EuclideanGeometry3SpaceExpression.EuclideanGeometry3Literal sp) := sp
+def EvalClassicalVelocity3FrameExpression : ClassicalVelocity3SpaceExpression → ClassicalVelocitySpace 3
+| (ClassicalVelocity3SpaceExpression.ClassicalVelocity3Literal sp) := sp
+def EvalClassicalTimeFrameExpression {sp : ClassicalTimeSpace} : ClassicalTimeFrameExpression sp → ClassicalTimeFrame sp
+| (ClassicalTimeFrameExpression.FrameLiteral fr) := fr
+-/
+
+
 --def DefaultEuclideanGeometry3ScalarInterp : EuclideanGeometry3ScalarInterp := λ scalar, EuclideanGeometry3ScalarDefault
 --def DefaultClassicalTimeScalarInterp : ClassicalTimeScalarInterp := λ scalar, ClassicalTimeScalarDefault
 --def DefaultClassicalVelocity3ScalarInterp : ClassicalVelocity3ScalarInterp := λ scalar, ClassicalVelocity3ScalarDefault
