@@ -1,76 +1,10 @@
 import .....math.affine.aff_coord_space
 import data.real.basic
+import .dimension
+import .unit
  
 
 noncomputable theory
-
-/-
-physicalDimension
-time and distance are base types
-can create derived types with the inverse and multiplication operations
--/
-/-
-second
-metre
-kilogram
-ampere
-kelvin	
-mole
-candela
-/
-683
- watt per steradian.
--/
-inductive PhysDimension : Type
-| SILit : ℚ → ℚ → ℚ → ℚ → ℚ → ℚ → ℚ → PhysDimension
-| SIAdd : PhysDimension → PhysDimension → PhysDimension
-| SINeg : PhysDimension → PhysDimension
-
-open PhysDimension
-
-/-
-Uses additive notation where multipicative is typical
--/
-def dimensionless := PhysDimension.SILit 0 0 0 0 0 0 0
-def meters := PhysDimension.SILit 0 1 0 0 0 0 0
-def time := PhysDimension.SILit 1 0 0 0 0 0 0
-def vel := SIAdd meters (SINeg time) 
-def hertz := PhysDimension.SINeg time
-def velocity := PhysDimension.SIAdd meters hertz
-
--- Should be able to prove this is an abelian group
-
--- CHANGE THIS TO R+?
-inductive PhysUnit : Type
-| ReferenceStandard : PhysUnit -- Imperial vs SI? Who defines "Standard"?
-| ReferenceLit : PhysUnit → ℝ → ℝ → ℝ → ℝ → ℝ → ℝ → ℝ → PhysUnit
-| ReferenceAdd : PhysUnit → PhysUnit → PhysUnit
-| ReferengeNeg : PhysUnit → PhysUnit
-
-def si_standard := PhysUnit.ReferenceStandard
-
---structure PhysAffineSpace (d : physicalDimension) (dimension : ℕ) : Type :=
- --   mk :: (std_frame : affine_frame dimension) 
-
-/-
-
-
-structure PhysSpace (d : physicalDimension) (dimension : ℕ) : Type :=
-    mk :: (std_frame : affine_frame dimension) 
-
-variables (pt : Type*) (K : Type*) (vec : Type*) (dimension : ℕ)
-[field K] [add_comm_group vec] [vector_space K vec]
-
-structure PhysSpace' :=
-(aff_pf : affine_space pt K vec)
-(std_frame : affine_frame dimension) --needs to be refactored to be the math version
-
--/
-/-
-inductive PhysAffineSpace : ℕ → PhysDimension → PhysUnit → Type
-| SpaceLiteral (space_dimension : ℕ) (physical_dimension : PhysDimension) (physical_units : PhysUnit) : 
-    PhysAffineSpace space_dimension physical_dimension physical_units
--/
 variables (pt : Type*) (vec : Type*)
 [add_comm_group vec] [vector_space ℝ vec]
 
@@ -167,6 +101,8 @@ abbreviation EuclideanGeometryVector {space_dimension : ℕ} (sp : EuclideanGeom
 abbreviation EuclideanGeometryPoint {space_dimension : ℕ} (sp : EuclideanGeometrySpace space_dimension) :=
     PhysPoint sp
 
+
+-- GEOMETRY
 def BuildEuclideanGeometrySpace (name : string) (space_dimension : ℕ) : EuclideanGeometrySpace space_dimension :=
     BuildPhysSpace name space_dimension meters si_standard
 def BuildEuclideanGeometry3Space (name : string): EuclideanGeometrySpace 3 := 
@@ -182,13 +118,14 @@ def BuildEuclideanGeometry3Point {sp : EuclideanGeometrySpace 3} (fr : PhysAffin
         : EuclideanGeometryPoint sp :=
     BuildAffinePhysPoint3 fr x y z
 
+
+-- VELOCITY
 abbreviation ClassicalVelocitySpace (space_dimension : ℕ) := 
     PhysAffineSpace (aff_pt ℝ space_dimension) (aff_vec ℝ space_dimension) space_dimension velocity si_standard
 abbreviation ClassicalVelocityFrame {space_dimension : ℕ} (sp : ClassicalVelocitySpace space_dimension) :=
     PhysAffineFrame sp
 abbreviation ClassicalVelocityVector {space_dimension : ℕ} (sp : ClassicalVelocitySpace space_dimension) :=
     PhysVector sp
-
 def BuildClassicalVelocitySpace (name : string) (space_dimension : ℕ) : ClassicalVelocitySpace space_dimension :=
     BuildPhysSpace name space_dimension velocity si_standard
 def BuildClassicalVelocity3Space (name : string) : ClassicalVelocitySpace 3 := 
@@ -201,6 +138,7 @@ def BuildClassicalVelocity3Vector {sp : ClassicalVelocitySpace 3} (fr : PhysAffi
         : ClassicalVelocityVector sp :=
     BuildAffinePhysVector3 fr x y z
 
+-- TIME
 abbreviation ClassicalTimeSpace := 
     PhysAffineSpace (aff_pt ℝ 1) (aff_vec ℝ 1) 1 time si_standard
 abbreviation ClassicalTimeFrame (sp : ClassicalTimeSpace) :=
@@ -209,7 +147,6 @@ abbreviation ClassicalTimeVector (sp : ClassicalTimeSpace) :=
     PhysVector sp
 abbreviation ClassicalTimePoint (sp : ClassicalTimeSpace) :=
     PhysPoint sp
-
 def BuildClassicalTimeSpace (name : string) : ClassicalTimeSpace := 
     BuildPhysSpace name 1 time si_standard
 def GetClassicalTimeStandardFrame (sp : ClassicalTimeSpace) : ClassicalTimeFrame sp :=
@@ -223,16 +160,19 @@ def BuildClassicalTimePoint {sp : ClassicalTimeSpace} (fr : PhysAffineFrame sp) 
         : ClassicalTimePoint sp :=
     BuildAffinePhysPoint1 fr x 
 
+/-
 def p := ([] : list ℕ)
-
 def t : list ℕ := 1 :: [] 
+-/
 
+/-
 abbreviation RealScalar := PhysScalar dimensionless
 abbreviation EuclideanGeometryScalar := PhysScalar meters
 abbreviation ClassicalTimeScalar := PhysScalar time
 abbreviation ClassicalVelocityScalar := PhysScalar velocity
 abbreviation EuclideanGeometry3Scalar := EuclideanGeometryScalar
 abbreviation ClassicalVelocity3Scalar := ClassicalVelocityScalar
+-/
 
 
 def RealScalarDefault : RealScalar := ⟨0⟩
