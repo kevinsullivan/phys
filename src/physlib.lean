@@ -3,7 +3,9 @@ import data.real.basic
 import .dimension
 import .unit
  
-
+/-
+NOT YET MODIFIED FROM ORIGINAL
+-/
 noncomputable theory
 variables (pt : Type*) (vec : Type*)
 [add_comm_group vec] [vector_space ℝ vec]
@@ -90,7 +92,6 @@ def BuildVectorOfVecsInner {dim : ℕ} (sz : ℕ) (current : ℕ) (v : vector (a
 def BuildVectorOfVecs (dim : ℕ) (sz : ℕ) : vector (aff_vec ℝ dim) sz
 | BuildVectorOfVecsInner sz, 
 -/
-
 
 abbreviation EuclideanGeometrySpace (space_dimension : ℕ) := 
     PhysAffineSpace (aff_pt ℝ space_dimension) (aff_vec ℝ space_dimension) space_dimension meters si_standard

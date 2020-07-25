@@ -1,7 +1,16 @@
 import .....math.affine.aff_coord_space
 import data.real.basic
 
-abbreviation dimType := ℝ  
+/-
+Kevin: https://benjaminjurke.com/content/articles/2015/compile-time-numerical-unit-dimension-checking/
+-/
+
+/-
+Restricting the exponents of dimensions to 
+integers equates to assuming smooth rather
+than, say, fractal spaces (I think. -Kevin).
+-/
+abbreviation dimType := ℚ 
 
 structure PhysicalDimension  : Type :=
 mk :: 
@@ -40,5 +49,4 @@ def area := mul length length
 def volume := mul area length
 def velocity := div length time
 def acceleration := div velocity time
-
-#print acceleration
+-- etc
