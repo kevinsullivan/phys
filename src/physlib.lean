@@ -236,9 +236,9 @@ abbreviation ClassicalVelocity3Scalar := ClassicalVelocityScalar
 
 
 def RealScalarDefault : RealScalar := ⟨0⟩
-def EuclideanGeometry3ScalarDefault (sp : EuclideanGeometrySpace 3) : EuclideanGeometryScalar := ⟨0⟩
-def ClassicalTimeScalarDefault (sp : ClassicalTimeSpace ) : ClassicalTimeScalar := ⟨0⟩
-def ClassicalVelocity3ScalarDefault (sp : ClassicalVelocitySpace 3)  : ClassicalVelocityScalar := ⟨0⟩
+def EuclideanGeometry3ScalarDefault : EuclideanGeometryScalar := ⟨0⟩
+def ClassicalTimeScalarDefault : ClassicalTimeScalar := ⟨0⟩
+def ClassicalVelocity3ScalarDefault  : ClassicalVelocityScalar := ⟨0⟩
 
 
 abbreviation NatDefault := (0 : ℕ)
