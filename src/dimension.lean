@@ -50,3 +50,7 @@ def volume := mul area length
 def velocity := div length time
 def acceleration := div velocity time
 -- etc
+
+/-
+TODO: instantiate PhysicalDimension as an add_comm_group
+-/

@@ -1,18 +1,26 @@
-import data.real.basic
-import ...math.affine.aff_coord_space
+import .dimension .basicDimensionAlgebras
 
-namespace space
+-- eval(Lit_Geom_Expr "world" 3)
 
-inductive Space : Type
-| length
-| mass 
-| time
-| current
-| temperature
-| quantity
-| intensity
+-- a space is at least pair that combines 
+-- a PhysicalDimension (7-tuple)
+-- algebraic structure information
+-- an indication of the physical phenomena being represented
 
-def type : Space → Type
-| length := affine_space ℝ 
+-- separate notion of a measurement system on a space
 
-end space
+namespace physicalSpace
+
+
+structure PhysicalSpace : Type 1 :=
+mk ::
+(name : string)
+(dim : PhysicalDimension)
+(algebra : Type)
+
+open basicDimension
+
+def Geom1D : PhysicalSpace :=
+⟨"geom1d", length, algebraOf basicDimension.BasicDimension.length⟩
+
+end physicalSpace

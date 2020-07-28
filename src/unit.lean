@@ -17,6 +17,7 @@ inductive current : Type
 
 inductive temperature : Type
 | kelvin
+| fahrenheit
 
 inductive quantity : Type
 | mole
