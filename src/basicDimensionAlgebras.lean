@@ -18,14 +18,15 @@ open BasicDimension
 
 -- tell me the algebraic structure of give basic dimension
 def algebraOf : BasicDimension → Type
-| length := affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
-| mass := affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
+| length := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
+| mass := { m : ℝ // m >= 0}
 | time := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
-| current := affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
-| temperature := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
-| quantity := affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
-| intensity := affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
+| current := ℝ 
+| temperature := { t : ℝ // t >= 0} -- absolute zero
+| quantity := ℕ 
+| intensity := { i : ℝ // i >= 0} 
 
 #check affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
+#print affine_space (aff_pt ℝ 3) ℝ (aff_vec ℝ 3)
 
 end basicDimension
