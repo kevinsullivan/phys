@@ -14,6 +14,8 @@ we give standard physics names to a few derived dimensions. This
 list can be greatly extended. 
 -/
 
+namespace dimension
+
 -- Basic dimensions of the SI system 
 inductive BasicDimension : Type
 | length
@@ -85,4 +87,4 @@ def algebraOf : BasicDimension → Type
 /-
 Kevin: https://benjaminjurke.com/content/articles/2015/compile-time-numerical-unit-dimension-checking/
 -/
-
+end dimension

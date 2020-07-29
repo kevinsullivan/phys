@@ -14,27 +14,27 @@ mk ::
 (quantity : unit.quantity)
 (intensity : unit.intensity) 
 
-end measurementSystem
-
-open measurementSystem unit
+-- Examples
 
 def si_measurement_system : MeasurementSystem :=
 MeasurementSystem.mk 
-length.meter
-mass.kilogram
-time.second
-current.ampere
-temperature.kelvin
-quantity.mole
-intensity.candela
+unit.length.meter
+unit.mass.kilogram
+unit.time.second
+unit.current.ampere
+unit.temperature.kelvin
+unit.quantity.mole
+unit.intensity.candela
 
 -- double check this and fix if necessary
 def imperial_measurement_system : MeasurementSystem :=
 MeasurementSystem.mk 
-length.foot
-mass.pound
-time.second
-current.ampere
-temperature.fahrenheit
-quantity.mole
-intensity.candela
+unit.length.foot
+unit.mass.pound
+unit.time.second
+unit.current.ampere
+unit.temperature.fahrenheit
+unit.quantity.mole
+unit.intensity.candela
+
+end measurementSystem
