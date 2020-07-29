@@ -28,7 +28,7 @@ temperature.kelvin
 quantity.mole
 intensity.candela
 
--- fix
+-- double check this and fix if necessary
 def imperial_measurement_system : MeasurementSystem :=
 MeasurementSystem.mk 
 length.foot
