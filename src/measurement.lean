@@ -4,6 +4,10 @@ import .scalar
 
 namespace measurementSystem
 
+/-
+We define a measurement system to be a 7-tuple
+of units: one for length, one for mass, etc.
+-/
 structure MeasurementSystem : Type :=
 mk ::
 (length : unit.length)
@@ -36,5 +40,6 @@ unit.current.ampere
 unit.temperature.fahrenheit
 unit.quantity.mole
 unit.intensity.candela
+
 
 end measurementSystem
