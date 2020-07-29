@@ -31,7 +31,7 @@ def dimType : BasicDimension → Type
 | BasicDimension.time := ℝ 
 | BasicDimension.mass := { r : ℝ // r >= 0}
 | BasicDimension.current := ℝ 
-| BasicDimension.temperature := ℝ -- how/where to say can't be equivalent to negative in Kelvin?  
+| BasicDimension.temperature := { r : ℝ // r >= 0 } -- how/where to say can't be equivalent to negative in Kelvin?  
 | BasicDimension.quantity := ℕ 
 | BasicDimension.intensity := {r : ℝ // r >= 0}    -- is this right?
 

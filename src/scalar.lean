@@ -7,6 +7,8 @@ namespace scalar
 /-
 Algebraic types of scalars for different physical dimensions.
 Deprecated. Use dimType.
+
+TODO: Rethink use of abbreviation
 -/
 abbreviation length := ℝ 
 abbreviation time := ℝ 

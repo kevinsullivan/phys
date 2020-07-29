@@ -29,7 +29,7 @@ open scalar
 def quantity (d : BasicDimension) (m : MeasurementSystem) (s : dimType d) : 
   Quantity (basicDimToDim d) m :=
 match d with 
-| BasicDimension.length :=        Quantity.mk s (0, _⟩ 0 0 0 0 ⟨0, _⟩ 
+| BasicDimension.length :=        Quantity.mk s ⟨0, _⟩ 0 0 0 0 ⟨0, _⟩ 
 | BasicDimension.mass  :=         Quantity.mk 0 s 0 0 0 0 ⟨0, _⟩
 | BasicDimension.time  :=         Quantity.mk 0 ⟨0, _⟩ s 0 0 0 ⟨0, _⟩ 
 | BasicDimension.current  :=      Quantity.mk 0 ⟨0, _⟩ 0 s 0 0 ⟨0, _⟩
