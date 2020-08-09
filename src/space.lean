@@ -1,4 +1,5 @@
 import .dimension 
+import ...math.affine.aff_coord_space
 
 
 /-
@@ -38,12 +39,11 @@ mk ::
 (dim : Dimension)
 (algebra : Type)
 
+def Geom3d : Space :=
+⟨ "1dGeom", 1, _⟩ 
 
-def Geom1D : Space :=
--- Space.mk ...
-⟨"geom1d", length, algebraOf BasicDimension.length⟩
+def Time : Space :=
+⟨ "Time", 1, _⟩ 
 
-def Geom2D : Space :=
-⟨ "geom2d", area, 
 
 end Space
