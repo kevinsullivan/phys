@@ -39,11 +39,11 @@ mk ::
 (dim : Dimension)
 (algebra : Type)
 
-def Geom3d : Space :=
-⟨ "1dGeom", 1, to_affine 1⟩ -- "Dimension" doesn't have "1," wrong type of dimension
+def Geom1d : Space :=
+⟨"1dGeom", 1, to_affine 1⟩ -- "Dimension" doesn't have "1," wrong type of dimension
 
 def Time : Space :=
-⟨ "Time", 1, to_affine 1⟩ 
+⟨"Time", 1, to_affine 1⟩ 
 
 
 end Space
