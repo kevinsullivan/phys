@@ -1,5 +1,5 @@
 import .dimension 
-import ...math.affine.aff_coord_space
+import ...math.affine.real_affine_space
 
 
 /-
@@ -40,10 +40,10 @@ mk ::
 (algebra : Type)
 
 def Geom1d : Space :=
-⟨ "1dGeom", 1, _⟩ 
+⟨"1dGeom", 1, to_affine 1⟩ -- "Dimension" doesn't have "1," wrong type of dimension
 
 def Time : Space :=
-⟨ "Time", 1, _⟩ 
+⟨"Time", 1, to_affine 1⟩ 
 
 
 end Space
