@@ -35,7 +35,7 @@ For example, we can multiple 2 1-d geometric spaces to get a 2D space.
 
 structure Space :=
 mk ::
-(name : string)
+(name : string)             -- documentation string and unique id for this space
 (dim : dimension.Dimension)
 (algebra : Algebra)
 
