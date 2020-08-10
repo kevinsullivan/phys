@@ -39,7 +39,7 @@ mk ::
 (dim : Dimension)
 (algebra : Type)
 
-def Geom3d : Space :=
+def Geom1d : Space :=
 ⟨ "1dGeom", 1, _⟩ 
 
 def Time : Space :=
