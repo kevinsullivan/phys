@@ -29,21 +29,33 @@ For example, we can multiple 2 1-d geometric spaces to get a 2D space.
 
 -- separate notion of a measurement system on a space
 
-namespace Space
 
-open dimension
 
-structure Space : Type 1 :=
+
+
+structure Space :=
 mk ::
 (name : string)
-(dim : Dimension)
-(algebra : Type)
+(dim : dimension.Dimension)
+(algebra : Algebra)
 
-def Geom1d : Space :=
-⟨"1dGeom", 1, to_affine 1⟩ -- "Dimension" doesn't have "1," wrong type of dimension
+namespace Space
 
-def Time : Space :=
-⟨"Time", 1, to_affine 1⟩ 
+open dimension dimension.BasicDimension
+
+noncomputable def Geom1d : Space :=
+⟨"1dGeom", length, Algebra.affine_space (to_affine 1)⟩ -- "Dimension" doesn't have "1," wrong type of dimension
+
+noncomputable def Geom3d : Space :=
+⟨"3dGeom", length * length * length, Algebra.affine_space (to_affine 3)⟩ -- "Dimension" doesn't have "1," wrong type of dimension
+
+/- 
+Would be nice to have the ability to reject inconsistent arguments, as in the following example.
+noncomputable def bad : Space := ⟨"inconsistent", length, Algebra.affine_space (to_affine 5)⟩
+-/
+
+noncomputable def Time : Space :=
+⟨"Time", time, Algebra.affine_space (to_affine 1)⟩ 
 
 
 end Space

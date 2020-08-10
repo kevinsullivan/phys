@@ -63,6 +63,8 @@ def mul : Dimension → Dimension → Dimension
 | (Dimension.mk l m t c p q i) (Dimension.mk l' m' t' c' p' q' i') := 
   Dimension.mk (l+l') (m+m') (t+t') (c+c') (p+p') (q+q') (i+i')
 
+instance : has_mul Dimension := ⟨mul⟩
+
 def inv : Dimension → Dimension 
 | (Dimension.mk l m t c p q i) := (Dimension.mk (-l) (-m) (-t) (-c) (-p) (-q) (-i) ) 
 
