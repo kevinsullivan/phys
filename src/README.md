@@ -1,3 +1,9 @@
+In this directory, we define the various spaces of physical quantities,
+aka dimensions. We currently focus on classical versions of the following: 
+- time
+- geometry
+- velocity
+
 Original concept. Review how "on" it was, including where it was off.
 
 - DSL defines term something like this: (Lit_Geom_Expr "world" 3 si_system ...)
