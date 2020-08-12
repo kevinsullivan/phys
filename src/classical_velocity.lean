@@ -5,6 +5,8 @@ import .classical_time
 structure classicalVelocity : Type :=
 mk :: (g : classicalGeometry) (t : classicalTime) 
 
+-- provide standard 3D velocity object
+def worldVelocity := classicalVelocity.mk worldGeometry worldTime
 
 -- TODO: Connect algebra of g to the algebra that is returned? Or is it already?
 noncomputable def classicalVelocityAlgebra : classicalVelocity → Algebra

@@ -5,5 +5,8 @@ import ..metrology.dimension
 structure classicalGeometry : Type :=
 mk :: (name : ℕ) (dim : ℕ ) 
 
+-- provide standard 3D world object
+def worldGeometry := classicalGeometry.mk 0 3
+
 noncomputable def classicalGeometryAlgebra : classicalGeometry → Algebra
 | (classicalGeometry.mk n d) := Algebra.affine_space (to_affine d)
