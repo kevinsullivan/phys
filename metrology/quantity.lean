@@ -41,38 +41,24 @@ mk ::
 
 open scalar
 
-
-
-
-inductive foo : Type 
-| R
-| N
-
-def typeOfFoo : foo → Type
-| foo.R := ℝ 
-| foo.N := ℕ 
-
-def r : (typeOfFoo foo.R) := 1.0
-
-
--- Return quantity of one unit of basic dimension in given measurement system
-def quantity (d : BasicDimension) (m : MeasurementSystem) (s : (dimType d)) : 
+-- Make quantity of one unit of basic dimension in given measurement system
+def mkQuantity (d : BasicDimension) (m : MeasurementSystem) (s : dimType d) : 
   Quantity (basicDimToDim d) m :=
-match d with 
-| BasicDimension.length :=        Quantity.mk s ⟨0, sorry⟩ 0 0 0 0 ⟨0, sorry⟩ 
-| BasicDimension.mass  :=         Quantity.mk 0 s 0 0 0 0 ⟨0, sorry⟩
-| BasicDimension.time  :=         Quantity.mk 0 ⟨0, sorry⟩ s 0 0 0 ⟨0, sorry⟩ 
-| BasicDimension.current  :=      Quantity.mk 0 ⟨0, sorry⟩ 0 s 0 0 ⟨0, sorry⟩
-| BasicDimension.temperature  :=  Quantity.mk 0 ⟨0, sorry⟩ 0 0 s 0 ⟨0, sorry⟩
-| BasicDimension.quantity  :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 0 s ⟨0, sorry⟩
-| BasicDimension.intensity :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 0 0 s
+match d, s with 
+| BasicDimension.length, s :=        Quantity.mk s ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0  ⟨ 0, sorry ⟩  
+| BasicDimension.mass, s  :=         Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩
+| BasicDimension.time, s  :=         Quantity.mk 0 ⟨0, sorry⟩ s 0 ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩ 
+| BasicDimension.current, s  :=      Quantity.mk 0 ⟨0, sorry⟩ 0 s ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩
+| BasicDimension.temperature, s  :=  Quantity.mk 0 ⟨0, sorry⟩ 0 0 s 0 ⟨0, sorry⟩
+| BasicDimension.quantity, s  :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ s ⟨0, sorry⟩
+| BasicDimension.intensity, s :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0 s
 end 
 
 -- Examples
 
-def oneMeter := quantity BasicDimension.length si_measurement_system (1 : ℝ)
-def twoSeconds := quantity BasicDimension.time si_measurement_system (2 : ℝ)
-def threePounds := quantity BasicDimension.mass imperial_measurement_system ⟨(3 : ℝ), _ ⟩
+def oneMeter := mkQuantity BasicDimension.length si_measurement_system (1 : ℝ)
+def twoSeconds := mkQuantity BasicDimension.time si_measurement_system (2 : ℝ)
+def threePounds := mkQuantity BasicDimension.mass imperial_measurement_system ⟨(3 : ℝ), _ ⟩
 
 open scalar
 open dimension

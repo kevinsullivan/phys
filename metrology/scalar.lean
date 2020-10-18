@@ -14,7 +14,7 @@ abbreviation length := ℝ
 abbreviation time := ℝ 
 abbreviation mass := { r : ℝ // r >= 0}
 abbreviation current := ℝ 
-abbreviation temperature := ℝ -- how/where to say can't be equivalent to negative in Kelvin?  
+abbreviation temperature := { r : ℝ // r >= 0} -- how/where to say can't be equivalent to negative in Kelvin?  
 abbreviation quantity := ℕ 
 abbreviation intensity := {r : ℝ // r >= 0}    -- is this right?
 
