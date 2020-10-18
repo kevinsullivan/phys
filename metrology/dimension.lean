@@ -1,6 +1,6 @@
-import .....math.affine.aff_coord_space
+import .....math.new_affine.real_affine_space
 import data.real.basic
-
+----import .....math.affine.aff_coord_space
 /-
 Here we formalize the standard dimensional analysis concept of 
 a physical dimension. We enumerate the basic dimensions of the 
@@ -72,7 +72,7 @@ def div : Dimension → Dimension → Dimension
 | q1 q2 := mul q1 (inv q2)
 
 -- It's an additive commutative group
-instance dimensionIsAbelianGroup : add_comm_group Dimension := _
+instance dimensionIsAbelianGroup : add_comm_group Dimension := sorry
 
 -- some dimensions
 
@@ -97,7 +97,7 @@ def density := div quantity volume
 
 -- tell me the algebraic structure of give basic dimension
 
-def realAffine1Space := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
+--def realAffine1Space := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
 def nonNegativeReals := { m : ℝ // m >= 0}
 
 structure Algebra : Type 1 :=
@@ -111,18 +111,20 @@ mk ::
 (intensity: Type)
 
 def algebraOf : BasicDimension → Type
-| BasicDimension.length := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
+| BasicDimension.length := ℝ --real_affine.Algebra--affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
 | BasicDimension.mass := { m : ℝ // m >= 0}
-| BasicDimension.time := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
+| BasicDimension.time := ℝ--affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
 | BasicDimension.current := ℝ 
 | BasicDimension.temperature := { m : ℝ // m >= 0} -- exists absolute zero
 | BasicDimension.quantity := ℕ 
 | BasicDimension.intensity := { m : ℝ // m >= 0}
-
+/-
+old - 10/18/2020
 def algebraOfDimension : Dimension → Type
 | (Dimension.mk l m t c p q i) := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
-
-
+-/
+def algebraOfDimension : Dimension → real_affine.Algebra
+| (Dimension.mk l m t c p q i) := real_affine.Algebra.aff_space (real_affine.to_affine 1)
 /-
 Kevin: https://benjaminjurke.com/content/articles/2015/compile-time-numerical-unit-dimension-checking/
 -/
