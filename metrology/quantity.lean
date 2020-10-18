@@ -11,7 +11,23 @@ open dimension
 We express a physical quantity as a tuple of scalars, each
 of a type consistent with its base dimension, relative to a
 given (potentially derived) dimension and measurement system.
-In this way, scalars are combined with units to yield quantities.
+So, for example, to express the concept of 2 m/s, the dimension
+would be <1,0,-1,0,0,0,0> and the scalar tuple we'd want here
+would be <2,0,0,0,0,0,0>. The measurement argument then answers
+the question, two of what units, e.g., feet or meters. In this
+way, scalars are combined with units to yield quantities. So,
+for example, to express 2 m/s, the MeasurementSystem object 
+would have "meters" (as a measurement unit forilength) n its "
+length" field.
+
+Open question, do we really need all of this complexity around
+the Quantity scalar tuple. I.e., do we really need seven fields
+in this type? 
+
+TODO: Maybe just one scalar is fine, because a quantity is a
+scalar times a dimension relative to a measurement systems, 
+not a seven-tuple of scalars times a simension relative to a
+measurement system.
 -/
 structure Quantity (d : Dimension) (m : MeasurementSystem) : Type :=
 mk :: 
@@ -25,24 +41,24 @@ mk ::
 
 open scalar
 
--- Return quantity of one unit of basic dimension in given measurement system
-def quantity (d : BasicDimension) (m : MeasurementSystem) (s : dimType d) : 
+-- Make quantity of one unit of basic dimension in given measurement system
+def mkQuantity (d : BasicDimension) (m : MeasurementSystem) (s : dimType d) : 
   Quantity (basicDimToDim d) m :=
-match d with 
-| BasicDimension.length :=        Quantity.mk s ⟨0, _⟩ 0 0 0 0 ⟨0, _⟩ 
-| BasicDimension.mass  :=         Quantity.mk 0 s 0 0 0 0 ⟨0, _⟩
-| BasicDimension.time  :=         Quantity.mk 0 ⟨0, _⟩ s 0 0 0 ⟨0, _⟩ 
-| BasicDimension.current  :=      Quantity.mk 0 ⟨0, _⟩ 0 s 0 0 ⟨0, _⟩
-| BasicDimension.temperature  :=  Quantity.mk 0 ⟨0, _⟩ 0 0 s 0 ⟨0, _⟩
-| BasicDimension.quantity  :=     Quantity.mk 0 ⟨0, _⟩ 0 0 0 s ⟨0, _⟩
-| BasicDimension.intensity :=     Quantity.mk 0 ⟨0, _⟩ 0 0 0 0 s
+match d, s with 
+| BasicDimension.length, s :=        Quantity.mk s ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0  ⟨ 0, sorry ⟩  
+| BasicDimension.mass, s  :=         Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩
+| BasicDimension.time, s  :=         Quantity.mk 0 ⟨0, sorry⟩ s 0 ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩ 
+| BasicDimension.current, s  :=      Quantity.mk 0 ⟨0, sorry⟩ 0 s ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩
+| BasicDimension.temperature, s  :=  Quantity.mk 0 ⟨0, sorry⟩ 0 0 s 0 ⟨0, sorry⟩
+| BasicDimension.quantity, s  :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ s ⟨0, sorry⟩
+| BasicDimension.intensity, s :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0 s
 end 
 
 -- Examples
 
-def oneMeter := quantity BasicDimension.length si_measurement_system (1 : ℝ)
-def twoSeconds := quantity BasicDimension.time si_measurement_system (2 : ℝ)
-def threePounds := quantity BasicDimension.mass imperial_measurement_system ⟨(3 : ℝ), _ ⟩
+def oneMeter := mkQuantity BasicDimension.length si_measurement_system (1 : ℝ)
+def twoSeconds := mkQuantity BasicDimension.time si_measurement_system (2 : ℝ)
+def threePounds := mkQuantity BasicDimension.mass imperial_measurement_system ⟨(3 : ℝ), _ ⟩
 
 open scalar
 open dimension
