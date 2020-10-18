@@ -36,7 +36,11 @@ def dimType : BasicDimension → Type
 | BasicDimension.intensity := {r : ℝ // r >= 0}    -- is this right?
 
 /-
-Usual formalization of concept of dimension
+Usual formalization of concept of dimension: an
+exponent for each of the basic dimensions. For example,
+the dimension for velocity is <1,0,-1, 0, 0, 0, 0>.
+ToDo: Is ℚ really the right type for these values?
+Do we need fractional dimensions?
 -/
 structure Dimension  : Type :=
 mk :: 
