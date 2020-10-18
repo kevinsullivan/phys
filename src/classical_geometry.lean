@@ -1,4 +1,4 @@
-import .....math.affine.real_affine_space
+import .....math.new_affine.real_affine_space
 import ..metrology.dimension 
 
 -- name serves as unique ID for a given geometric space
@@ -8,5 +8,5 @@ mk :: (name : ℕ) (dim : ℕ )
 -- provide standard 3D world object
 def worldGeometry := classicalGeometry.mk 0 3
 
-noncomputable def classicalGeometryAlgebra : classicalGeometry → Algebra
-| (classicalGeometry.mk n d) := Algebra.affine_space (to_affine d)
+noncomputable def classicalGeometryAlgebra : classicalGeometry → real_affine.Algebra
+| (classicalGeometry.mk n d) := real_affine.Algebra.aff_space (real_affine.to_affine d)
