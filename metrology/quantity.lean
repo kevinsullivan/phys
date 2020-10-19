@@ -45,13 +45,13 @@ open scalar
 def mkQuantity (d : BasicDimension) (m : MeasurementSystem) (s : basicDimScalarType d) : 
   Quantity (basicDimToDim d) m :=
 match d, s with 
-| BasicDimension.length, s :=        Quantity.mk s ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0  ⟨ 0, sorry ⟩  
-| BasicDimension.mass, s  :=         Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩
-| BasicDimension.time, s  :=         Quantity.mk 0 ⟨0, sorry⟩ s 0 ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩ 
-| BasicDimension.current, s  :=      Quantity.mk 0 ⟨0, sorry⟩ 0 s ⟨ 0, sorry ⟩ 0 ⟨0, sorry⟩
-| BasicDimension.temperature, s  :=  Quantity.mk 0 ⟨0, sorry⟩ 0 0 s 0 ⟨0, sorry⟩
-| BasicDimension.quantity, s  :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ s ⟨0, sorry⟩
-| BasicDimension.intensity, s :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0 s
+| BasicDimension.length, s :=        Quantity.mk s ⟨0, by linarith ⟩ 0 0 ⟨ 0, by linarith ⟩ 0  ⟨ 0, by linarith ⟩  
+| BasicDimension.mass, s  :=         Quantity.mk 0 ⟨0, by linarith⟩ 0 0 ⟨ 0, by linarith ⟩ 0 ⟨0, by linarith⟩
+| BasicDimension.time, s  :=         Quantity.mk 0 ⟨0, by linarith⟩ s 0 ⟨ 0, by linarith ⟩ 0 ⟨0, by linarith⟩ 
+| BasicDimension.current, s  :=      Quantity.mk 0 ⟨0, by linarith⟩ 0 s ⟨ 0, by linarith ⟩ 0 ⟨0, by linarith⟩
+| BasicDimension.temperature, s  :=  Quantity.mk 0 ⟨0, by linarith⟩ 0 0 s 0 ⟨0, by linarith⟩
+| BasicDimension.quantity, s  :=     Quantity.mk 0 ⟨0, by linarith⟩ 0 0 ⟨ 0, by linarith ⟩ s ⟨0, by linarith⟩
+| BasicDimension.intensity, s :=     Quantity.mk 0 ⟨0, by linarith⟩ 0 0 ⟨ 0, by linarith ⟩ 0 s
 end 
 
 open scalar
