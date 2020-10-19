@@ -6,7 +6,7 @@ namespace scalar
 
 /-
 Algebraic types of scalars for different physical dimensions.
-Deprecated. Use dimType.
+Deprecated. Use basicDimScalarType.
 
 TODO: Rethink use of abbreviation
 -/

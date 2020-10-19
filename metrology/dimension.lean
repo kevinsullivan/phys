@@ -1,17 +1,23 @@
 import .....math.new_affine.real_affine_space
 import data.real.basic
-----import .....math.affine.aff_coord_space
+
 /-
 Here we formalize the standard dimensional analysis concept of 
-a physical dimension. We enumerate the basic dimensions of the 
-SI system by name, then represent an arbitrary dimension as a
-7-tuple of rational exponents corresponding to the enumerated
-basic dimensions. It's well known that the algebraic structure
-of this set is that of an additive commutative (abelian) group.
+a physical dimension. 
 
-Next we define functions for computing derived dimensions. Then
-we give standard physics names to a few derived dimensions. This
-list can be greatly extended. 
+A key to understanding this design is to see that we define two
+types: BasicDimension and Dimension. BasicDimension represents
+the set of basic dimension of the SI system only, while Dimension
+represents the set of basic and derived dimensions. The function
+basicDimToDim returns a Dimension value for each BasicDimension
+value, injecting the set of basic dimensions into the set of 
+basic and derived dimensions.  
+-/ 
+
+
+
+/-
+First we enumerate the basic dimensions of the SI system.
 -/
 
 namespace dimension
@@ -26,7 +32,11 @@ inductive BasicDimension : Type
 | quantity
 | intensity
 
-def dimType : BasicDimension → Type 
+/-
+Next we associate a scalar type with each basic dimension.
+-/
+
+def basicDimScalarType : BasicDimension → Type 
 | BasicDimension.length := ℝ 
 | BasicDimension.time := ℝ 
 | BasicDimension.mass := { r : ℝ // r >= 0}
@@ -36,11 +46,13 @@ def dimType : BasicDimension → Type
 | BasicDimension.intensity := {r : ℝ // r >= 0}    -- is this right?
 
 /-
-Usual formalization of concept of dimension: an
-exponent for each of the basic dimensions. For example,
-the dimension for velocity is <1,0,-1, 0, 0, 0, 0>.
-ToDo: Is ℚ really the right type for these values?
-Do we need fractional dimensions?
+Now we represent an arbitrary derived dimension as a 7-tuple of 
+rational exponents corresponding to the basic dimensions. It's
+well known that the algebraic structure of this set is that of 
+an additive commutative (abelian) group. (Should be proved.)
+For example, the dimension for velocity is <1,0,-1, 0, 0, 0, 0>.
+ToDo: Is ℚ really the right type for these values? Do we need
+fractional dimensions?
 -/
 structure Dimension  : Type :=
 mk :: 
@@ -52,7 +64,9 @@ mk ::
 (quantity : ℚ)
 (intensity: ℚ)
 
--- Names for basic dimensions as dimensions
+/-
+Here is the injection of BasicDimension into Dimension.
+-/
 def basicDimToDim : BasicDimension → Dimension
 | BasicDimension.length := Dimension.mk 1 0 0 0 0 0 0
 | BasicDimension.mass := Dimension.mk 0 1 0 0 0 0 0
@@ -62,6 +76,9 @@ def basicDimToDim : BasicDimension → Dimension
 | BasicDimension.quantity := Dimension.mk 0 0 0 0 0 1 0
 | BasicDimension.intensity := Dimension.mk 0 0 0 0 0 0 1
 
+/-
+Here now are  functions for computing derived dimensions. 
+-/
 -- Functions that compute derived dimensions
 def mul : Dimension → Dimension → Dimension 
 | (Dimension.mk l m t c p q i) (Dimension.mk l' m' t' c' p' q' i') := 
@@ -75,45 +92,22 @@ def inv : Dimension → Dimension
 def div : Dimension → Dimension → Dimension 
 | q1 q2 := mul q1 (inv q2)
 
--- It's an additive commutative group
+/-
+Standard claim: the set of dimensions forms a multiplicative
+abelian (commutative) group. But is this really true? If, for
+example, quantity of material is measured as a natural number,
+what quantity do you get when you take 1/2 of 3 particles? If
+the notion is that particles are indivisible then this either
+makes no sense, or the answer is 1 remainder 1, and what does
+that mean? For now, we state the usual claim, but we think it
+requires more thought.
+-/
 instance dimensionIsAbelianGroup : add_comm_group Dimension := sorry
 
--- some dimensions
-
-open BasicDimension
-
--- Names for basic dimensions as dimensions
-def length := basicDimToDim length 
-def mass := basicDimToDim mass 
-def time := basicDimToDim time
-def current := basicDimToDim current
-def temperature := basicDimToDim temperature
-def quantity := basicDimToDim quantity
-def intensity := basicDimToDim intensity
-
--- And now some deried dimension
-def area := mul length length
-def volume := mul area length
-def velocity := div length time
-def acceleration := div velocity time
-def density := div quantity volume
--- etc
 
 -- tell me the algebraic structure of give basic dimension
 
---def realAffine1Space := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
-def nonNegativeReals := { m : ℝ // m >= 0}
-
-structure Algebra : Type 1 :=
-mk :: 
-(length: Type)
-(mass : Type)
-(time : Type)
-(current: Type)
-(temperature : Type)
-(quantity : Type)
-(intensity: Type)
-
+/-
 def algebraOf : BasicDimension → Type
 | BasicDimension.length := ℝ --real_affine.Algebra--affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
 | BasicDimension.mass := { m : ℝ // m >= 0}
@@ -122,14 +116,9 @@ def algebraOf : BasicDimension → Type
 | BasicDimension.temperature := { m : ℝ // m >= 0} -- exists absolute zero
 | BasicDimension.quantity := ℕ 
 | BasicDimension.intensity := { m : ℝ // m >= 0}
-/-
-old - 10/18/2020
-def algebraOfDimension : Dimension → Type
-| (Dimension.mk l m t c p q i) := affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
 -/
+
 def algebraOfDimension : Dimension → real_affine.Algebra
 | (Dimension.mk l m t c p q i) := real_affine.Algebra.aff_space (real_affine.to_affine 1)
-/-
-Kevin: https://benjaminjurke.com/content/articles/2015/compile-time-numerical-unit-dimension-checking/
--/
+
 end dimension

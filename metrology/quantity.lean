@@ -42,7 +42,7 @@ mk ::
 open scalar
 
 -- Make quantity of one unit of basic dimension in given measurement system
-def mkQuantity (d : BasicDimension) (m : MeasurementSystem) (s : dimType d) : 
+def mkQuantity (d : BasicDimension) (m : MeasurementSystem) (s : basicDimScalarType d) : 
   Quantity (basicDimToDim d) m :=
 match d, s with 
 | BasicDimension.length, s :=        Quantity.mk s ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0  ⟨ 0, sorry ⟩  
@@ -53,12 +53,6 @@ match d, s with
 | BasicDimension.quantity, s  :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ s ⟨0, sorry⟩
 | BasicDimension.intensity, s :=     Quantity.mk 0 ⟨0, sorry⟩ 0 0 ⟨ 0, sorry ⟩ 0 s
 end 
-
--- Examples
-
-def oneMeter := mkQuantity BasicDimension.length si_measurement_system (1 : ℝ)
-def twoSeconds := mkQuantity BasicDimension.time si_measurement_system (2 : ℝ)
-def threePounds := mkQuantity BasicDimension.mass imperial_measurement_system ⟨(3 : ℝ), _ ⟩
 
 open scalar
 open dimension
