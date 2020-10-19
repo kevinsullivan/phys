@@ -39,19 +39,21 @@ mk ::
 (quantity : scalar.quantity)
 (intensity : scalar.intensity) 
 
-open scalar
 
 -- Make quantity of one unit of basic dimension in given measurement system
+-- need little lemma that 0 >= 0
+lemma zgez : (0 : ℝ) ≥ 0 := by linarith
+
 def mkQuantity (d : BasicDimension) (m : MeasurementSystem) (s : basicDimScalarType d) : 
   Quantity (basicDimToDim d) m :=
 match d, s with 
-| BasicDimension.length, s :=        Quantity.mk s ⟨0, by linarith ⟩ 0 0 ⟨ 0, by linarith ⟩ 0  ⟨ 0, by linarith ⟩  
-| BasicDimension.mass, s  :=         Quantity.mk 0 ⟨0, by linarith⟩ 0 0 ⟨ 0, by linarith ⟩ 0 ⟨0, by linarith⟩
-| BasicDimension.time, s  :=         Quantity.mk 0 ⟨0, by linarith⟩ s 0 ⟨ 0, by linarith ⟩ 0 ⟨0, by linarith⟩ 
-| BasicDimension.current, s  :=      Quantity.mk 0 ⟨0, by linarith⟩ 0 s ⟨ 0, by linarith ⟩ 0 ⟨0, by linarith⟩
-| BasicDimension.temperature, s  :=  Quantity.mk 0 ⟨0, by linarith⟩ 0 0 s 0 ⟨0, by linarith⟩
-| BasicDimension.quantity, s  :=     Quantity.mk 0 ⟨0, by linarith⟩ 0 0 ⟨ 0, by linarith ⟩ s ⟨0, by linarith⟩
-| BasicDimension.intensity, s :=     Quantity.mk 0 ⟨0, by linarith⟩ 0 0 ⟨ 0, by linarith ⟩ 0 s
+| BasicDimension.length, s :=        Quantity.mk s ⟨0, zgez ⟩ 0 0 ⟨0, zgez ⟩ 0  ⟨ 0, zgez ⟩  
+| BasicDimension.mass, s  :=         Quantity.mk 0 ⟨0, zgez⟩ 0 0 ⟨ 0, zgez ⟩ 0 ⟨0, zgez⟩
+| BasicDimension.time, s  :=         Quantity.mk 0 ⟨0, zgez⟩ s 0 ⟨ 0, zgez ⟩ 0 ⟨0, zgez⟩ 
+| BasicDimension.current, s  :=      Quantity.mk 0 ⟨0, zgez⟩ 0 s ⟨ 0, zgez ⟩ 0 ⟨0, zgez⟩
+| BasicDimension.temperature, s  :=  Quantity.mk 0 ⟨0, zgez⟩ 0 0 s 0 ⟨0, zgez⟩
+| BasicDimension.quantity, s  :=     Quantity.mk 0 ⟨0, zgez⟩ 0 0 ⟨ 0, zgez ⟩ s ⟨0, zgez⟩
+| BasicDimension.intensity, s :=     Quantity.mk 0 ⟨0, zgez⟩ 0 0 ⟨ 0, zgez ⟩ 0 s
 end 
 
 open scalar
