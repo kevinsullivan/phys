@@ -1,6 +1,5 @@
 --import .....math.affine.aff_coord_space
 import data.real.basic
-import .dimension
 
 namespace scalar
 
@@ -17,8 +16,6 @@ abbreviation current := ℝ
 abbreviation temperature := { r : ℝ // r >= 0} -- how/where to say can't be equivalent to negative in Kelvin?  
 abbreviation quantity := ℕ 
 abbreviation intensity := {r : ℝ // r >= 0}    -- is this right?
-
-open dimension
 
 -- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
 def add_mass : mass → mass → mass 

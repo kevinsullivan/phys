@@ -2,14 +2,21 @@ import .....math.new_affine.real_affine_space
 import data.real.basic
 
 /-
-Here we formalize the standard dimensional analysis concept of 
-physical dimensions. A physical dimesion is a space of physical
-objects independent of measurement system or coordinate frame.
-Basic physical dimensions include time and geometric space, both
-of which have affine space structures. Derived dimensions are
-obtained by inverting and multiplying basic dimensions. So, for
-example, velocity is obtained by multiplying geometric space by
-the inverse of time. 
+
+The abstraction implemented in this component supports SI-like
+physical dimensions and measurement systems, including SI and 
+Imperial. Kevin believe it's not quite right, insofar as the 
+SI system isn't based on the right abstractions. For example, 
+it enables the expression of displacements but not positions. 
+In other words, it's oriented to explicit representations of 
+vector but not point physical quantities.
+
+A physical dimesion is a space of physical objects (quantities)
+independent of a specific measurement system / coordinate frame.
+Basic physical dimensions include time and geometric space.
+Derived dimensions are obtained by inverting and multiplying
+basic dimensions. So, for example, velocity is obtained by 
+multiplying geometric space by the inverse of time. 
 
 A key to understanding our design is to see that we define two
 types: BasicDimension and Dimension. BasicDimension represents

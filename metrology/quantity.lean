@@ -1,5 +1,5 @@
 import .measurement
-import .dimension
+import .dimensions
 import .scalar
 
 namespace quantity

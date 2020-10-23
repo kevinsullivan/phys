@@ -1,6 +1,5 @@
-import .dimension
+import .dimensions
 import .unit
-import .scalar
 
 namespace measurementSystem
 
