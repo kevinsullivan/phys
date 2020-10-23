@@ -82,7 +82,7 @@ def add
     | Quantity.mk l m t c p q i :=
         match q2 with 
             | Quantity.mk l' m' t' c' p' q' i' :=
-      Quantity.mk (l+l') (scalar.add_mass m m') (t+t') (c+c') (p+p') (q+q') (scalar.add_intensity i i')
+      Quantity.mk (l+l') (scalar.add_mass m m') (t+t') (c+c') (scalar.add_temperature p p') (q+q') (scalar.add_intensity i i')
     end
   end
 
@@ -92,7 +92,7 @@ def sub {d : Dimension} {ms : MeasurementSystem}  (q1 q2 : Quantity d ms) :
     | Quantity.mk l m t c p q i :=
         match q2 with 
             | Quantity.mk l' m' t' c' p' q' i' :=
-      Quantity.mk (l-l') (scalar.sub_mass m m') (t-t') (c-c') (p-p') (q-q') (scalar.sub_intensity i i')
+      Quantity.mk (l-l') (scalar.sub_mass m m') (t-t') (c-c') (scalar.sub_temperature p p') (q-q') (scalar.sub_intensity i i')
     end
   end
 
@@ -115,7 +115,7 @@ def sub {d : Dimension} {ms : MeasurementSystem}  (q1 q2 : Quantity d ms) :
     | Quantity.mk l m t c p q i :=
         match q2 with 
             | Quantity.mk l' m' t' c' p' q' i' :=
-              Quantity.mk (l*l') (scalar.mul_mass m m') (t*t') (c*c') (p*p') (q*q') (scalar.mul_intensity i i')
+              Quantity.mk (l*l') (scalar.mul_mass m m') (t*t') (c*c') (scalar.mul_temperature p p') (q*q') (scalar.mul_intensity i i')
         end
     end
 

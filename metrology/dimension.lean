@@ -3,9 +3,15 @@ import data.real.basic
 
 /-
 Here we formalize the standard dimensional analysis concept of 
-a physical dimension. 
+physical dimensions. A physical dimesion is a space of physical
+objects independent of measurement system or coordinate frame.
+Basic physical dimensions include time and geometric space, both
+of which have affine space structures. Derived dimensions are
+obtained by inverting and multiplying basic dimensions. So, for
+example, velocity is obtained by multiplying geometric space by
+the inverse of time. 
 
-A key to understanding this design is to see that we define two
+A key to understanding our design is to see that we define two
 types: BasicDimension and Dimension. BasicDimension represents
 the set of basic dimension of the SI system only, while Dimension
 represents the set of basic and derived dimensions. The function
@@ -34,15 +40,16 @@ inductive BasicDimension : Type
 
 /-
 Next we associate a scalar type with each basic dimension.
+These scalars will express amounts in a given dimension. 
 -/
 
 def basicDimScalarType : BasicDimension → Type 
-| BasicDimension.length := ℝ 
-| BasicDimension.time := ℝ 
-| BasicDimension.mass := { r : ℝ // r >= 0}
-| BasicDimension.current := ℝ 
-| BasicDimension.temperature := { r : ℝ // r >= 0 } -- how/where to say can't be equivalent to negative in Kelvin?  
-| BasicDimension.quantity := ℕ 
+| BasicDimension.length := ℝ    -- space infinitely divisible (not true)
+| BasicDimension.time := ℝ      -- time infinitely divisible (not true)
+| BasicDimension.mass := { r : ℝ // r >= 0} -- mass can't be negative
+| BasicDimension.current := ℝ   -- currents can be negative or positive
+| BasicDimension.temperature := { r : ℝ // r >= 0 } -- ∃ absolute zero
+| BasicDimension.quantity := ℕ  -- quantity is a count of particles
 | BasicDimension.intensity := {r : ℝ // r >= 0}    -- is this right?
 
 /-
