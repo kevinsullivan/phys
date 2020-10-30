@@ -3,14 +3,37 @@ import ..metrology.dimension
 import ..metrology.measurement
 
 structure classicalTime : Type :=
-mk :: (name : ℕ) -- name serves as unique ID for a given geometric space
+mk :: (id : ℕ) -- id serves as unique ID for a given geometric space
+
+noncomputable def classicalTimeAlgebra : classicalTime → real_affine.Algebra
+| (classicalTime.mk n) := real_affine.Algebra.aff_space (real_affine.to_affine_space 1)
+
+/-
+The Algebra type is simply a variant type for encapsulating different kinds
+of algebras (e.g., affine space, monoid, or whatever). It's currently situated
+in the real_affine_space file, but should be moved.
+-/
+
+
+
+
+
+
+
+
+
+
+
+
+/-
+-/
 
 
 structure classicalTimeVector (t : classicalTime) : Type :=
-mk :: (name : ℕ) (val : vector ℝ 1)
+mk :: (id : ℕ) (val : vector ℝ 1)
 
 structure classicalTimePoint (t : classicalTime) : Type :=
-mk :: (name : ℕ) (val : vector ℝ 1)
+mk :: (id : ℕ) (val : vector ℝ 1)
 
 --inductive classicalTimeFrame : classicalTime → Type 
 --| standard (t : classicalTime) : classicalTimeFrame t
@@ -24,15 +47,18 @@ inductive classicalTimeFrame : classicalTime → Type
     classicalTimeFrame t → classicalTimePoint t → (fin 1 → classicalTimeVector t) → MeasurementSystem → classicalTimeFrame t
 
 structure classicalTimeCoordinateVector (s : classicalTime) extends classicalTimeVector s :=
-(f : classicalTimeFrame s)--mk :: (name : ℕ) (val : vector ℝ 1) {s : classicalTime} (f : classicalTimeFrame s)
+(f : classicalTimeFrame s)--mk :: (id : ℕ) (val : vector ℝ 1) {s : classicalTime} (f : classicalTimeFrame s)
 
 structure classicalTimeCoordinatePoint (s : classicalTime) extends classicalTimePoint s :=
 (f : classicalTimeFrame s)--mk 
 -- provide standard world time object
 def worldTime := classicalTime.mk 0 
 
+/-
 noncomputable def classicalTimeAlgebra : classicalTime → real_affine.Algebra
 | (classicalTime.mk n) := real_affine.Algebra.aff_space (real_affine.to_affine_space 1)
+-/
+
 
 noncomputable def classicalTimeVectorAlgebra {t : classicalTime} : classicalTimeVector t → real_affine.Algebra
 | (classicalTimeVector.mk _ v) := real_affine.Algebra.aff_vector (real_affine.to_affine_vector v)

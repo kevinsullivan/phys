@@ -1,4 +1,3 @@
-import .....math.new_affine.real_affine_space
 import data.real.basic
 
 /-
