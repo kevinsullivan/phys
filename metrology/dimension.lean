@@ -108,9 +108,9 @@ instance dimensionIsAbelianGroup : add_comm_group Dimension := sorry
 
 /-
 def algebraOf : BasicDimension → Type
-| BasicDimension.length := ℝ --real_affine.Algebra--affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
+| BasicDimension.length := ℝ --real_affine.Algebra--affine_space (aff_pt_coord_tuple ℝ 1) ℝ (aff_vec_coord_tuple ℝ 1)
 | BasicDimension.mass := { m : ℝ // m >= 0}
-| BasicDimension.time := ℝ--affine_space (aff_pt ℝ 1) ℝ (aff_vec ℝ 1)
+| BasicDimension.time := ℝ--affine_space (aff_pt_coord_tuple ℝ 1) ℝ (aff_vec_coord_tuple ℝ 1)
 | BasicDimension.current := ℝ 
 | BasicDimension.temperature := { m : ℝ // m >= 0} -- exists absolute zero
 | BasicDimension.quantity := ℕ 

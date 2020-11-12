@@ -21,7 +21,7 @@ def timeline2_space : real_affine.Algebra :=
     classicalTimeAlgebra timeline2
 
 /-
-structure aff_struct  -- parameterized affine space type
+structure affine_space_type  -- parameterized affine space type
     (dim : ℕ)
     (X : Type u)
     (K : Type v)
@@ -33,26 +33,26 @@ structure aff_struct  -- parameterized affine space type
 
 -- real affine space type parameterized by dimension
 def real_affine_space (dim : ℕ) : := 
-    aff_struct dim (aff_pt ℝ dim) ℝ (aff_vec ℝ dim)
+    affine_space_type dim (aff_pt_coord_tuple ℝ dim) ℝ (aff_vec_coord_tuple ℝ dim)
 
 -- AFFINE COORDINATE SPACES
 
 -- The type of affine vector coordinate tuples
 @[ext]
-structure aff_vec :=
+structure aff_vec_coord_tuple :=
 (l : list k)
 (len_fixed : l.length = n + 1)
 (fst_zero : head l = 0)
 
 -- The type of affine point coordinate tuples
 @[ext]
-structure aff_pt :=
+structure aff_pt_coord_tuple :=
 (l : list k)
 (len_fixed : l.length = n + 1)
 (fst_one : head l = 1)
 
 -- Bottom line: such sets of coordinate tuples form affine spaces
-instance aff_coord_is : affine_space (aff_vec k n) (aff_pt k n) := aff_torsor k n
+instance aff_coord_is : affine_space (aff_vec_coord_tuple k n) (aff_pt_coord_tuple k n) := aff_torsor k n
 
 
 
@@ -83,15 +83,15 @@ inductive Algebra
     [add_comm_group V] 
     [module K V]  
     [affine_space V X] 
-    (a : aff_struct dim X K V)
+    (a : affine_space_type dim X K V)
 
 !!!
 abbreviation real_coordinatized_affine_space {dim : ℕ} (fr : r_fr dim) :=
-     aff_struct dim (real_affine_point_with_frame dim fr) ℝ (real_affine_vector_with_frame dim fr)
+     affine_space_type dim (real_affine_point_with_frame dim fr) ℝ (real_affine_vector_with_frame dim fr)
 
 def to_affine_space (n : ℕ) : real_affine_space n :=
     ⟨⟩
-    --⟨aff_pt ℝ n, ℝ, aff_vec ℝ n, real.ring, aff_comm_group ℝ n, aff_module ℝ n, aff_coord_is ℝ n⟩
+    --⟨aff_pt_coord_tuple ℝ n, ℝ, aff_vec_coord_tuple ℝ n, real.ring, aff_comm_group ℝ n, aff_module ℝ n, aff_coord_is ℝ n⟩
 
 to be deleted later following today's convo ↓ 
 def to_coordinatized_affine_space (n : ℕ) (fr : r_fr n) : real_coordinatized_affine_space fr :=--(get_standard_frame_on_Rn n) := 
