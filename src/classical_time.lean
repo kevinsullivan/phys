@@ -186,9 +186,10 @@ def classicalTimeCoordinatePoint.build
 
 attribute [reducible]
 def classicalTimeCoordinatePoint.from_algebra
+    {f : affine_coord_frame ℝ 1}
     (sp : classicalTime)
     (fr : classicalTimeFrame)
-    (pt : aff_coord_pt ℝ 1 (classicalTimeFrameAlgebra fr))
+    (pt : aff_coord_pt ℝ 1 f)
     : classicalTimeCoordinatePoint
     := 
     classicalTimeCoordinatePoint.build sp fr (affine_coord_pt.get_coords pt)
