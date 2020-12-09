@@ -1,9 +1,7 @@
 import .....math.affine.affine_coordinate_framed_space_lib
---import .....math.affine.algebra
-import ..metrology.dimension 
+import ..metrology.dimensions 
 import ..metrology.measurement
 import data.real.basic
---import .....math.affine.affine_coordinate_space
 
 noncomputable theory
 --open real_lib
@@ -145,7 +143,7 @@ def classicalTimeCoordinateVector.build
     }
 
 attribute [reducible]
-def classicalTimeCoordinateVector.from_algebra
+def classicalTimeCoordinateVector.fromalgebra
     {f : affine_coord_frame ℝ 1}
     (sp : classicalTime)
     (fr : classicalTimeFrame)
@@ -185,7 +183,7 @@ def classicalTimeCoordinatePoint.build
     }
 
 attribute [reducible]
-def classicalTimeCoordinatePoint.from_algebra
+def classicalTimeCoordinatePoint.fromalgebra
     {f : affine_coord_frame ℝ 1}
     (sp : classicalTime)
     (fr : classicalTimeFrame)
