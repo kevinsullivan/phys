@@ -23,6 +23,24 @@ noncomputable def classicalTimeAlgebra : classicalTime →
      aff_lib.affine_coord_space.standard_space ℝ 1
 | (classicalTime.mk sp n) := sp
 
+structure classicalTimeScalar :=
+mk ::
+    (sp : classicalTime)
+    (val : ℝ)
+
+attribute [reducible]
+def classicalTimeScalar.build
+    (sp : classicalTime)
+    (val : vector ℝ 1) := 
+    classicalTimeScalar.mk sp (val.nth 1)
+
+
+
+attribute [reducible]
+def classicalTimeScalarAlgebra 
+    (s : classicalTimeScalar)
+    := 
+    s.val
 
 structure classicalTimeVector :=
 mk ::
@@ -83,7 +101,7 @@ inductive classicalTimeFrame : Type
     (sp : classicalTime) --ALERT : WEAK TYPING
     (fr : classicalTimeFrame) --ALERT : WEAK TYPING
     (origin : classicalTimePoint)
-    (basis : classicalTimeVector)
+    (basis : classicalTimeBasis)
     (m : MeasurementSystem)
     : classicalTimeFrame
 | interpret
@@ -99,7 +117,7 @@ def classicalTimeFrame.space : classicalTimeFrame → classicalTime
 
 attribute [reducible]
 def classicalTimeFrame.build_derived
-   : classicalTimeFrame → classicalTimePoint → classicalTimeVector → MeasurementSystem → classicalTimeFrame
+   : classicalTimeFrame → classicalTimePoint → classicalTimeBasis → MeasurementSystem → classicalTimeFrame
 | (classicalTimeFrame.std sp) p v m := classicalTimeFrame.derived sp (classicalTimeFrame.std sp) p v m
 | (classicalTimeFrame.derived s f o b m) p v ms :=  classicalTimeFrame.derived s (classicalTimeFrame.derived s f o b m) p v ms
 | (classicalTimeFrame.interpret f m) p v ms :=  classicalTimeFrame.derived (classicalTimeFrame.space f) (classicalTimeFrame.interpret f m) p v ms
@@ -117,7 +135,7 @@ noncomputable def classicalTimeFrameAlgebra :
                 aff_lib.affine_coord_space.mk_frame
                     base_sp
                     (aff_lib.affine_coord_space.mk_point base_sp o.coords)
-                    (aff_lib.affine_coord_space.mk_basis base_sp ⟨[aff_lib.affine_coord_space.mk_vec base_sp b.coords], by refl⟩)
+                    (aff_lib.affine_coord_space.mk_basis base_sp ⟨[aff_lib.affine_coord_space.mk_vec base_sp (b 1).coords], by refl⟩)
         base_fr 
 | (classicalTimeFrame.interpret f m) := classicalTimeFrameAlgebra f
 
