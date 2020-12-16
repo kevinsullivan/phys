@@ -1,4 +1,5 @@
 import .....math.affine.affine_coordinate_framed_space_lib
+import .....math.affine.affine_coordinate_transform
 import ..metrology.dimensions 
 import ..metrology.measurement
 import data.real.basic
@@ -220,3 +221,20 @@ def classicalTimeCoordinatePointAlgebra
                 aff_lib.affine_coord_space.mk_point
                     base_sp
                     v.coords
+
+--attribute [reducible]
+structure classicalTimeTransform :=
+    (sp : classicalTime)
+    (from_ : classicalTimeFrame)
+    (to_ : classicalTimeFrame)
+
+attribute [reducible]
+def classicalTimeTransformAlgebra 
+    (tr : classicalTimeTransform)
+    :=
+    affine_coord_space.build_transform 
+        (⟨⟩ : affine_coord_space ℝ 1 
+            ((classicalTimeFrameAlgebra tr.from_)))
+        (⟨⟩ : affine_coord_space ℝ 1 
+            ((classicalTimeFrameAlgebra tr.to_)))
+        
