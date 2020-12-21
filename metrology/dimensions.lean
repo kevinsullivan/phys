@@ -131,7 +131,9 @@ def algebraOf : BasicDimension → Type
 | BasicDimension.intensity := { m : ℝ // m >= 0}
 -/
 
+/-
 def algebraOfDimension : Dimension → real_affine.Algebra
 | (Dimension.mk l m t c p q i) := real_affine.Algebra.aff_space (real_affine.to_affine 1)
+-/
 
 end dimension
