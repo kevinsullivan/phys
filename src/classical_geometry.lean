@@ -1,4 +1,6 @@
-import .....math.affine.affine_coordinate_framed_space_lib
+import 
+    .....math.affine.affine_coordinate_framed_space_lib
+    .....math.affine.affine_coordinate_transform
 import ..metrology.dimensions 
 import ..metrology.measurement
 import data.real.basic
@@ -238,3 +240,34 @@ def euclideanGeometry3CoordinatePointAlgebra
                 aff_lib.affine_coord_space.mk_point
                     base_sp
                     v.coords
+
+--attribute [reducible]
+structure euclideanGeometry3Transform :=
+    (sp : euclideanGeometry3)
+    (from_ : euclideanGeometry3Frame)
+    (to_ : euclideanGeometry3Frame)
+
+def euclideanGeometry3Transform.build
+    (sp : euclideanGeometry3)
+    (from_ : euclideanGeometry3Frame)
+    (to_ : euclideanGeometry3Frame)
+    :=
+    euclideanGeometry3Transform.mk sp from_ to_
+
+def euclideanGeometry3Transform.fromalgebra
+    (sp : euclideanGeometry3)
+    (from_ : euclideanGeometry3Frame)
+    (to_ : euclideanGeometry3Frame)
+    (tr : affine_coord_frame_transform ℝ 3 (euclideanGeometry3FrameAlgebra from_) (euclideanGeometry3FrameAlgebra to_))
+    :=
+    euclideanGeometry3Transform.mk sp from_ to_
+
+attribute [reducible]
+def euclideanGeometry3TransformAlgebra 
+    (tr : euclideanGeometry3Transform)
+    :=
+    affine_coord_space.build_transform 
+        (⟨⟩ : affine_coord_space ℝ 3 
+            ((euclideanGeometry3FrameAlgebra tr.from_)))
+        (⟨⟩ : affine_coord_space ℝ 3 
+            ((euclideanGeometry3FrameAlgebra tr.to_)))

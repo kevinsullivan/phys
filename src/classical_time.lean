@@ -228,6 +228,13 @@ structure classicalTimeTransform :=
     (from_ : classicalTimeFrame)
     (to_ : classicalTimeFrame)
 
+def classicalTimeTransform.build
+    (sp : classicalTime)
+    (from_ : classicalTimeFrame)
+    (to_ : classicalTimeFrame)
+    :=
+    classicalTimeTransform.mk sp from_ to_
+
 attribute [reducible]
 def classicalTimeTransformAlgebra 
     (tr : classicalTimeTransform)
