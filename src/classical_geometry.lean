@@ -1,6 +1,7 @@
 import 
     .....math.affine.affine_coordinate_framed_space_lib
     .....math.affine.affine_coordinate_transform
+    .....math.affine.affine_euclidean_space
 import ..metrology.dimensions 
 import ..metrology.measurement
 import data.real.basic
@@ -10,16 +11,18 @@ noncomputable theory
 open measurementSystem
 open aff_fr
 open aff_lib
+open aff_trans
 
 structure euclideanGeometry3 : Type :=
 mk :: 
-    (sp : aff_lib.affine_coord_space.standard_space ℝ 3) 
+    --(sp : aff_lib.affine_coord_space.standard_space ℝ 3) 
+    (sp : euclidean.affine_euclidean_space.standard_space ℝ 3)
     (id : ℕ) -- id serves as unique ID for a given geometric space
 
 
 attribute [reducible]
 def euclideanGeometry3.build (id : ℕ) : euclideanGeometry3 :=
-    ⟨aff_lib.affine_coord_space.mk_with_standard ℝ 3, id⟩
+    ⟨euclidean.affine_euclidean_space.mk_with_standard ℝ 3, id⟩
 
 noncomputable def euclideanGeometry3Algebra : euclideanGeometry3 →  
      aff_lib.affine_coord_space.standard_space ℝ 3
@@ -271,3 +274,32 @@ def euclideanGeometry3TransformAlgebra
             ((euclideanGeometry3FrameAlgebra tr.from_)))
         (⟨⟩ : affine_coord_space ℝ 3 
             ((euclideanGeometry3FrameAlgebra tr.to_)))
+
+    
+
+
+--attribute [reducible]
+structure euclideanGeometry3Angle :=
+    (sp : euclideanGeometry3)
+    (val : vector ℝ 1)
+
+def euclideanGeometry3Angle.build
+    (sp : euclideanGeometry3)
+    (val : vector ℝ 1)
+    :=
+    euclideanGeometry3Angle.mk sp val
+
+def euclideanGeometry3Angle.fromalgebra
+    (sp : euclideanGeometry3)
+    (a: euclidean.affine_euclidean_space.angle) 
+    :=
+    euclideanGeometry3Angle.mk sp ⟨[a.val],rfl⟩
+
+attribute [reducible]
+def euclideanGeometry3AngleAlgebra 
+    (a : euclideanGeometry3Angle)
+    : euclidean.affine_euclidean_space.angle
+    :=
+    ⟨a.val.nth 0⟩
+
+        

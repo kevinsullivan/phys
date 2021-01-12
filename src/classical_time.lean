@@ -9,6 +9,7 @@ noncomputable theory
 open measurementSystem
 open aff_fr
 open aff_lib
+open aff_trans
 
 structure classicalTime : Type :=
 mk :: 
@@ -238,8 +239,9 @@ def classicalTimeTransform.build
 attribute [reducible]
 def classicalTimeTransformAlgebra 
     (tr : classicalTimeTransform)
+    [inhabited (affine_coord_frame ℝ 1)]
     :=
-    affine_coord_space.build_transform 
+    affine_coord_space.build_transform ℝ 1 ((classicalTimeFrameAlgebra tr.from_)) ((classicalTimeFrameAlgebra tr.to_))
         (⟨⟩ : affine_coord_space ℝ 1 
             ((classicalTimeFrameAlgebra tr.from_)))
         (⟨⟩ : affine_coord_space ℝ 1 
