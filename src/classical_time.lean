@@ -21,7 +21,7 @@ attribute [reducible]
 def classicalTime.build (id : ℕ) : classicalTime :=
     ⟨aff_lib.affine_coord_space.mk_with_standard ℝ 1, id⟩
 
-noncomputable def classicalTimeAlgebra : classicalTime →  
+noncomputable def classicalTime.algebra : classicalTime →  
      aff_lib.affine_coord_space.standard_space ℝ 1
 | (classicalTime.mk sp n) := sp
 
@@ -39,7 +39,7 @@ def classicalTimeScalar.build
 
 
 attribute [reducible]
-def classicalTimeScalarAlgebra 
+def classicalTimeScalar.algebra 
     (s : classicalTimeScalar)
     := 
     s.val
@@ -60,11 +60,11 @@ def classicalTimeVector.build
 
 
 attribute [reducible]
-def classicalTimeVectorAlgebra 
+def classicalTimeVector.algebra 
     (v : classicalTimeVector)
     := 
         (aff_lib.affine_coord_space.mk_coord_vec
-        (classicalTimeAlgebra v.sp) 
+        (classicalTime.algebra v.sp) 
         v.coords)
 
 
@@ -83,11 +83,11 @@ def classicalTimePoint.build
         coords
 
 attribute [reducible]
-def classicalTimePointAlgebra 
+def classicalTimePoint.algebra 
     (v : classicalTimePoint)
     := 
         (aff_lib.affine_coord_space.mk_coord_point
-        (classicalTimeAlgebra v.sp) 
+        (classicalTime.algebra v.sp) 
         v.coords)
 
 
@@ -125,21 +125,21 @@ def classicalTimeFrame.build_derived
 | (classicalTimeFrame.interpret f m) p v ms :=  classicalTimeFrame.derived (classicalTimeFrame.space f) (classicalTimeFrame.interpret f m) p v ms
 
 attribute [reducible]
-noncomputable def classicalTimeFrameAlgebra :
+noncomputable def classicalTimeFrame.algebra :
     classicalTimeFrame → aff_fr.affine_coord_frame ℝ 1
 | (classicalTimeFrame.std sp) := 
     aff_lib.affine_coord_space.frame 
-        (classicalTimeAlgebra sp)
+        (classicalTime.algebra sp)
 | (classicalTimeFrame.derived s f o b m) :=
-    let base_fr := (classicalTimeFrameAlgebra f) in
+    let base_fr := (classicalTimeFrame.algebra f) in
         let base_sp := 
             aff_lib.affine_coord_space.mk_from_frame base_fr in
                 aff_lib.affine_coord_space.mk_frame
                     base_sp
-                    (aff_lib.affine_coord_space.mk_point base_sp o.coords)
-                    (aff_lib.affine_coord_space.mk_basis base_sp ⟨[aff_lib.affine_coord_space.mk_vec base_sp (b 1).coords], by refl⟩)
+                    (aff_lib.affine_coord_space.mk_coord_point base_sp o.coords)
+                    (aff_lib.affine_coord_space.mk_basis base_sp ⟨[aff_lib.affine_coord_space.mk_coord_vec base_sp (b 1).coords], by refl⟩)
         base_fr 
-| (classicalTimeFrame.interpret f m) := classicalTimeFrameAlgebra f
+| (classicalTimeFrame.interpret f m) := classicalTimeFrame.algebra f
 
 attribute [reducible]
 def classicalTime.stdFrame (sp : classicalTime)
@@ -168,19 +168,19 @@ def classicalTimeCoordinateVector.fromalgebra
     (sp : classicalTime)
     (fr : classicalTimeFrame)
     (vec : aff_coord_vec ℝ 1 f)
-    --(vec : aff_coord_vec ℝ 1 (classicalTimeFrameAlgebra fr))
+    --(vec : aff_coord_vec ℝ 1 (classicalTimeFrame.algebra fr))
     : classicalTimeCoordinateVector
     := 
     classicalTimeCoordinateVector.build sp fr (affine_coord_vec.get_coords vec)
 
 attribute [reducible]
-def classicalTimeCoordinateVectorAlgebra 
+def classicalTimeCoordinateVector.algebra 
     (v : classicalTimeCoordinateVector)
     := 
-        let base_fr := (classicalTimeFrameAlgebra v.frame) in
+        let base_fr := (classicalTimeFrame.algebra v.frame) in
         let base_sp := 
             aff_lib.affine_coord_space.mk_from_frame base_fr in
-                aff_lib.affine_coord_space.mk_vec
+                aff_lib.affine_coord_space.mk_coord_vec
                     base_sp
                     v.coords
 
@@ -213,13 +213,13 @@ def classicalTimeCoordinatePoint.fromalgebra
     classicalTimeCoordinatePoint.build sp fr (affine_coord_pt.get_coords pt)
 
 attribute [reducible]
-def classicalTimeCoordinatePointAlgebra 
+def classicalTimeCoordinatePoint.algebra 
     (v : classicalTimeCoordinatePoint)
     := 
-        let base_fr := (classicalTimeFrameAlgebra v.frame) in
+        let base_fr := (classicalTimeFrame.algebra v.frame) in
         let base_sp := 
             aff_lib.affine_coord_space.mk_from_frame base_fr in
-                aff_lib.affine_coord_space.mk_point
+                aff_lib.affine_coord_space.mk_coord_point
                     base_sp
                     v.coords
 
@@ -237,13 +237,13 @@ def classicalTimeTransform.build
     classicalTimeTransform.mk sp from_ to_
 
 attribute [reducible]
-def classicalTimeTransformAlgebra 
+def classicalTimeTransform.algebra 
     (tr : classicalTimeTransform)
     [inhabited (affine_coord_frame ℝ 1)]
     :=
-    affine_coord_space.build_transform ℝ 1 ((classicalTimeFrameAlgebra tr.from_)) ((classicalTimeFrameAlgebra tr.to_))
-        (⟨⟩ : affine_coord_space ℝ 1 
-            ((classicalTimeFrameAlgebra tr.from_)))
-        (⟨⟩ : affine_coord_space ℝ 1 
-            ((classicalTimeFrameAlgebra tr.to_)))
+    affine_coord_space.build_transform ℝ 1 ((classicalTimeFrame.algebra tr.from_)) ((classicalTimeFrame.algebra tr.to_))
+        (⟨⟨⟩⟩ : affine_coord_space ℝ 1 
+            _)
+        (⟨⟨⟩⟩ : affine_coord_space ℝ 1 
+            _)
         

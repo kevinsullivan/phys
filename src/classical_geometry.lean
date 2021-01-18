@@ -2,30 +2,34 @@ import
     .....math.affine.affine_coordinate_framed_space_lib
     .....math.affine.affine_coordinate_transform
     .....math.affine.affine_euclidean_space
+    .....math.affine.affine_euclidean_space_lib
 import ..metrology.dimensions 
 import ..metrology.measurement
+import ..metrology.axis_orientation
 import data.real.basic
 
 noncomputable theory
 --open real_lib
 open measurementSystem
+open orientation
 open aff_fr
 open aff_lib
 open aff_trans
+open eucl_lib
 
 structure euclideanGeometry3 : Type :=
 mk :: 
     --(sp : aff_lib.affine_coord_space.standard_space ℝ 3) 
-    (sp : euclidean.affine_euclidean_space.standard_space ℝ 3)
+    (sp : eucl_lib.affine_euclidean_space.standard_space ℝ 3)
     (id : ℕ) -- id serves as unique ID for a given geometric space
 
 
 attribute [reducible]
 def euclideanGeometry3.build (id : ℕ) : euclideanGeometry3 :=
-    ⟨euclidean.affine_euclidean_space.mk_with_standard ℝ 3, id⟩
+    ⟨affine_euclidean_space.mk_with_standard ℝ 3, id⟩
 
-noncomputable def euclideanGeometry3Algebra : euclideanGeometry3 →  
-     aff_lib.affine_coord_space.standard_space ℝ 3
+noncomputable def euclideanGeometry3.algebra : euclideanGeometry3 →  
+     affine_euclidean_space.standard_space ℝ 3
 | (euclideanGeometry3.mk sp n) := sp
 
 structure euclideanGeometry3Scalar :=
@@ -42,7 +46,7 @@ def euclideanGeometry3Scalar.build
 
 
 attribute [reducible]
-def euclideanGeometry3ScalarAlgebra 
+def euclideanGeometry3Scalar.algebra 
     (s : euclideanGeometry3Scalar)
     := 
     s.val
@@ -63,11 +67,11 @@ def euclideanGeometry3Vector.build
 
 
 attribute [reducible]
-def euclideanGeometry3VectorAlgebra 
+def euclideanGeometry3Vector.algebra 
     (v : euclideanGeometry3Vector)
     := 
         (aff_lib.affine_coord_space.mk_coord_vec
-        (euclideanGeometry3Algebra v.sp) 
+        (euclideanGeometry3.algebra v.sp).1 
         v.coords)
 
 
@@ -86,11 +90,11 @@ def euclideanGeometry3Point.build
         coords
 
 attribute [reducible]
-def euclideanGeometry3PointAlgebra 
+def euclideanGeometry3Point.algebra 
     (v : euclideanGeometry3Point)
     := 
         (aff_lib.affine_coord_space.mk_coord_point
-        (euclideanGeometry3Algebra v.sp) 
+        (euclideanGeometry3.algebra v.sp).1 
         v.coords)
 
 
@@ -112,12 +116,13 @@ inductive euclideanGeometry3Frame : Type
 | interpret
     (fr : euclideanGeometry3Frame)
     (m : MeasurementSystem)
+    (o : AxisOrientation 3)
 
 attribute [reducible]
 def euclideanGeometry3Frame.space : euclideanGeometry3Frame → euclideanGeometry3
 | (euclideanGeometry3Frame.std sp) := sp
 | (euclideanGeometry3Frame.derived s f o b m) :=  s
-| (euclideanGeometry3Frame.interpret f m) := euclideanGeometry3Frame.space f
+| (euclideanGeometry3Frame.interpret f m o) := euclideanGeometry3Frame.space f
 
 attribute [reducible]
 def euclideanGeometry3Basis.build : euclideanGeometry3Vector → euclideanGeometry3Vector → euclideanGeometry3Vector → euclideanGeometry3Basis
@@ -128,7 +133,7 @@ def euclideanGeometry3Frame.build_derived
    : euclideanGeometry3Frame → euclideanGeometry3Point → euclideanGeometry3Basis → MeasurementSystem → euclideanGeometry3Frame
 | (euclideanGeometry3Frame.std sp) p v m := euclideanGeometry3Frame.derived sp (euclideanGeometry3Frame.std sp) p v m
 | (euclideanGeometry3Frame.derived s f o b m) p v ms :=  euclideanGeometry3Frame.derived s (euclideanGeometry3Frame.derived s f o b m) p v ms
-| (euclideanGeometry3Frame.interpret f m) p v ms :=  euclideanGeometry3Frame.derived (euclideanGeometry3Frame.space f) (euclideanGeometry3Frame.interpret f m) p v ms
+| (euclideanGeometry3Frame.interpret f m o) p v ms :=  euclideanGeometry3Frame.derived (euclideanGeometry3Frame.space f) (euclideanGeometry3Frame.interpret f m o) p v ms
 
 attribute [reducible]
 def euclideanGeometry3Frame.build_derived_from_coords
@@ -143,24 +148,24 @@ def euclideanGeometry3Frame.build_derived_from_coords
 
 
 attribute [reducible]
-noncomputable def euclideanGeometry3FrameAlgebra :
+noncomputable def euclideanGeometry3Frame.algebra :
     euclideanGeometry3Frame → aff_fr.affine_coord_frame ℝ 3
 | (euclideanGeometry3Frame.std sp) := 
     aff_lib.affine_coord_space.frame 
-        (euclideanGeometry3Algebra sp)
+        (euclideanGeometry3.algebra sp).1
 | (euclideanGeometry3Frame.derived s f o b m) :=
-    let base_fr := (euclideanGeometry3FrameAlgebra f) in
+    let base_fr := (euclideanGeometry3Frame.algebra f) in
         let base_sp := 
             aff_lib.affine_coord_space.mk_from_frame base_fr in
                 aff_lib.affine_coord_space.mk_frame
                     base_sp
-                    (aff_lib.affine_coord_space.mk_point base_sp o.coords)
+                    (aff_lib.affine_coord_space.mk_coord_point base_sp o.coords)
                     (aff_lib.affine_coord_space.mk_basis base_sp 
-                      ⟨[aff_lib.affine_coord_space.mk_vec base_sp ((b 1)).coords,
-                      aff_lib.affine_coord_space.mk_vec base_sp ((b 2)).coords,
-                      aff_lib.affine_coord_space.mk_vec base_sp ((b 3)).coords], by refl⟩)
+                      ⟨[aff_lib.affine_coord_space.mk_coord_vec base_sp ((b 1)).coords,
+                      aff_lib.affine_coord_space.mk_coord_vec base_sp ((b 2)).coords,
+                      aff_lib.affine_coord_space.mk_coord_vec base_sp ((b 3)).coords], by refl⟩)
         base_fr 
-| (euclideanGeometry3Frame.interpret f m) := euclideanGeometry3FrameAlgebra f
+| (euclideanGeometry3Frame.interpret f m o) := euclideanGeometry3Frame.algebra f
 
 attribute [reducible]
 def euclideanGeometry3.stdFrame (sp : euclideanGeometry3)
@@ -189,19 +194,19 @@ def euclideanGeometry3CoordinateVector.fromalgebra
     (sp : euclideanGeometry3)
     (fr : euclideanGeometry3Frame)
     (vec : aff_coord_vec ℝ 3 f)
-    --(vec : aff_coord_vec ℝ 1 (euclideanGeometry3FrameAlgebra fr))
+    --(vec : aff_coord_vec ℝ 1 (euclideanGeometry3Frame.algebra fr))
     : euclideanGeometry3CoordinateVector
     := 
     euclideanGeometry3CoordinateVector.build sp fr (affine_coord_vec.get_coords vec)
 
 attribute [reducible]
-def euclideanGeometry3CoordinateVectorAlgebra 
+def euclideanGeometry3CoordinateVector.algebra 
     (v : euclideanGeometry3CoordinateVector)
     := 
-        let base_fr := (euclideanGeometry3FrameAlgebra v.frame) in
+        let base_fr := (euclideanGeometry3Frame.algebra v.frame) in
         let base_sp := 
             aff_lib.affine_coord_space.mk_from_frame base_fr in
-                aff_lib.affine_coord_space.mk_vec
+                aff_lib.affine_coord_space.mk_coord_vec
                     base_sp
                     v.coords
 
@@ -234,13 +239,13 @@ def euclideanGeometry3CoordinatePoint.fromalgebra
     euclideanGeometry3CoordinatePoint.build sp fr (affine_coord_pt.get_coords pt)
 
 attribute [reducible]
-def euclideanGeometry3CoordinatePointAlgebra 
+def euclideanGeometry3CoordinatePoint.algebra 
     (v : euclideanGeometry3CoordinatePoint)
     := 
-        let base_fr := (euclideanGeometry3FrameAlgebra v.frame) in
+        let base_fr := (euclideanGeometry3Frame.algebra v.frame) in
         let base_sp := 
             aff_lib.affine_coord_space.mk_from_frame base_fr in
-                aff_lib.affine_coord_space.mk_point
+                aff_lib.affine_coord_space.mk_coord_point
                     base_sp
                     v.coords
 
@@ -261,22 +266,20 @@ def euclideanGeometry3Transform.fromalgebra
     (sp : euclideanGeometry3)
     (from_ : euclideanGeometry3Frame)
     (to_ : euclideanGeometry3Frame)
-    (tr : affine_coord_frame_transform ℝ 3 (euclideanGeometry3FrameAlgebra from_) (euclideanGeometry3FrameAlgebra to_))
+    (tr : affine_coord_frame_transform ℝ 3 (euclideanGeometry3Frame.algebra from_) (euclideanGeometry3Frame.algebra to_))
     :=
     euclideanGeometry3Transform.mk sp from_ to_
 
 attribute [reducible]
-def euclideanGeometry3TransformAlgebra 
+def euclideanGeometry3Transform.algebra 
     (tr : euclideanGeometry3Transform)
+    [inhabited (affine_coord_frame ℝ 3)]
     :=
-    affine_coord_space.build_transform 
-        (⟨⟩ : affine_coord_space ℝ 3 
-            ((euclideanGeometry3FrameAlgebra tr.from_)))
-        (⟨⟩ : affine_coord_space ℝ 3 
-            ((euclideanGeometry3FrameAlgebra tr.to_)))
-
-    
-
+    affine_coord_space.build_transform ℝ 3 ((euclideanGeometry3Frame.algebra tr.from_)) ((euclideanGeometry3Frame.algebra tr.to_))
+        (⟨⟨⟩⟩ : affine_coord_space ℝ 3 
+            _)
+        (⟨⟨⟩⟩ : affine_coord_space ℝ 3 
+            _)    
 
 --attribute [reducible]
 structure euclideanGeometry3Angle :=
@@ -296,10 +299,61 @@ def euclideanGeometry3Angle.fromalgebra
     euclideanGeometry3Angle.mk sp ⟨[a.val],rfl⟩
 
 attribute [reducible]
-def euclideanGeometry3AngleAlgebra 
+def euclideanGeometry3Angle.algebra 
     (a : euclideanGeometry3Angle)
     : euclidean.affine_euclidean_space.angle
     :=
     ⟨a.val.nth 0⟩
 
-        
+
+--attribute [reducible]
+structure euclideanGeometry3Orientation :=
+    (sp : euclideanGeometry3)
+    (o : eucl_lib.affine_euclidean_orientation 3)
+   -- (val : vector ℝ 1)
+
+def euclideanGeometry3Orientation.build
+    (sp : euclideanGeometry3)
+    --(o : eucl_lib.affine_euclidean_orientation 3)
+    :=
+    euclideanGeometry3Orientation.mk sp NWU.or
+
+def euclideanGeometry3Orientation.fromalgebra
+    (sp : euclideanGeometry3)
+    (or: eucl_lib.affine_euclidean_orientation 3) 
+    :=
+    euclideanGeometry3Orientation.mk sp or
+
+attribute [reducible]
+def euclideanGeometry3Orientation.algebra 
+    (a : euclideanGeometry3Orientation)
+    : eucl_lib.affine_euclidean_orientation 3
+    :=
+    a.o
+
+structure euclideanGeometry3Rotation :=
+    (sp : euclideanGeometry3)
+    (r : eucl_lib.affine_euclidean_rotation 3)
+   -- (val : vector ℝ 1)
+
+def euclideanGeometry3Rotation.build
+    (sp : euclideanGeometry3)
+   -- (val : vector ℝ 1)
+    :=
+    let or := NWU.or in
+    euclideanGeometry3Rotation.mk sp ⟨or.1,or.2,or.3⟩
+
+def euclideanGeometry3Rotation.fromalgebra
+    (sp : euclideanGeometry3)
+    (r : eucl_lib.affine_euclidean_rotation 3)
+    :=
+    euclideanGeometry3Rotation.mk sp r
+
+attribute [reducible]
+def euclideanGeometry3Rotation.algebra 
+    (a : euclideanGeometry3Rotation)
+    : eucl_lib.affine_euclidean_rotation 3
+    :=
+    a.r
+
+                              
