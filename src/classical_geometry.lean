@@ -112,16 +112,17 @@ inductive euclideanGeometry3Frame : Type
     (origin : euclideanGeometry3Point)
     (basis : euclideanGeometry3Basis)
     (m : MeasurementSystem)
+    (or : AxisOrientation 3)
     : euclideanGeometry3Frame
 | interpret
     (fr : euclideanGeometry3Frame)
     (m : MeasurementSystem)
-    (o : AxisOrientation 3)
+    (or : AxisOrientation 3)
 
 attribute [reducible]
 def euclideanGeometry3Frame.space : euclideanGeometry3Frame → euclideanGeometry3
 | (euclideanGeometry3Frame.std sp) := sp
-| (euclideanGeometry3Frame.derived s f o b m) :=  s
+| (euclideanGeometry3Frame.derived s f o b m or) :=  s
 | (euclideanGeometry3Frame.interpret f m o) := euclideanGeometry3Frame.space f
 
 attribute [reducible]
@@ -130,21 +131,21 @@ def euclideanGeometry3Basis.build : euclideanGeometry3Vector → euclideanGeomet
 
 attribute [reducible]
 def euclideanGeometry3Frame.build_derived
-   : euclideanGeometry3Frame → euclideanGeometry3Point → euclideanGeometry3Basis → MeasurementSystem → euclideanGeometry3Frame
-| (euclideanGeometry3Frame.std sp) p v m := euclideanGeometry3Frame.derived sp (euclideanGeometry3Frame.std sp) p v m
-| (euclideanGeometry3Frame.derived s f o b m) p v ms :=  euclideanGeometry3Frame.derived s (euclideanGeometry3Frame.derived s f o b m) p v ms
-| (euclideanGeometry3Frame.interpret f m o) p v ms :=  euclideanGeometry3Frame.derived (euclideanGeometry3Frame.space f) (euclideanGeometry3Frame.interpret f m o) p v ms
+   : euclideanGeometry3Frame → euclideanGeometry3Point → euclideanGeometry3Basis → MeasurementSystem → AxisOrientation 3 → euclideanGeometry3Frame
+| (euclideanGeometry3Frame.std sp) p v m or := euclideanGeometry3Frame.derived sp (euclideanGeometry3Frame.std sp) p v m or
+| (euclideanGeometry3Frame.derived s f o b m or) p v ms or_ :=  euclideanGeometry3Frame.derived s (euclideanGeometry3Frame.derived s f o b m or) p v ms or
+| (euclideanGeometry3Frame.interpret f m o) p v ms or :=  euclideanGeometry3Frame.derived (euclideanGeometry3Frame.space f) (euclideanGeometry3Frame.interpret f m o) p v ms or
 
 attribute [reducible]
 def euclideanGeometry3Frame.build_derived_from_coords
     : euclideanGeometry3Frame → vector ℝ 3 → vector ℝ 3 → vector ℝ 3 → vector ℝ 3 → 
-        MeasurementSystem → euclideanGeometry3Frame
-| f p v1 v2 v3 m := 
+        MeasurementSystem → AxisOrientation 3 → euclideanGeometry3Frame
+| f p v1 v2 v3 m or := 
     let s := euclideanGeometry3Frame.space f in
     (euclideanGeometry3Frame.build_derived f (euclideanGeometry3Point.build s p) 
         (euclideanGeometry3Basis.build (euclideanGeometry3Vector.build s v1) 
                                         (euclideanGeometry3Vector.build s v1) 
-                                        (euclideanGeometry3Vector.build s v1)) m)
+                                        (euclideanGeometry3Vector.build s v1)) m or)
 
 
 attribute [reducible]
@@ -153,7 +154,7 @@ noncomputable def euclideanGeometry3Frame.algebra :
 | (euclideanGeometry3Frame.std sp) := 
     aff_lib.affine_coord_space.frame 
         (euclideanGeometry3.algebra sp).1
-| (euclideanGeometry3Frame.derived s f o b m) :=
+| (euclideanGeometry3Frame.derived s f o b m or) :=
     let base_fr := (euclideanGeometry3Frame.algebra f) in
         let base_sp := 
             aff_lib.affine_coord_space.mk_from_frame base_fr in
