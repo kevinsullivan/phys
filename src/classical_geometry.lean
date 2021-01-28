@@ -140,12 +140,12 @@ attribute [reducible]
 def euclideanGeometry3Frame.build_derived_from_coords
     : euclideanGeometry3Frame → vector ℝ 3 → vector ℝ 3 → vector ℝ 3 → vector ℝ 3 → 
         MeasurementSystem → AxisOrientation 3 → euclideanGeometry3Frame
-| f p v1 v2 v3 m or := 
+| f or v1 v2 v3 m ax := 
     let s := euclideanGeometry3Frame.space f in
-    (euclideanGeometry3Frame.build_derived f (euclideanGeometry3Point.build s p) 
+    (euclideanGeometry3Frame.build_derived f (euclideanGeometry3Point.build s or) 
         (euclideanGeometry3Basis.build (euclideanGeometry3Vector.build s v1) 
                                         (euclideanGeometry3Vector.build s v1) 
-                                        (euclideanGeometry3Vector.build s v1)) m or)
+                                        (euclideanGeometry3Vector.build s v1)) m ax)
 
 
 attribute [reducible]

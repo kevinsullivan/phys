@@ -11,6 +11,12 @@ open aff_fr
 open aff_lib
 open aff_trans
 
+/-
+add in a frame here...measurement system attached to quantity or frame?
+
+MOVE UNITS INTO METROLOGY
+-/
+
 structure classicalHertz : Type :=
 mk :: 
     (sp : aff_lib.affine_coord_space.standard_space ℝ 1) 
