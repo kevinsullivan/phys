@@ -17,41 +17,74 @@ abbreviation temperature := { r : ℝ // r >= 0} -- how/where to say can't be eq
 abbreviation quantity := ℕ 
 abbreviation intensity := {r : ℝ // r >= 0}    -- is this right?
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
+-- Proof that adding two masses together is a valid operation
 def add_mass : mass → mass → mass 
-| m1 m2 := ⟨m1.1 + m2.1, sorry ⟩
+| m1 m2 := ⟨m1.1 + m2.1, begin
+  cases m1, cases m2, simp,
+  apply add_nonneg,
+  assumption, assumption,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
+-- Proof that adding two intensities together is a valid operation
 def add_intensity : intensity → intensity → intensity 
-| i1 i2 := ⟨i1.1 + i2.1, sorry ⟩
+| i1 i2 := ⟨i1.1 + i2.1, begin
+  cases i1, cases i2, simp,
+  apply add_nonneg,
+  assumption, assumption,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
+-- Proof that adding two temperatures together is a valid operation
 def add_temperature : temperature → temperature → temperature 
-| i1 i2 := ⟨i1.1 + i2.1, sorry ⟩
+| t1 t2 := ⟨t1.1 + t2.1, begin
+  cases t1, cases t2, simp,
+  apply add_nonneg,
+  assumption, assumption,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
-def sub_mass : mass → mass → mass 
-| m1 m2 := ⟨m1.1 - m2.1, sorry ⟩
+-- Proof that subtracting a smaller mass from a larger mass is valid
+def sub_mass (m1 m2 : mass) (h : m1 >= m2) : mass :=
+⟨m1.1 - m2.1, begin 
+  cases m1, cases m2, simp, 
+  exact h,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
-def sub_intensity : intensity → intensity → intensity 
-| i1 i2 := ⟨i1.1 - i2.1, sorry ⟩
+-- Proof that subtracting a smaller intensity from a larger intensity is valid
+def sub_intensity (i1 i2 : intensity) (h : i1 >= i2) : intensity :=
+⟨i1.1 - i2.1, begin
+  cases i1, cases i2, simp,
+  exact h,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
-def sub_temperature : temperature → temperature → temperature 
-| i1 i2 := ⟨i1.1 - i2.1, sorry ⟩
+-- Proof that subtracting a smaller temperature from a larger temperature is valid
+def sub_temperature (t1 t2 : temperature) (h : t1 >= t2) : temperature :=
+⟨t1.1 - t2.1, begin
+  cases t1, cases t2, simp,
+  exact h,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
+-- Proof that multiplying mass is valid
 def mul_mass : mass → mass → mass 
-| m1 m2 := ⟨m1.1 * m2.1, sorry ⟩
+| m1 m2 := ⟨m1.1 * m2.1, begin
+  cases m1, cases m2, simp,
+  apply mul_nonneg,
+  assumption, assumption,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
+-- Proof that multiplying intensity is valid
 def mul_intensity : intensity → intensity → intensity 
-| i1 i2 := ⟨i1.1 * i2.1, sorry ⟩
+| i1 i2 := ⟨i1.1 * i2.1, begin
+  cases i1, cases i2, simp,
+  apply mul_nonneg,
+  assumption, assumption,
+end ⟩
 
--- Need proof that result isn't negative. Currently sorry. Turns into runtime check?
+-- Proof that multiplying temperature is valid
 def mul_temperature : temperature → temperature → temperature 
-| i1 i2 := ⟨i1.1 * i2.1, sorry ⟩
+| i1 i2 := ⟨i1.1 * i2.1, begin
+  cases i1, cases i2, simp,
+  apply mul_nonneg,
+  assumption, assumption,
+end ⟩
 
 
 end scalar
