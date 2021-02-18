@@ -274,7 +274,6 @@ def euclideanGeometry3Transform.fromalgebra
 attribute [reducible]
 def euclideanGeometry3Transform.algebra 
     (tr : euclideanGeometry3Transform)
-    [inhabited (affine_coord_frame ℝ 3)]
     :=
     affine_coord_space.build_transform ℝ 3 ((euclideanGeometry3Frame.algebra tr.from_)) ((euclideanGeometry3Frame.algebra tr.to_))
         (⟨⟨⟩⟩ : affine_coord_space ℝ 3 
@@ -357,4 +356,41 @@ def euclideanGeometry3Rotation.algebra
     :=
     a.r
 
-                              
+
+/-
+	(	(euclideanGeometry3Transform.algebra (
+	let sp:= (euclideanGeometry3Eval (lang.euclideanGeometry3.spaceExpr.var ⟨⟨8⟩⟩) env382) in
+	let domain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨20⟩⟩) env382) in
+	let codomain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨16⟩⟩) env382) in
+	(euclideanGeometry3Transform.build sp domain_ codomain_ )
+)) 
+) (	(euclideanGeometry3CoordinatePoint.algebra (
+(euclideanGeometry3CoordinatePointEval (lang.euclideanGeometry3.CoordinatePointExpr.var ⟨⟨4⟩⟩) env382)
+))
+) 
+-/
+
+variables 
+    (sp1 : euclideanGeometry3)
+    (fr1 : euclideanGeometry3Frame)
+    (fr2 : euclideanGeometry3Frame)
+    (pt : euclideanGeometry3Point)
+    (tr : euclideanGeometry3Transform)
+
+#check 
+    (euclideanGeometry3Transform.algebra tr) 
+
+
+#check 
+	(	(euclideanGeometry3Transform.algebra (
+	let sp:= (euclideanGeometry3Eval (lang.euclideanGeometry3.spaceExpr.var ⟨⟨8⟩⟩) env382) in
+	let domain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨20⟩⟩) env382) in
+	let codomain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨16⟩⟩) env382) in
+	(euclideanGeometry3Transform.build sp domain_ codomain_ )
+)) 
+) (	(euclideanGeometry3CoordinatePoint.algebra (
+(euclideanGeometry3CoordinatePointEval (lang.euclideanGeometry3.CoordinatePointExpr.var ⟨⟨4⟩⟩) env382)
+))
+) 
+
+variables (x : )

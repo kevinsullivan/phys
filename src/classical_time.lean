@@ -239,7 +239,6 @@ def classicalTimeTransform.build
 attribute [reducible]
 def classicalTimeTransform.algebra 
     (tr : classicalTimeTransform)
-    [inhabited (affine_coord_frame ℝ 1)]
     :=
     affine_coord_space.build_transform ℝ 1 ((classicalTimeFrame.algebra tr.from_)) ((classicalTimeFrame.algebra tr.to_))
         (⟨⟨⟩⟩ : affine_coord_space ℝ 1 
