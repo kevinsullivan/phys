@@ -11,6 +11,8 @@ inductive mass : Type
 
 inductive time : Type
 | second
+| millisecond
+| nanosecond
 
 inductive current : Type
 | ampere

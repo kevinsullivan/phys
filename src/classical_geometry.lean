@@ -17,380 +17,482 @@ open aff_lib
 open aff_trans
 open eucl_lib
 
-structure euclideanGeometry3 : Type :=
+structure euclideanGeometry (n : ℕ) : Type :=
 mk :: 
-    --(sp : aff_lib.affine_coord_space.standard_space ℝ 3) 
-    (sp : eucl_lib.affine_euclidean_space.standard_space ℝ 3)
+    (sp : eucl_lib.affine_euclidean_space.standard_space ℝ n)
     (id : ℕ) -- id serves as unique ID for a given geometric space
 
 
 attribute [reducible]
-def euclideanGeometry3.build (id : ℕ) : euclideanGeometry3 :=
-    ⟨affine_euclidean_space.mk_with_standard ℝ 3, id⟩
+def euclideanGeometry.build (n : ℕ) (id : ℕ) : euclideanGeometry n :=
+    ⟨affine_euclidean_space.mk_with_standard ℝ n, id⟩
 
-noncomputable def euclideanGeometry3.algebra : euclideanGeometry3 →  
-     affine_euclidean_space.standard_space ℝ 3
-| (euclideanGeometry3.mk sp n) := sp
+noncomputable def euclideanGeometry.algebra  {n : ℕ }  : euclideanGeometry n →  
+     affine_euclidean_space.standard_space ℝ n
+| (euclideanGeometry.mk sp id) := sp
 
-structure euclideanGeometry3Scalar :=
+structure euclideanGeometryQuantity 
+    {n : ℕ } 
+    (sp : euclideanGeometry n) :=
 mk ::
-    (sp : euclideanGeometry3)
     (val : ℝ)
 
 attribute [reducible]
-def euclideanGeometry3Scalar.build
-    (sp : euclideanGeometry3)
-    (val : vector ℝ 1) := 
-    euclideanGeometry3Scalar.mk sp (val.nth 1)
+def euclideanGeometryQuantity.build
+    {n : ℕ } 
+    (sp : euclideanGeometry n)
+    (val : vector ℝ 1) :
+    euclideanGeometryQuantity sp := 
+    euclideanGeometryQuantity.mk (val.nth 1)
 
 
 
 attribute [reducible]
-def euclideanGeometry3Scalar.algebra 
-    (s : euclideanGeometry3Scalar)
+def euclideanGeometryQuantity.algebra 
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (s : euclideanGeometryQuantity sp)
     := 
     s.val
 
-structure euclideanGeometry3Vector :=
+structure euclideanGeometryVector
+    {n : ℕ }  
+    (sp : euclideanGeometry n) :=
 mk ::
-    (sp : euclideanGeometry3)
-    (coords : vector ℝ 3)
+    (coords : vector ℝ n)
 
 attribute [reducible]
-def euclideanGeometry3Vector.build
-    (sp : euclideanGeometry3)
-    (coords : vector ℝ 3) :=
-    euclideanGeometry3Vector.mk
-        sp 
-        --⟨[coord], by refl⟩
+def euclideanGeometryVector.build
+    {n : ℕ }  
+    (sp : euclideanGeometry n)
+    (coords : vector ℝ n) :
+    euclideanGeometryVector sp :=
+    euclideanGeometryVector.mk
         coords
 
-
 attribute [reducible]
-def euclideanGeometry3Vector.algebra 
-    (v : euclideanGeometry3Vector)
+def euclideanGeometryVector.algebra 
+    {n : ℕ }  
+    (sp : euclideanGeometry n)
+    (v : euclideanGeometryVector sp)
     := 
         (aff_lib.affine_coord_space.mk_coord_vec
-        (euclideanGeometry3.algebra v.sp).1 
+        (euclideanGeometry.algebra sp).1 
         v.coords)
 
 
-structure euclideanGeometry3Point :=
+structure euclideanGeometryPoint
+    {n : ℕ }  
+    (sp : euclideanGeometry n) :=
 mk ::
-    (sp : euclideanGeometry3)
-    (coords : vector ℝ 3)
+    (coords : vector ℝ n)
 
 attribute [reducible]
-def euclideanGeometry3Point.build
-    (sp : euclideanGeometry3)
-    (coords : vector ℝ 3) :=
-    euclideanGeometry3Point.mk
-        sp 
-        --⟨[coord], by refl⟩
+def euclideanGeometryPoint.build
+    {n : ℕ }  
+    (sp : euclideanGeometry n)
+    (coords : vector ℝ n) :
+    euclideanGeometryPoint sp :=
+    euclideanGeometryPoint.mk
         coords
 
 attribute [reducible]
-def euclideanGeometry3Point.algebra 
-    (v : euclideanGeometry3Point)
+def euclideanGeometryPoint.algebra 
+    {n : ℕ }  
+    (sp : euclideanGeometry n)
+    (v : euclideanGeometryPoint sp)
     := 
         (aff_lib.affine_coord_space.mk_coord_point
-        (euclideanGeometry3.algebra v.sp).1 
+        (euclideanGeometry.algebra sp).1 
         v.coords)
 
 
 
-abbreviation euclideanGeometry3Basis :=
-    (fin 3) → euclideanGeometry3Vector
+abbreviation euclideanGeometryBasis
+    {n : ℕ }  
+    (sp : euclideanGeometry n) :=
+    (fin n) → euclideanGeometryVector sp
 
-inductive euclideanGeometry3Frame : Type
+inductive euclideanGeometryFrame
+    {n : ℕ }  
+    (sp : euclideanGeometry n) : Type
 | std 
-    (sp : euclideanGeometry3)
-    : euclideanGeometry3Frame
+    : euclideanGeometryFrame
 | derived 
-    (sp : euclideanGeometry3) --ALERT : WEAK TYPING
-    (fr : euclideanGeometry3Frame) --ALERT : WEAK TYPING
-    (origin : euclideanGeometry3Point)
-    (basis : euclideanGeometry3Basis)
+    (fr : euclideanGeometryFrame)
+    (origin : euclideanGeometryPoint sp)
+    (basis : euclideanGeometryBasis sp)
     (m : MeasurementSystem)
-    (or : AxisOrientation 3)
-    : euclideanGeometry3Frame
+    (or : AxisOrientation n)
+    : euclideanGeometryFrame
 | interpret
-    (fr : euclideanGeometry3Frame)
+    (fr : euclideanGeometryFrame)
     (m : MeasurementSystem)
-    (or : AxisOrientation 3)
+    (or : AxisOrientation n)
+    : euclideanGeometryFrame
 
 attribute [reducible]
-def euclideanGeometry3Frame.space : euclideanGeometry3Frame → euclideanGeometry3
-| (euclideanGeometry3Frame.std sp) := sp
-| (euclideanGeometry3Frame.derived s f o b m or) :=  s
-| (euclideanGeometry3Frame.interpret f m o) := euclideanGeometry3Frame.space f
+def euclideanGeometryFrame.space
+    {n : ℕ }  
+    {sp : euclideanGeometry n} (fr : euclideanGeometryFrame sp) := sp
 
 attribute [reducible]
-def euclideanGeometry3Basis.build : euclideanGeometry3Vector → euclideanGeometry3Vector → euclideanGeometry3Vector → euclideanGeometry3Basis
-| v1 v2 v3 := λi, if i = 1 then v1 else (if i = 2 then v2 else v3)
+def euclideanGeometryBasis.build
+    {n : ℕ }  
+    {sp : euclideanGeometry n} 
+    (v : vector (euclideanGeometryVector sp) n) : euclideanGeometryBasis sp
+    := λi, v.nth i
 
 attribute [reducible]
-def euclideanGeometry3Frame.build_derived
-   : euclideanGeometry3Frame → euclideanGeometry3Point → euclideanGeometry3Basis → MeasurementSystem → AxisOrientation 3 → euclideanGeometry3Frame
-| (euclideanGeometry3Frame.std sp) p v m or := euclideanGeometry3Frame.derived sp (euclideanGeometry3Frame.std sp) p v m or
-| (euclideanGeometry3Frame.derived s f o b m or) p v ms or_ :=  euclideanGeometry3Frame.derived s (euclideanGeometry3Frame.derived s f o b m or) p v ms or
-| (euclideanGeometry3Frame.interpret f m o) p v ms or :=  euclideanGeometry3Frame.derived (euclideanGeometry3Frame.space f) (euclideanGeometry3Frame.interpret f m o) p v ms or
+def euclideanGeometryFrame.build_derived
+    {n : ℕ }  
+    {sp : euclideanGeometry n} 
+   : euclideanGeometryFrame sp → euclideanGeometryPoint sp → euclideanGeometryBasis sp 
+        → MeasurementSystem → AxisOrientation n → euclideanGeometryFrame sp
+| (euclideanGeometryFrame.std) p v m or := euclideanGeometryFrame.derived (euclideanGeometryFrame.std) p v m or
+| (euclideanGeometryFrame.derived f o b m or) p v ms or_ :=  euclideanGeometryFrame.derived (euclideanGeometryFrame.derived f o b m or) p v ms or
+| (euclideanGeometryFrame.interpret f m o) p v ms or :=  euclideanGeometryFrame.derived (euclideanGeometryFrame.interpret f m o) p v ms or
 
 attribute [reducible]
-def euclideanGeometry3Frame.build_derived_from_coords
-    : euclideanGeometry3Frame → vector ℝ 3 → vector ℝ 3 → vector ℝ 3 → vector ℝ 3 → 
-        MeasurementSystem → AxisOrientation 3 → euclideanGeometry3Frame
-| f or v1 v2 v3 m ax := 
-    let s := euclideanGeometry3Frame.space f in
-    (euclideanGeometry3Frame.build_derived f (euclideanGeometry3Point.build s or) 
-        (euclideanGeometry3Basis.build (euclideanGeometry3Vector.build s v1) 
-                                        (euclideanGeometry3Vector.build s v1) 
-                                        (euclideanGeometry3Vector.build s v1)) m ax)
+def euclideanGeometryFrame.build_derived_from_coords
+    {n : ℕ }  
+    {sp : euclideanGeometry n} 
+    : euclideanGeometryFrame sp → vector ℝ n → vector (vector ℝ n) n → 
+        MeasurementSystem → AxisOrientation n → euclideanGeometryFrame sp
+| f or v m ax := 
+    (euclideanGeometryFrame.build_derived f (euclideanGeometryPoint.build sp or) 
+        (euclideanGeometryBasis.build ⟨(list.map (λv, euclideanGeometryVector.build sp v) v.1),sorry⟩) m ax)
 
 
 attribute [reducible]
-noncomputable def euclideanGeometry3Frame.algebra :
-    euclideanGeometry3Frame → aff_fr.affine_coord_frame ℝ 3
-| (euclideanGeometry3Frame.std sp) := 
-    aff_lib.affine_coord_space.frame 
-        (euclideanGeometry3.algebra sp).1
-| (euclideanGeometry3Frame.derived s f o b m or) :=
-    let base_fr := (euclideanGeometry3Frame.algebra f) in
+noncomputable def euclideanGeometryFrame.algebra
+    {n : ℕ }  
+    {sp : euclideanGeometry n} :
+    euclideanGeometryFrame sp → aff_fr.affine_coord_frame ℝ n
+| (euclideanGeometryFrame.std) := 
+        sp.algebra.1.frame
+| (euclideanGeometryFrame.derived f o b m or) :=
         let base_sp := 
-            aff_lib.affine_coord_space.mk_from_frame base_fr in
+            aff_lib.affine_coord_space.mk_from_frame f.algebra in
                 aff_lib.affine_coord_space.mk_frame
                     base_sp
                     (aff_lib.affine_coord_space.mk_coord_point base_sp o.coords)
-                    (aff_lib.affine_coord_space.mk_basis base_sp 
-                      ⟨[aff_lib.affine_coord_space.mk_coord_vec base_sp ((b 1)).coords,
-                      aff_lib.affine_coord_space.mk_coord_vec base_sp ((b 2)).coords,
-                      aff_lib.affine_coord_space.mk_coord_vec base_sp ((b 3)).coords], by refl⟩)
-        base_fr 
-| (euclideanGeometry3Frame.interpret f m o) := euclideanGeometry3Frame.algebra f
+                    (λi, aff_lib.affine_coord_space.mk_coord_vec base_sp ((b i)).coords)
+                f.algebra
+| (euclideanGeometryFrame.interpret f m o) := euclideanGeometryFrame.algebra f
 
 attribute [reducible]
-def euclideanGeometry3.stdFrame (sp : euclideanGeometry3)
-    := euclideanGeometry3Frame.std sp
+def euclideanGeometry.stdFrame
+    {n : ℕ }  
+    {sp : euclideanGeometry n} 
+    : euclideanGeometryFrame sp
+    := euclideanGeometryFrame.std
 
 
-structure euclideanGeometry3CoordinateVector
-    extends euclideanGeometry3Vector :=
+structure euclideanGeometryCoordinateVector
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (fr : euclideanGeometryFrame sp) 
+    extends euclideanGeometryVector sp :=
 mk ::
-    (frame : euclideanGeometry3Frame) 
 
 attribute [reducible]
-def euclideanGeometry3CoordinateVector.build
-    (sp : euclideanGeometry3)
-    (fr : euclideanGeometry3Frame)
-    (coords : vector ℝ 3) :
-    euclideanGeometry3CoordinateVector :=
+def euclideanGeometryCoordinateVector.build
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (fr : euclideanGeometryFrame sp) 
+    (coords : vector ℝ n) :
+    euclideanGeometryCoordinateVector fr :=
     {
-        frame := fr,
-        ..(euclideanGeometry3Vector.build sp coords)
+        ..(euclideanGeometryVector.build sp coords)
     }
 
 attribute [reducible]
-def euclideanGeometry3CoordinateVector.fromalgebra
-    {f : affine_coord_frame ℝ 3}
-    (sp : euclideanGeometry3)
-    (fr : euclideanGeometry3Frame)
-    (vec : aff_coord_vec ℝ 3 f)
-    --(vec : aff_coord_vec ℝ 1 (euclideanGeometry3Frame.algebra fr))
-    : euclideanGeometry3CoordinateVector
+def euclideanGeometryCoordinateVector.fromalgebra
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (fr : euclideanGeometryFrame sp) 
+    (vec : aff_coord_vec ℝ n fr.algebra)
+    --(vec : aff_coord_vec ℝ 1 (euclideanGeometryFrame.algebra fr))
+    : euclideanGeometryCoordinateVector fr
     := 
-    euclideanGeometry3CoordinateVector.build sp fr (affine_coord_vec.get_coords vec)
+    euclideanGeometryCoordinateVector.build fr (affine_coord_vec.get_coords vec)
 
 attribute [reducible]
-def euclideanGeometry3CoordinateVector.algebra 
-    (v : euclideanGeometry3CoordinateVector)
+def euclideanGeometryCoordinateVector.algebra 
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} 
+    (v : euclideanGeometryCoordinateVector fr)
     := 
-        let base_fr := (euclideanGeometry3Frame.algebra v.frame) in
         let base_sp := 
-            aff_lib.affine_coord_space.mk_from_frame base_fr in
+            aff_lib.affine_coord_space.mk_from_frame fr.algebra in
                 aff_lib.affine_coord_space.mk_coord_vec
                     base_sp
                     v.coords
 
 
 
-structure euclideanGeometry3CoordinatePoint 
-    extends euclideanGeometry3Point :=
+structure euclideanGeometryCoordinatePoint 
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (fr : euclideanGeometryFrame sp) 
+    extends euclideanGeometryPoint sp :=
 mk ::
-    (frame : euclideanGeometry3Frame) 
 
 attribute [reducible]
-def euclideanGeometry3CoordinatePoint.build
-    (sp : euclideanGeometry3)
-    (fr : euclideanGeometry3Frame)
-    (coords : vector ℝ 3) :
-    euclideanGeometry3CoordinatePoint :=
+def euclideanGeometryCoordinatePoint.build
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (fr : euclideanGeometryFrame sp) 
+    (coords : vector ℝ n) :
+    euclideanGeometryCoordinatePoint fr :=
     {
-        frame := fr,
-        ..(euclideanGeometry3Point.build sp coords)
+        ..(euclideanGeometryPoint.build sp coords)
     }
 
 attribute [reducible]
-def euclideanGeometry3CoordinatePoint.fromalgebra
-    {f : affine_coord_frame ℝ 3}
-    (sp : euclideanGeometry3)
-    (fr : euclideanGeometry3Frame)
-    (pt : aff_coord_pt ℝ 3 f)
-    : euclideanGeometry3CoordinatePoint
+def euclideanGeometryCoordinatePoint.fromalgebra
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (fr : euclideanGeometryFrame sp) 
+    (pt : aff_coord_pt ℝ n fr.algebra)
+    : euclideanGeometryCoordinatePoint fr
     := 
-    euclideanGeometry3CoordinatePoint.build sp fr (affine_coord_pt.get_coords pt)
+    euclideanGeometryCoordinatePoint.build fr (affine_coord_pt.get_coords pt)
 
 attribute [reducible]
-def euclideanGeometry3CoordinatePoint.algebra 
-    (v : euclideanGeometry3CoordinatePoint)
+def euclideanGeometryCoordinatePoint.algebra 
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp}
+    (v : euclideanGeometryCoordinatePoint fr)
     := 
-        let base_fr := (euclideanGeometry3Frame.algebra v.frame) in
         let base_sp := 
-            aff_lib.affine_coord_space.mk_from_frame base_fr in
+            aff_lib.affine_coord_space.mk_from_frame fr.algebra in
                 aff_lib.affine_coord_space.mk_coord_point
                     base_sp
                     v.coords
 
 --attribute [reducible]
-structure euclideanGeometry3Transform :=
-    (sp : euclideanGeometry3)
-    (from_ : euclideanGeometry3Frame)
-    (to_ : euclideanGeometry3Frame)
+structure euclideanGeometryTransform
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (from_ : euclideanGeometryFrame sp)
+    (to_ : euclideanGeometryFrame sp) :=
+    mk ::
+    (tr : affine_coord_frame_transform ℝ n from_.algebra to_.algebra)
 
-def euclideanGeometry3Transform.build
-    (sp : euclideanGeometry3)
-    (from_ : euclideanGeometry3Frame)
-    (to_ : euclideanGeometry3Frame)
+def euclideanGeometryTransform.build
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (from_ : euclideanGeometryFrame sp)
+    (to_ : euclideanGeometryFrame sp) 
     :=
-    euclideanGeometry3Transform.mk sp from_ to_
-
-def euclideanGeometry3Transform.fromalgebra
-    (sp : euclideanGeometry3)
-    (from_ : euclideanGeometry3Frame)
-    (to_ : euclideanGeometry3Frame)
-    (tr : affine_coord_frame_transform ℝ 3 (euclideanGeometry3Frame.algebra from_) (euclideanGeometry3Frame.algebra to_))
-    :=
-    euclideanGeometry3Transform.mk sp from_ to_
-
-attribute [reducible]
-def euclideanGeometry3Transform.algebra 
-    (tr : euclideanGeometry3Transform)
-    :=
-    affine_coord_space.build_transform ℝ 3 ((euclideanGeometry3Frame.algebra tr.from_)) ((euclideanGeometry3Frame.algebra tr.to_))
-        (⟨⟨⟩⟩ : affine_coord_space ℝ 3 
+    affine_coord_space.build_transform ℝ n from_.algebra to_.algebra
+        (⟨⟨⟩⟩ : affine_coord_space ℝ n 
             _)
-        (⟨⟨⟩⟩ : affine_coord_space ℝ 3 
+        (⟨⟨⟩⟩ : affine_coord_space ℝ n
             _)    
 
---attribute [reducible]
-structure euclideanGeometry3Angle :=
-    (sp : euclideanGeometry3)
-    (val : vector ℝ 1)
-
-def euclideanGeometry3Angle.build
-    (sp : euclideanGeometry3)
-    (val : vector ℝ 1)
-    :=
-    euclideanGeometry3Angle.mk sp val
-
-def euclideanGeometry3Angle.fromalgebra
-    (sp : euclideanGeometry3)
-    (a: euclidean.affine_euclidean_space.angle) 
-    :=
-    euclideanGeometry3Angle.mk sp ⟨[a.val],rfl⟩
+def euclideanGeometryTransform.fromalgebra
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    (from_ : euclideanGeometryFrame sp)
+    (to_ : euclideanGeometryFrame sp) 
+    (tr : affine_coord_frame_transform ℝ n from_.algebra to_.algebra)
+    : euclideanGeometryTransform from_ to_ :=
+    ⟨tr⟩
 
 attribute [reducible]
-def euclideanGeometry3Angle.algebra 
-    (a : euclideanGeometry3Angle)
+def euclideanGeometryTransform.algebra 
+    {n : ℕ }  
+    {sp : euclideanGeometry n}
+    {from_ : euclideanGeometryFrame sp}
+    {to_ : euclideanGeometryFrame sp}
+    (tr : euclideanGeometryTransform from_ to_)
+    :=
+    tr.tr
+
+--attribute [reducible]
+structure euclideanGeometryAngle
+    {n : ℕ }
+    (sp : euclideanGeometry n) :=
+    (val : vector ℝ 1)
+
+def euclideanGeometryAngle.build
+    {n : ℕ }
+    (sp : euclideanGeometry n) 
+    (val : vector ℝ 1)
+    : euclideanGeometryAngle sp
+    :=
+    euclideanGeometryAngle.mk val
+
+def euclideanGeometryAngle.fromalgebra
+    {n : ℕ }
+    (sp : euclideanGeometry n) 
+    (a: euclidean.affine_euclidean_space.angle) 
+    : euclideanGeometryAngle sp
+    :=
+    euclideanGeometryAngle.mk ⟨[a.val],rfl⟩
+
+attribute [reducible]
+def euclideanGeometryAngle.algebra 
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {a : euclideanGeometryAngle sp}
     : euclidean.affine_euclidean_space.angle
     :=
     ⟨a.val.nth 0⟩
 
 
 --attribute [reducible]
-structure euclideanGeometry3Orientation :=
-    (sp : euclideanGeometry3)
-    (o : eucl_lib.affine_euclidean_orientation 3)
+structure euclideanGeometryOrientation
+    {n : ℕ }
+    (sp : euclideanGeometry n) :=
+    (o : eucl_lib.affine_euclidean_orientation n)
    -- (val : vector ℝ 1)
 
-def euclideanGeometry3Orientation.build
-    (sp : euclideanGeometry3)
+def euclideanGeometryOrientation.build
+    {n : ℕ }
+    (sp : euclideanGeometry n)
+    (o : eucl_lib.affine_euclidean_orientation n)
     --(o : eucl_lib.affine_euclidean_orientation 3)
-    :=
-    euclideanGeometry3Orientation.mk sp NWU.or
+    : euclideanGeometryOrientation sp
+    := ⟨o⟩
 
-def euclideanGeometry3Orientation.fromalgebra
-    (sp : euclideanGeometry3)
-    (or: eucl_lib.affine_euclidean_orientation 3) 
+def euclideanGeometryOrientation.fromalgebra
+    {n : ℕ }
+    (sp : euclideanGeometry n)
+    (or: eucl_lib.affine_euclidean_orientation n) 
+    : euclideanGeometryOrientation sp
     :=
-    euclideanGeometry3Orientation.mk sp or
+    euclideanGeometryOrientation.mk or
 
 attribute [reducible]
-def euclideanGeometry3Orientation.algebra 
-    (a : euclideanGeometry3Orientation)
-    : eucl_lib.affine_euclidean_orientation 3
+def euclideanGeometryOrientation.algebra 
+    {n : ℕ }
+    (sp : euclideanGeometry n)
+    (a : euclideanGeometryOrientation sp)
+    : eucl_lib.affine_euclidean_orientation n
     :=
     a.o
 
-structure euclideanGeometry3Rotation :=
-    (sp : euclideanGeometry3)
-    (r : eucl_lib.affine_euclidean_rotation 3)
+structure euclideanGeometryRotation
+    {n : ℕ }
+    (sp : euclideanGeometry n) :=
+    (r : eucl_lib.affine_euclidean_rotation n)
    -- (val : vector ℝ 1)
 
-def euclideanGeometry3Rotation.build
-    (sp : euclideanGeometry3)
-   -- (val : vector ℝ 1)
+def euclideanGeometryRotation.build
+    {n : ℕ }
+    (sp : euclideanGeometry n)
+    (v : vector (vector ℝ n) n)
+    : euclideanGeometryRotation sp
     :=
-    let or := NWU.or in
-    euclideanGeometry3Rotation.mk sp ⟨or.1,or.2,or.3⟩
+    euclideanGeometryRotation.mk ⟨λ i, affine_coord_space.mk_tuple_vec (v.nth i),sorry,sorry⟩
 
-def euclideanGeometry3Rotation.fromalgebra
-    (sp : euclideanGeometry3)
-    (r : eucl_lib.affine_euclidean_rotation 3)
+def euclideanGeometryRotation.fromalgebra
+    {n : ℕ }
+    (sp : euclideanGeometry n)
+    (r : eucl_lib.affine_euclidean_rotation n)
+    : euclideanGeometryRotation sp
     :=
-    euclideanGeometry3Rotation.mk sp r
+    euclideanGeometryRotation.mk r
 
 attribute [reducible]
-def euclideanGeometry3Rotation.algebra 
-    (a : euclideanGeometry3Rotation)
-    : eucl_lib.affine_euclidean_rotation 3
+def euclideanGeometryRotation.algebra 
+    {n : ℕ }
+    (sp : euclideanGeometry n)
+    (a : euclideanGeometryRotation sp)
+    : eucl_lib.affine_euclidean_rotation n
     :=
     a.r
+    
+attribute [reducible]
+def geom_vec_plus_vec
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} : 
+    euclideanGeometryCoordinateVector fr → 
+    euclideanGeometryCoordinateVector fr → 
+    euclideanGeometryCoordinateVector fr := 
+    λ (v1 v2 : _), 
+        let add_ : aff_coord_vec ℝ n fr.algebra := (v1.algebra +ᵥ v2.algebra) in
+        euclideanGeometryCoordinateVector.fromalgebra fr add_
 
 
-/-
-	(	(euclideanGeometry3Transform.algebra (
-	let sp:= (euclideanGeometry3Eval (lang.euclideanGeometry3.spaceExpr.var ⟨⟨8⟩⟩) env382) in
-	let domain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨20⟩⟩) env382) in
-	let codomain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨16⟩⟩) env382) in
-	(euclideanGeometry3Transform.build sp domain_ codomain_ )
-)) 
-) (	(euclideanGeometry3CoordinatePoint.algebra (
-(euclideanGeometry3CoordinatePointEval (lang.euclideanGeometry3.CoordinatePointExpr.var ⟨⟨4⟩⟩) env382)
-))
-) 
--/
+attribute [reducible]
+def geom_vec_plus_pt
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} : 
+    euclideanGeometryCoordinateVector fr → 
+    euclideanGeometryCoordinatePoint fr → 
+    euclideanGeometryCoordinatePoint fr := 
+    λ (v p : _), euclideanGeometryCoordinatePoint.fromalgebra fr (v.algebra +ᵥ p.algebra)
+attribute [reducible]
+def geom_pt_plus_vec
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} : 
+    euclideanGeometryCoordinatePoint fr → euclideanGeometryCoordinateVector fr → euclideanGeometryCoordinatePoint fr := 
+    λ (p v : _), geom_vec_plus_pt v p
+attribute [reducible]
+def geom_scalar_mul_vec 
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} : 
+    ℝ → euclideanGeometryCoordinateVector fr → euclideanGeometryCoordinateVector fr :=
+    λ (s v), euclideanGeometryCoordinateVector.fromalgebra fr (s•v.algebra)
+attribute [reducible]
+def geom_vec_mul_scalar
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} : 
+    euclideanGeometryCoordinateVector fr → ℝ → euclideanGeometryCoordinateVector fr :=
+    λ (v s), euclideanGeometryCoordinateVector.fromalgebra fr (s•v.algebra)
+attribute [reducible]
+def geom_vec_minus_vec
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} : 
+    euclideanGeometryCoordinateVector fr → euclideanGeometryCoordinateVector fr → euclideanGeometryCoordinateVector fr := 
+    λ (v1 v2 : _), euclideanGeometryCoordinateVector.fromalgebra fr (v1.algebra+ᵥ(-v2.algebra))
+attribute [reducible]
+def geom_pt_minus_vec
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {fr : euclideanGeometryFrame sp} : 
+    euclideanGeometryCoordinatePoint fr → euclideanGeometryCoordinateVector fr → euclideanGeometryCoordinatePoint fr := 
+    λ (p v : _), euclideanGeometryCoordinatePoint.fromalgebra fr ((-v.algebra)+ᵥp.algebra)
+attribute [reducible]
+def geom_trans_apply_vec
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {from_ : euclideanGeometryFrame sp}
+    {to_ : euclideanGeometryFrame sp} :
+    euclideanGeometryTransform from_ to_ → euclideanGeometryCoordinateVector from_ → euclideanGeometryCoordinateVector to_ :=
+    λ t v, euclideanGeometryCoordinateVector.fromalgebra to_ 
+        ((t.algebra (v.algebra +ᵥ (pt_zero_coord ℝ n from_.algebra))) -ᵥ (pt_zero_coord ℝ n to_.algebra))
 
-variables 
-    (sp1 : euclideanGeometry3)
-    (fr1 : euclideanGeometry3Frame)
-    (fr2 : euclideanGeometry3Frame)
-    (pt : euclideanGeometry3Point)
-    (tr : euclideanGeometry3Transform)
+attribute [reducible]
+def geom_trans_compose
+    {n : ℕ }
+    {sp : euclideanGeometry n}
+    {from_ : euclideanGeometryFrame sp}
+    {inner_ : euclideanGeometryFrame sp}
+    {to_ : euclideanGeometryFrame sp} :
+    euclideanGeometryTransform from_ inner_ → euclideanGeometryTransform inner_ to_ → euclideanGeometryTransform from_ to_ :=
+    λ t1 t2, ⟨t1.algebra.trans t2.algebra⟩
 
-#check 
-    (euclideanGeometry3Transform.algebra tr) 
 
-
-#check 
-	(	(euclideanGeometry3Transform.algebra (
-	let sp:= (euclideanGeometry3Eval (lang.euclideanGeometry3.spaceExpr.var ⟨⟨8⟩⟩) env382) in
-	let domain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨20⟩⟩) env382) in
-	let codomain_:= (euclideanGeometry3FrameEval (lang.euclideanGeometry3.frameExpr.var ⟨⟨16⟩⟩) env382) in
-	(euclideanGeometry3Transform.build sp domain_ codomain_ )
-)) 
-) (	(euclideanGeometry3CoordinatePoint.algebra (
-(euclideanGeometry3CoordinatePointEval (lang.euclideanGeometry3.CoordinatePointExpr.var ⟨⟨4⟩⟩) env382)
-))
-) 
-
-variables (x : )
+notation v+v := geom_vec_plus_vec v v
+notation v+p := geom_vec_plus_pt v p
+notation p+v := geom_pt_plus_vec p v
+notation s•v := geom_scalar_mul_vec s v
+notation v•s := geom_vec_mul_scalar v s
+notation v-v := geom_vec_minus_vec v v
+notation p-v := geom_pt_minus_vec p v
+notation t⬝v := geom_trans_apply_vec v 
+notation t1∘t2 := geom_trans_compose t1 t2

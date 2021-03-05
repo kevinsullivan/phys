@@ -40,5 +40,11 @@ unit.temperature.fahrenheit
 unit.quantity.mole
 unit.intensity.candela
 
+def si_nanoseconds : MeasurementSystem :=
+{
+  time := unit.time.nanosecond
+  ..si_measurement_system
+}
+
 
 end measurementSystem
