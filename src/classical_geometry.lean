@@ -33,7 +33,9 @@ noncomputable def euclideanGeometry.algebra  {n : ℕ }  : euclideanGeometry n �
 
 structure euclideanGeometryQuantity 
     {n : ℕ } 
-    (sp : euclideanGeometry n) :=
+    (sp : euclideanGeometry n)
+    (m : MeasurementSystem)
+     :=
 mk ::
     (val : ℝ)
 
@@ -41,8 +43,9 @@ attribute [reducible]
 def euclideanGeometryQuantity.build
     {n : ℕ } 
     (sp : euclideanGeometry n)
+    (m : MeasurementSystem)
     (val : vector ℝ 1) :
-    euclideanGeometryQuantity sp := 
+    euclideanGeometryQuantity sp m := 
     euclideanGeometryQuantity.mk (val.nth 1)
 
 
@@ -51,7 +54,8 @@ attribute [reducible]
 def euclideanGeometryQuantity.algebra 
     {n : ℕ }  
     {sp : euclideanGeometry n}
-    (s : euclideanGeometryQuantity sp)
+    {m : MeasurementSystem}
+    (s : euclideanGeometryQuantity sp m)
     := 
     s.val
 
@@ -184,7 +188,7 @@ noncomputable def euclideanGeometryFrame.algebra
 attribute [reducible]
 def euclideanGeometry.stdFrame
     {n : ℕ }  
-    {sp : euclideanGeometry n} 
+    (sp : euclideanGeometry n)
     : euclideanGeometryFrame sp
     := euclideanGeometryFrame.std
 
@@ -288,13 +292,14 @@ def euclideanGeometryTransform.build
     {sp : euclideanGeometry n}
     (from_ : euclideanGeometryFrame sp)
     (to_ : euclideanGeometryFrame sp) 
+    : euclideanGeometryTransform from_ to_
     :=
-    affine_coord_space.build_transform ℝ n from_.algebra to_.algebra
+    ⟨ affine_coord_space.build_transform ℝ n from_.algebra to_.algebra
         (⟨⟨⟩⟩ : affine_coord_space ℝ n 
             _)
         (⟨⟨⟩⟩ : affine_coord_space ℝ n
             _)    
-
+    ⟩
 def euclideanGeometryTransform.fromalgebra
     {n : ℕ }  
     {sp : euclideanGeometry n}
@@ -356,10 +361,10 @@ structure euclideanGeometryOrientation
 def euclideanGeometryOrientation.build
     {n : ℕ }
     (sp : euclideanGeometry n)
-    (o : eucl_lib.affine_euclidean_orientation n)
-    --(o : eucl_lib.affine_euclidean_orientation 3)
+    (v : vector (vector ℝ n) n)
     : euclideanGeometryOrientation sp
-    := ⟨o⟩
+    := ⟨⟨λ i, affine_coord_space.mk_tuple_vec (v.nth i),sorry,sorry⟩⟩
+
 
 def euclideanGeometryOrientation.fromalgebra
     {n : ℕ }

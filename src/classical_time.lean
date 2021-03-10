@@ -103,8 +103,7 @@ abbreviation classicalTimeBasis
     (fin 1) → classicalTimeVector sp
 
 inductive classicalTimeFrame (sp : classicalTime)
-| std 
-    (sp : classicalTime)
+| std
     : classicalTimeFrame
 | derived 
     (fr : classicalTimeFrame)
@@ -131,18 +130,31 @@ def classicalTimeFrame.measurementSystem
 attribute [reducible]
 def classicalTimeFrame.space {sp : classicalTime} (fr : classicalTimeFrame sp) := sp
 
+attribute [reducible]
+def classicalTime.stdFrame (sp : classicalTime)
+    : classicalTimeFrame sp
+    := classicalTimeFrame.std
+
+
 
 attribute [reducible]
 def classicalTimeFrame.build_derived {sp : classicalTime}
    : classicalTimeFrame sp → classicalTimePoint sp → classicalTimeBasis sp → MeasurementSystem → classicalTimeFrame sp
-| (classicalTimeFrame.std sp) p v m := classicalTimeFrame.derived (classicalTimeFrame.std sp) p v m
+| (classicalTimeFrame.std) p v m := classicalTimeFrame.derived sp.stdFrame p v m
 | (classicalTimeFrame.derived f o b m) p v ms :=  classicalTimeFrame.derived (classicalTimeFrame.derived f o b m) p v ms
 | (classicalTimeFrame.interpret f m) p v ms :=  classicalTimeFrame.derived (classicalTimeFrame.interpret f m) p v ms
 
 attribute [reducible]
+def classicalTimeFrame.build_derived_from_coords {sp : classicalTime}
+   : classicalTimeFrame sp → vector ℝ 1 → vector ℝ 1 → MeasurementSystem → classicalTimeFrame sp
+| (classicalTimeFrame.std) p v m := classicalTimeFrame.derived (sp.stdFrame : classicalTimeFrame sp) (classicalTimePoint.build sp p : classicalTimePoint sp) ((λone, (classicalTimeVector.build sp v)) : classicalTimeBasis sp) m
+| (classicalTimeFrame.derived f o b m) p v ms :=  classicalTimeFrame.derived (classicalTimeFrame.derived f o b m) (classicalTimePoint.build sp p : classicalTimePoint sp) ((λone, (classicalTimeVector.build sp v)) : classicalTimeBasis sp) ms
+| (classicalTimeFrame.interpret f m) p v ms :=  classicalTimeFrame.derived (classicalTimeFrame.interpret f m) (classicalTimePoint.build sp p : classicalTimePoint sp) ((λone, (classicalTimeVector.build sp v)) : classicalTimeBasis sp) ms
+
+attribute [reducible]
 noncomputable def classicalTimeFrame.algebra {sp : classicalTime} :
     classicalTimeFrame sp → aff_fr.affine_coord_frame ℝ 1
-| (classicalTimeFrame.std sp) := 
+| (classicalTimeFrame.std) := 
     aff_lib.affine_coord_space.frame 
         (classicalTime.algebra sp)
 | (classicalTimeFrame.derived f o b m) :=
@@ -155,12 +167,6 @@ noncomputable def classicalTimeFrame.algebra {sp : classicalTime} :
                     (aff_lib.affine_coord_space.mk_basis base_sp ⟨[aff_lib.affine_coord_space.mk_coord_vec base_sp (b 1).coords], by refl⟩)
         base_fr 
 | (classicalTimeFrame.interpret f m) := classicalTimeFrame.algebra f
-
-attribute [reducible]
-def classicalTime.stdFrame (sp : classicalTime)
-    : classicalTimeFrame sp
-    := classicalTimeFrame.std sp 
-
 
 structure classicalTimeCoordinateVector {sp : classicalTime} (fr : classicalTimeFrame sp)
     extends classicalTimeVector sp :=
@@ -207,7 +213,7 @@ mk ::
 attribute [reducible]
 def classicalTimeCoordinatePoint.build
     {sp : classicalTime}
-    {fr : classicalTimeFrame sp}
+    (fr : classicalTimeFrame sp)
     (coords : vector ℝ 1) :
     classicalTimeCoordinatePoint fr :=
     {
@@ -286,7 +292,7 @@ def time_vec_plus_vec
     {sp : classicalTime}
     {fr : classicalTimeFrame sp} : 
     classicalTimeCoordinateVector fr → classicalTimeCoordinateVector fr → classicalTimeCoordinateVector fr := 
-    λ (v1 v2 : _), classicalTimeCoordinateVector.fromalgebra fr (v1.algebra +ᵥ v2.algebra)
+    λ (v1 v2 : classicalTimeCoordinateVector fr), classicalTimeCoordinateVector.fromalgebra fr (v1.algebra +ᵥ v2.algebra)
 attribute [reducible]
 def time_vec_plus_pt
     {sp : classicalTime}
