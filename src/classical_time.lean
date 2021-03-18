@@ -13,23 +13,78 @@ open aff_trans
 
 structure classicalTime : Type :=
 mk :: 
-    (sp : aff_lib.affine_coord_space.standard_space ℝ 1) 
+    --(sp : aff_lib.affine_coord_space.standard_space ℝ 1) 
     (id : ℕ) -- id serves as unique ID for a given geometric space
+
+instance ct_eq 
+  {sp : classicalTime}
+  {sp1 : classicalTime}
+  : decidable (sp=sp1) :=
+  if n_eq : sp.id=sp1.id then 
+    begin
+      let t : sp = sp1 := begin
+        induction sp,
+        induction sp1,
+        let : sp=sp1 := by cc,
+        cc
+      end,
+      exact decidable.is_true t
+    end  
+  else
+    begin
+      let f : ¬(sp=sp1) := begin
+        
+        induction sp,
+        induction sp1,
+        let nsp : ¬(sp=sp1) := by cc,
+        simp *,
+      end,
+      exact decidable.is_false f
+    end  
 
 
 attribute [reducible]
 def classicalTime.build (id : ℕ) : classicalTime :=
-    ⟨aff_lib.affine_coord_space.mk_with_standard ℝ 1, id⟩
+    ⟨ id⟩
 
 noncomputable def classicalTime.algebra : classicalTime →  
      aff_lib.affine_coord_space.standard_space ℝ 1
-| (classicalTime.mk sp n) := sp
+| (classicalTime.mk n) := aff_lib.affine_coord_space.mk_with_standard ℝ 1
 
 structure classicalTimeQuantity
     (sp : classicalTime)
     (m : MeasurementSystem) :=
 mk ::
     (val : ℝ)
+
+instance q_eq
+    {sp}
+    {m}
+    {q1 : classicalTimeQuantity sp m}
+    {q2 : classicalTimeQuantity sp m}
+    : decidable (q1=q2)
+    :=
+    if v_eq : q1.1 = q2.1 then
+        begin
+        let t : q1 = q2 := begin
+            induction q1,
+            induction q2,
+            let : q1=q2 := by cc,
+            cc
+        end,
+        exact decidable.is_true t
+        end  
+    else
+        begin
+        let f : ¬(q1=q2) := begin
+            
+            induction q1,
+            induction q2,
+            let nsp : ¬(q1=q2) := by cc,
+            simp *,
+        end,
+        exact decidable.is_false f
+        end  
 
 attribute [reducible]
 def classicalTimeQuantity.build
@@ -53,6 +108,35 @@ structure classicalTimeVector
     (sp : classicalTime) :=
 mk ::
     (coords : vector ℝ 1)
+
+instance v_eq
+    {sp}
+    {v1 : classicalTimeVector sp}
+    {v2 : classicalTimeVector sp}
+    : decidable (v1=v2)
+    :=
+    if v_eq : v1.1 = v2.1 then
+        begin
+        let t : v1 = v2 := begin
+            induction v1,
+            induction v2,
+            let : v1=v2 := by cc,
+            cc
+        end,
+        exact decidable.is_true t
+        end  
+    else
+        begin
+        let f : ¬(v1=v2) := begin
+            
+            induction v1,
+            induction v2,
+            let nsp : ¬(v1=v2) := by cc,
+            --by cc,
+            simp *,
+        end,
+        exact decidable.is_false f
+        end  
 
 attribute [reducible]
 def classicalTimeVector.build
@@ -78,6 +162,35 @@ structure classicalTimePoint
     (sp : classicalTime) :=
 mk ::
     (coords : vector ℝ 1)
+
+instance p_eq
+    {sp}
+    {p1 : classicalTimeVector sp}
+    {p2 : classicalTimeVector sp}
+    : decidable (p1=p2)
+    :=
+    if v_eq : p1.1 = p2.1 then
+        begin
+        let t : p1 = p2 := begin
+            induction p1,
+            induction p2,
+            let : p1=p2 := by cc,
+            cc
+        end,
+        exact decidable.is_true t
+        end  
+    else
+        begin
+        let f : ¬(p1=p2) := begin
+            
+            induction p1,
+            induction p2,
+            let nsp : ¬(p1=p2) := by cc,
+            --by cc,
+            simp *,
+        end,
+        exact decidable.is_false f
+        end  
 
 attribute [reducible]
 def classicalTimePoint.build
@@ -137,6 +250,7 @@ def classicalTime.stdFrame (sp : classicalTime)
 
 
 
+
 attribute [reducible]
 def classicalTimeFrame.build_derived {sp : classicalTime}
    : classicalTimeFrame sp → classicalTimePoint sp → classicalTimeBasis sp → MeasurementSystem → classicalTimeFrame sp
@@ -167,10 +281,17 @@ noncomputable def classicalTimeFrame.algebra {sp : classicalTime} :
                     (aff_lib.affine_coord_space.mk_basis base_sp ⟨[aff_lib.affine_coord_space.mk_coord_vec base_sp (b 1).coords], by refl⟩)
         base_fr 
 | (classicalTimeFrame.interpret f m) := classicalTimeFrame.algebra f
-
-structure classicalTimeCoordinateVector {sp : classicalTime} (fr : classicalTimeFrame sp)
+/-
+structure classicalTimeCoordinateVector 
+    {sp : classicalTime} 
     extends classicalTimeVector sp :=
-mk ::
+mk :: (fr : classicalTimeFrame sp)
+
+-/
+structure classicalTimeCoordinateVector 
+    {sp : classicalTime} (fr : classicalTimeFrame sp)
+    extends classicalTimeVector sp :=
+mk :: 
 
 attribute [reducible]
 def classicalTimeCoordinateVector.build
@@ -228,7 +349,7 @@ def classicalTimeCoordinatePoint.fromalgebra
     (pt : aff_coord_pt ℝ 1 f)
     : classicalTimeCoordinatePoint fr
     := 
-    classicalTimeCoordinatePoint.build (affine_coord_pt.get_coords pt)
+    classicalTimeCoordinatePoint.build fr (affine_coord_pt.get_coords pt)
 
 attribute [reducible]
 def classicalTimeCoordinatePoint.algebra 

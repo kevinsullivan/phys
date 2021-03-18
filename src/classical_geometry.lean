@@ -19,17 +19,17 @@ open eucl_lib
 
 structure euclideanGeometry (n : ℕ) : Type :=
 mk :: 
-    (sp : eucl_lib.affine_euclidean_space.standard_space ℝ n)
+    --(sp : eucl_lib.affine_euclidean_space.standard_space ℝ n)
     (id : ℕ) -- id serves as unique ID for a given geometric space
 
 
 attribute [reducible]
 def euclideanGeometry.build (n : ℕ) (id : ℕ) : euclideanGeometry n :=
-    ⟨affine_euclidean_space.mk_with_standard ℝ n, id⟩
+    ⟨id⟩--⟨affine_euclidean_space.mk_with_standard ℝ n, id⟩
 
 noncomputable def euclideanGeometry.algebra  {n : ℕ }  : euclideanGeometry n →  
      affine_euclidean_space.standard_space ℝ n
-| (euclideanGeometry.mk sp id) := sp
+| (euclideanGeometry.mk id) := affine_euclidean_space.mk_with_standard ℝ n
 
 structure euclideanGeometryQuantity 
     {n : ℕ } 
