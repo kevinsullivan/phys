@@ -1,4 +1,4 @@
-import ..math.aff1Kcoord.aff1Kcoord_std
+import ..math.affnKcoord.affnKcoord_std
 
 --configure field here
 abbreviation scalar := ℚ
