@@ -433,7 +433,7 @@ Extension methods are provided to directly transform Times and Duration between 
 structure geom1d_transform {f1 : geom1d_frame} {f2 : geom1d_frame} (sp1 : geom1d_space f1) (sp2 : geom1d_space f2)
   extends fm_tr sp1 sp2
 
-def spc.mk_geom1d_transform_to {f1 : geom1d_frame} (s1 : geom1d_space f1) : Π {f2 : geom1d_frame} (s2 : geom1d_space f2), 
+def geom1d_space.mk_geom1d_transform_to {f1 : geom1d_frame} (s1 : geom1d_space f1) : Π {f2 : geom1d_frame} (s2 : geom1d_space f2), 
         geom1d_transform s1 s2 := --(position1d s2) ≃ᵃ[scalar] (position1d s1) := 
     λ f2 s2,
         ⟨s1.fm_tr s2⟩

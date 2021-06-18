@@ -15,13 +15,13 @@ universes u --v w
 --{scalar : Type u} [field scalar] [inhabited scalar] 
 #check add_maps
 
-abbreviation geom3d_frame := (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space).frame_type
+abbreviation geom3d_frame := 
+    (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space).frame_type
 abbreviation geom3d_space (f : geom3d_frame) := spc scalar f
-
-
-def geom3d_std_frame := (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space).fm
-
-def geom3d_std_space : geom3d_space geom3d_std_frame := (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space)
+def geom3d_std_frame := 
+    (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space).frame
+def geom3d_std_space : geom3d_space geom3d_std_frame := 
+    (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space)
 
 --@[reducible, elab_with_expected_type]
 /-
@@ -500,7 +500,7 @@ Extension methods are provided to directly transform Times and Duration between 
 structure geom3d_transform {f3 : geom3d_frame} {f2 : geom3d_frame} (sp3 : geom3d_space f3) (sp2 : geom3d_space f2)
   extends fm_tr sp3 sp2
 
-def spc.mk_geom3d_transform_to {f3 : geom3d_frame} (s3 : geom3d_space f3) : Π {f2 : geom3d_frame} (s2 : geom3d_space f2), 
+def geom3d_space.mk_geom3d_transform_to {f3 : geom3d_frame} (s3 : geom3d_space f3) : Π {f2 : geom3d_frame} (s2 : geom3d_space f2), 
         geom3d_transform s3 s2 := --(position3d s2) ≃ᵃ[scalar] (position3d s3) := 
     λ f2 s2,
         ⟨s3.fm_tr s2⟩

@@ -21,7 +21,6 @@ Add frames and (coordinate) spaces based on frames
 -/
 abbreviation time_frame := fm scalar 1 LENGTH
 abbreviation time_space (f : time_frame) := spc scalar f
-
 def time_std_frame : time_frame := fm.base 1 LENGTH
 def time_std_space : time_space time_std_frame := mk_space (time_std_frame)
 
@@ -468,7 +467,7 @@ Extension methods are provided to directly transform Times and Duration between 
 structure time_transform {f1 : time_frame} {f2 : time_frame} (sp1 : time_space f1) (sp2 : time_space f2)
   extends fm_tr sp1 sp2
 
-def spc.mk_time_transform_to {f1 : time_frame} (s1 : time_space f1) : Π {f2 : time_frame} (s2 : time_space f2), 
+def time_space.mk_time_transform_to {f1 : time_frame} (s1 : time_space f1) : Π {f2 : time_frame} (s2 : time_space f2), 
         time_transform s1 s2 := --(time s2) ≃ᵃ[scalar] (time s1) := 
     λ f2 s2,
         ⟨s1.fm_tr s2⟩
