@@ -6,19 +6,10 @@ import ..scalar
 
 open_locale affine
 
-/-
-Framed points, vectors, frames
--/
-
 section foo 
 
-universes u --v w
---variables 
---{scalar : Type u} [field scalar] [inhabited scalar] 
+universes u 
 
-/-
-Add frames and (coordinate) spaces based on frames
--/
 abbreviation geom1d_frame := fm scalar 1 LENGTH
 abbreviation geom1d_space (f : geom1d_frame) := spc scalar f
 
@@ -26,8 +17,6 @@ def geom1d_std_frame : geom1d_frame := fm.base 1 LENGTH
 def geom1d_std_space : geom1d_space geom1d_std_frame := mk_space (geom1d_std_frame)
 
 
-
--- points in geom1d
 structure position1d {f : geom1d_frame} (s : spc _ f ) extends point s
 @[ext] lemma position1d.ext : ∀  {f : geom1d_frame} {s : geom1d_space f } (x y : position1d s),
     x.to_point = y.to_point → x = y :=
@@ -49,7 +38,6 @@ def mk_position1d' {f : geom1d_frame} (s : geom1d_space f ) (p : point s) : posi
 @[simp]
 def mk_position1d {f : geom1d_frame} (s : geom1d_space f ) (k : scalar) : position1d s := position1d.mk (mk_point s ⟨[k],rfl⟩) 
 
--- intervals in geom1d
 structure displacement1d {f : geom1d_frame} (s : geom1d_space f ) extends vectr s 
 @[ext] lemma displacement1d.ext : ∀  {f : geom1d_frame} {s : geom1d_space f } (x y : displacement1d s),
     x.to_vectr = y.to_vectr → x = y :=
@@ -72,7 +60,6 @@ def mk_displacement1d' {f : geom1d_frame} (s : geom1d_space f ) (v : vectr s) : 
 @[simp]
 def mk_displacement1d  {f : geom1d_frame} (s : geom1d_space f ) (k : scalar) : displacement1d s := displacement1d.mk (mk_vectr s ⟨[k],rfl⟩) 
 
--- note that we don't extend fm
 @[simp]
 def mk_geom1d_frame {parent : geom1d_frame} {s : spc scalar parent} (p : position1d s) (v : displacement1d s)
     : geom1d_frame :=
@@ -323,9 +310,6 @@ instance : has_add (displacement1d s) := ⟨add_displacement1d_displacement1d⟩
 instance : has_zero (displacement1d s) := ⟨displacement1d_zero⟩
 instance : has_neg (displacement1d s) := ⟨neg_displacement1d⟩
 
-/-
-Lemmas needed to implement affine space API
--/
 @[simp]
 def sub_position1d_position1d {f : geom1d_frame} {s : geom1d_space f } (p1 p2 : position1d s) : displacement1d s := 
     mk_displacement1d' s (p1.to_point -ᵥ p2.to_point)
@@ -335,8 +319,7 @@ def add_position1d_displacement1d {f : geom1d_frame} {s : geom1d_space f } (p : 
 @[simp]
 def add_displacement1d_position1d {f : geom1d_frame} {s : geom1d_space f } (v : displacement1d s) (p : position1d s) : position1d s := 
     mk_position1d' s (v.to_vectr +ᵥ p.to_point)
---@[simp]
---def aff_displacement1d_group_action : displacement1d s → position1d s → position1d s := add_displacement1d_position1d scalar
+    
 instance : has_vadd (displacement1d s) (position1d s) := ⟨add_displacement1d_position1d⟩
 
 lemma zero_displacement1d_vadd'_a1 : ∀ p : position1d s, (0 : displacement1d s) +ᵥ p = p := begin
@@ -368,8 +351,7 @@ begin
     intros,
     exact (h0 g₁ g₂ p).symm
 end⟩ 
---@[simp]
---def aff_geom1d_group_sub : position1d s → position1d s → displacement1d s := sub_geom1d_position1d scalar
+
 instance position1d_has_vsub : has_vsub (displacement1d s) (position1d s) := ⟨ sub_position1d_position1d⟩ 
 
 instance : nonempty (position1d s) := ⟨mk_position1d s 0⟩

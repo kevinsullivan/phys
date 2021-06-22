@@ -1,18 +1,10 @@
 import .geom1d
-/-
-import ..phys_dimensions
-import linear_algebra.affine_space.basic
-import ...math.affnKcoord.affnKcoord_std
-import ..scalar
--/
 
 open_locale affine
 
 section foo 
 
-universes u --v w
---variables 
---{scalar : Type u} [field scalar] [inhabited scalar] 
+universes u
 #check add_maps
 
 abbreviation geom3d_frame := 
@@ -79,8 +71,6 @@ def geom3d_std_space : geom3d_space (_ : geom3d_frame) :=
     end
 -/
 
-
--- points in geom3d
 structure position3d {f : geom3d_frame} (s : geom3d_space f ) extends point s
 @[ext] lemma position3d.ext : ∀  {f : geom3d_frame} {s : geom3d_space f } (x y : position3d s),
     x.to_point = y.to_point → x = y :=
@@ -108,8 +98,6 @@ def mk_position3d'' {f1 f2 f3 : geom1d_frame } { s1 : geom1d_space f1} {s2 : geo
     : position3d (mk_prod_spc (mk_prod_spc s1 s2) s3) :=
     ⟨mk_point_prod (mk_point_prod p1.to_point p2.to_point) p3.to_point⟩
     
-
--- intervals in geom3d
 structure displacement3d {f : geom3d_frame} (s : geom3d_space f ) extends vectr s 
 @[ext] lemma displacement3d.ext : ∀  {f : geom3d_frame} {s : geom3d_space f } (x y : displacement3d s),
     x.to_vectr = y.to_vectr → x = y :=
@@ -122,7 +110,6 @@ structure displacement3d {f : geom3d_frame} (s : geom3d_space f ) extends vectr 
         simp [h₁] at e,
         exact e 
     end
-
 
 def displacement3d.coords {f : geom3d_frame} {s : geom3d_space f } (d :displacement3d s) :=
     d.to_vectr.coords
@@ -138,12 +125,11 @@ def mk_displacement3d'' {f1 f2 f3 : geom1d_frame } { s1 : geom1d_space f1} {s2 :
     : displacement3d (mk_prod_spc (mk_prod_spc s1 s2) s3) :=
     ⟨mk_vectr_prod (mk_vectr_prod p1.to_vectr p2.to_vectr) p3.to_vectr⟩
 
-
--- note that we don't extend fm
 @[simp]
-def mk_geom3d_frame {parent : geom3d_frame} {s : spc scalar parent} (p : position3d s) (v : displacement3d s)
+def mk_geom3d_frame {parent : geom3d_frame} {s : spc scalar parent} (p : position3d s) 
+    (v0 : displacement3d s) (v1 : displacement3d s) (v2 : displacement3d s)
     : geom3d_frame :=
-    ((mk_frame p.to_point (λi, v.to_vectr)) : geom3d_frame) --fm.deriv LENGTH (p.to_point.to_pt, v.to_vectr.to_vec) parent   -- TODO: make sure v ≠ 0
+    ((mk_frame p.to_point (λi, if i = 0 then v0.to_vectr else if i = 1 then v1.to_vectr else v2.to_vectr)) : geom3d_frame) --fm.deriv LENGTH (p.to_point.to_pt, v.to_vectr.to_vec) parent   -- TODO: make sure v ≠ 0
 
 end foo
 
@@ -170,8 +156,6 @@ def neg_displacement3d (v : displacement3d s) : displacement3d s :=
 def sub_displacement3d_displacement3d (v3 v2 : displacement3d s) : displacement3d s :=    -- v3-v2
     add_displacement3d_displacement3d v3 (neg_displacement3d v2)
 
--- See unframed file for template for proving module
-
 instance has_add_displacement3d : has_add (displacement3d s) := ⟨ add_displacement3d_displacement3d ⟩
 lemma add_assoc_displacement3d : ∀ a b c : displacement3d s, a + b + c = a + (b + c) := begin
     intros,
@@ -190,9 +174,6 @@ instance add_semigroup_displacement3d : add_semigroup (displacement3d s) := ⟨ 
 def displacement3d_zero  := mk_displacement3d s 0 0 0
 instance has_zero_displacement3d : has_zero (displacement3d s) := ⟨displacement3d_zero⟩
 
-/-
-Andrew 5/34 - broke this, fix someposition3d soon
--/
 lemma zero_add_displacement3d : ∀ a : displacement3d s, 0 + a = a := 
 begin
     intros,--ext,
@@ -360,17 +341,7 @@ instance module_K_displacement3d : module scalar (displacement3d s) := ⟨ add_s
 instance add_comm_group_displacement3d : add_comm_group (displacement3d s) := {
     add_comm := begin
         exact add_comm_displacement3d
-        
-        /-intros,
-        ext,
-        let h0 : (a + b).to_vec = a.to_vec + b.to_vec := rfl,
-        let h3 : (b + a).to_vec = b.to_vec + a.to_vec := rfl,
-        rw [h0,h3],
-        exact add_comm _ _,
-        exact add_comm _ _,-/
     end,
---to_add_group := (show add_group (vec K), by apply_instance),
---to_add_comm_monoid := (show add_comm_monoid (vec K), by apply_instance),
 ..(show add_group (displacement3d s), by apply_instance)
 }
 instance : module scalar (displacement3d s) := @geom3d.module_K_displacement3d f s

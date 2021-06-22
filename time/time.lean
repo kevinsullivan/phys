@@ -6,19 +6,10 @@ import ..scalar
 
 open_locale affine
 
-/-
-Framed points, vectors, frames
--/
-
 section foo 
 
-universes u --v w
---variables 
---{scalar : Type u} [field scalar] [inhabited scalar] 
+universes u 
 
-/-
-Add frames and (coordinate) spaces based on frames
--/
 abbreviation time_frame := fm scalar 1 LENGTH
 abbreviation time_space (f : time_frame) := spc scalar f
 def time_std_frame : time_frame := fm.base 1 LENGTH
@@ -72,7 +63,7 @@ def mk_duration' {f : time_frame} (s : time_space f ) (v : vectr s) : duration s
 @[simp]
 def mk_duration  {f : time_frame} (s : time_space f ) (k : scalar) : duration s := duration.mk (mk_vectr s ⟨[k],rfl⟩) 
 
--- note that we don't extend fm
+
 @[simp]
 def mk_time_frame {parent : time_frame} {s : spc scalar parent} (p : time s) (v : duration s) :=
 mk_frame p.to_point (λi, v.to_vectr)   -- TODO: make sure v ≠ 0
@@ -102,8 +93,6 @@ def neg_duration (v : duration s) : duration s :=
 def sub_duration_duration (v1 v2 : duration s) : duration s :=    -- v1-v2
     add_duration_duration v1 (neg_duration v2)
 
--- See unframed file for template for proving module
-
 instance has_add_duration : has_add (duration s) := ⟨ add_duration_duration ⟩
 lemma add_assoc_duration : ∀ a b c : duration s, a + b + c = a + (b + c) := begin
     intros,
@@ -123,9 +112,6 @@ instance add_semigroup_duration : add_semigroup (duration s) := ⟨ add_duration
 def duration_zero  := mk_duration s 0
 instance has_zero_duration : has_zero (duration s) := ⟨duration_zero⟩
 
-/-
-Andrew 5/14 - broke this, fix sometime soon
--/
 lemma zero_add_duration : ∀ a : duration s, 0 + a = a := 
 begin
     admit
@@ -298,7 +284,6 @@ smul_add_duration,
 smul_zero_duration,
 ⟩ 
 
--- renaming vs template due to clash with name "s" for prevailing variable
 lemma add_smul_duration : ∀ (a b : scalar) (x : duration s), (a + b) • x = a • x + b • x := 
 begin
   intros,
@@ -358,9 +343,6 @@ instance : has_add (duration s) := ⟨add_duration_duration⟩
 instance : has_zero (duration s) := ⟨duration_zero⟩
 instance : has_neg (duration s) := ⟨neg_duration⟩
 
-/-
-Lemmas needed to implement affine space API
--/
 @[simp]
 def sub_time_time {f : time_frame} {s : time_space f } (p1 p2 : time s) : duration s := 
     mk_duration' s (p1.to_point -ᵥ p2.to_point)
@@ -370,8 +352,7 @@ def add_time_duration {f : time_frame} {s : time_space f } (p : time s) (v : dur
 @[simp]
 def add_duration_time {f : time_frame} {s : time_space f } (v : duration s) (p : time s) : time s := 
     mk_time' s (v.to_vectr +ᵥ p.to_point)
---@[simp]
---def aff_duration_group_action : duration s → time s → time s := add_duration_time scalar
+    
 instance : has_vadd (duration s) (time s) := ⟨add_duration_time⟩
 
 lemma zero_duration_vadd'_a1 : ∀ p : time s, (0 : duration s) +ᵥ p = p := begin
@@ -400,8 +381,7 @@ begin
     intros,
     exact (h0 g₁ g₂ p).symm
 end⟩ 
---@[simp]
---def aff_time_group_sub : time s → time s → duration s := sub_time_time scalar
+
 instance time_has_vsub : has_vsub (duration s) (time s) := ⟨ sub_time_time⟩ 
 
 instance : nonempty (time s) := ⟨mk_time s 0⟩
@@ -454,15 +434,8 @@ instance : affine_space (duration s) (time s) := @time.aff_time_torsor f s
 end time -- ha ha
 end bar
 
---prefer implicit here
 universes u
 
-/-
-Newer version
-Tradeoff - Does not directly extend from affine equiv. Base class is an equiv on points and vectrs
-
-Extension methods are provided to directly transform Times and Duration between frames
--/
 @[ext]
 structure time_transform {f1 : time_frame} {f2 : time_frame} (sp1 : time_space f1) (sp2 : time_space f2)
   extends fm_tr sp1 sp2
