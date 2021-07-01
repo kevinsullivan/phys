@@ -1,6 +1,6 @@
 import ..phys_dimensions
 import linear_algebra.affine_space.basic
-import ...math.affnKcoord.affnKcoord_std
+import ...math.euclidnK.euclidnK_definitions
 import ..scalar
 
 
@@ -103,7 +103,7 @@ lemma add_assoc_displacement1d : ∀ a b c : displacement1d s, a + b + c = a + (
     rw [p1,p2],
     cc
     },
-    admit,admit
+    admit
 end
 instance add_semigroup_displacement1d : add_semigroup (displacement1d s) := ⟨ add_displacement1d_displacement1d, add_assoc_displacement1d⟩ 
 @[simp]
@@ -118,7 +118,6 @@ begin
     intros,--ext,
     ext,
     admit,
-    admit,
    -- let h0 : (0 + a).to_vec = (0 : vectr s).to_vec + a.to_vec := rfl,
     --simp [h0],
     --exact zero_add _,
@@ -128,7 +127,6 @@ end
 lemma add_zero_displacement1d : ∀ a : displacement1d s, a + 0 = a := 
 begin
     intros,ext,
-    admit,
     admit,
     --exact add_zero _,
     --exact add_zero _,
@@ -157,7 +155,7 @@ instance has_sub_displacement1d : has_sub (displacement1d s) := ⟨ sub_displace
 lemma sub_eq_add_neg_displacement1d : ∀ a b : displacement1d s, a - b = a + -b := 
 begin
     intros,ext,
-    refl,refl
+    refl,
 end 
 
 instance sub_neg_monoid_displacement1d : sub_neg_monoid (displacement1d s) := 
@@ -177,7 +175,6 @@ begin
     simp *,
     }-/
     admit,
-    admit
 end
 
 instance : add_group (displacement1d s) := {
@@ -200,7 +197,6 @@ begin
     } 
     -/
     admit,
-    admit   
 end
 instance add_comm_semigroup_displacement1d : add_comm_semigroup (displacement1d s) := ⟨
     -- add_semigroup
@@ -228,7 +224,6 @@ lemma one_smul_displacement1d : ∀ b : displacement1d s, (1 : scalar) • b = b
         simp *,
     }-/
     admit,
-    admit
 end
 lemma mul_smul_displacement1d : ∀ (x y : scalar) (b : displacement1d s), (x * y) • b = x • y • b := 
 begin
@@ -236,7 +231,6 @@ begin
     cases b,
     ext,
     exact mul_assoc x y _,
-    exact mul_assoc x y _
 end
 
 instance mul_action_displacement1d : mul_action scalar (displacement1d s) := ⟨
@@ -252,7 +246,7 @@ lemma smul_add_displacement1d : ∀(r : scalar) (x y : displacement1d s), r • 
     rw [h0,h1],
     simp *,
     }
-    ,admit,admit
+    ,admit,
 end
 lemma smul_zero_displacement1d : ∀(r : scalar), r • (0 : displacement1d s) = 0 := begin
     admit--intros, ext, exact mul_zero _, exact mul_zero _
@@ -268,12 +262,11 @@ begin
   intros,
   ext,
   exact right_distrib _ _ _,
-  exact right_distrib _ _ _
 end
 lemma zero_smul_displacement1d : ∀ (x : displacement1d s), (0 : scalar) • x = 0 := begin
     intros,
     ext,
-    admit,admit--exact zero_mul _, exact zero_mul _
+    admit,--exact zero_mul _, exact zero_mul _
 end
 instance module_K_displacement1d : module scalar (displacement1d s) := ⟨ add_smul_displacement1d, zero_smul_displacement1d ⟩ 
 
@@ -325,7 +318,7 @@ instance : has_vadd (displacement1d s) (position1d s) := ⟨add_displacement1d_p
 lemma zero_displacement1d_vadd'_a1 : ∀ p : position1d s, (0 : displacement1d s) +ᵥ p = p := begin
     intros,
     ext,--exact zero_add _,
-    exact add_zero _,
+    --exact add_zero _,
     admit--exact add_zero _
 end
 lemma displacement1d_add_assoc'_a1 : ∀ (g1 g2 : displacement1d s) (p : position1d s), g1 +ᵥ (g2 +ᵥ p) = (g1 + g2) +ᵥ p := begin
@@ -340,7 +333,6 @@ lemma displacement1d_add_assoc'_a1 : ∀ (g1 g2 : displacement1d s) (p : positio
     cc,
     },
     admit,
-    admit
 end
 
 

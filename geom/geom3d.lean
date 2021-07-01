@@ -87,6 +87,17 @@ structure position3d {f : geom3d_frame} (s : geom3d_space f ) extends point s
 def position3d.coords {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) :=
     t.to_point.coords
 
+def position3d.x {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) : scalar :=
+    (t.to_point.coords 0).coord
+
+def position3d.y {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) : scalar :=
+    (t.to_point.coords 1).coord
+
+def position3d.z {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) : scalar :=
+    (t.to_point.coords 2).coord
+
+
+
 @[simp]
 def mk_position3d' {f : geom3d_frame} (s : geom3d_space f ) (p : point s) : position3d s := position3d.mk p  
 @[simp]
@@ -129,7 +140,7 @@ def mk_displacement3d'' {f1 f2 f3 : geom1d_frame } { s1 : geom1d_space f1} {s2 :
 def mk_geom3d_frame {parent : geom3d_frame} {s : spc scalar parent} (p : position3d s) 
     (v0 : displacement3d s) (v1 : displacement3d s) (v2 : displacement3d s)
     : geom3d_frame :=
-    ((mk_frame p.to_point (λi, if i = 0 then v0.to_vectr else if i = 1 then v1.to_vectr else v2.to_vectr)) : geom3d_frame) --fm.deriv LENGTH (p.to_point.to_pt, v.to_vectr.to_vec) parent   -- TODO: make sure v ≠ 0
+    (mk_frame p.to_point ⟨(λi, if i = 0 then v0.to_vectr else if i = 1 then v1.to_vectr else v2.to_vectr),sorry,sorry⟩)
 
 end foo
 
@@ -167,7 +178,7 @@ lemma add_assoc_displacement3d : ∀ a b c : displacement3d s, a + b + c = a + (
     rw [p3,p2],
     cc
     },
-    admit,admit
+    admit
 end
 instance add_semigroup_displacement3d : add_semigroup (displacement3d s) := ⟨ add_displacement3d_displacement3d, add_assoc_displacement3d⟩ 
 @[simp]
@@ -179,7 +190,6 @@ begin
     intros,--ext,
     ext,
     admit,
-    admit,
    -- let h0 : (0 + a).to_vec = (0 : vectr s).to_vec + a.to_vec := rfl,
     --simp [h0],
     --exact zero_add _,
@@ -189,7 +199,6 @@ end
 lemma add_zero_displacement3d : ∀ a : displacement3d s, a + 0 = a := 
 begin
     intros,ext,
-    admit,
     admit,
     --exact add_zero _,
     --exact add_zero _,
@@ -218,7 +227,7 @@ instance has_sub_displacement3d : has_sub (displacement3d s) := ⟨ sub_displace
 lemma sub_eq_add_neg_displacement3d : ∀ a b : displacement3d s, a - b = a + -b := 
 begin
     intros,ext,
-    refl,refl
+    refl,
 end 
 
 instance sub_neg_monoid_displacement3d : sub_neg_monoid (displacement3d s) := 
@@ -238,7 +247,6 @@ begin
     simp *,
     }-/
     admit,
-    admit
 end
 
 instance : add_group (displacement3d s) := {
@@ -261,7 +269,6 @@ begin
     } 
     -/
     admit,
-    admit   
 end
 instance add_comm_semigroup_displacement3d : add_comm_semigroup (displacement3d s) := ⟨
     -- add_semigroup
@@ -289,7 +296,6 @@ lemma one_smul_displacement3d : ∀ b : displacement3d s, (1 : scalar) • b = b
         simp *,
     }-/
     admit,
-    admit
 end
 lemma mul_smul_displacement3d : ∀ (x y : scalar) (b : displacement3d s), (x * y) • b = x • y • b := 
 begin
@@ -297,7 +303,6 @@ begin
     cases b,
     ext,
     exact mul_assoc x y _,
-    exact mul_assoc x y _
 end
 
 instance mul_action_displacement3d : mul_action scalar (displacement3d s) := ⟨
@@ -313,7 +318,7 @@ lemma smul_add_displacement3d : ∀(r : scalar) (x y : displacement3d s), r • 
     rw [h0,h3],
     simp *,
     }
-    ,admit,admit
+    ,admit,
 end
 lemma smul_zero_displacement3d : ∀(r : scalar), r • (0 : displacement3d s) = 0 := begin
     admit--intros, ext, exact mul_zero _, exact mul_zero _
@@ -329,12 +334,11 @@ begin
   intros,
   ext,
   exact right_distrib _ _ _,
-  exact right_distrib _ _ _
 end
 lemma zero_smul_displacement3d : ∀ (x : displacement3d s), (0 : scalar) • x = 0 := begin
     intros,
     ext,
-    admit,admit--exact zero_mul _, exact zero_mul _
+    admit,--exact zero_mul _, exact zero_mul _
 end
 instance module_K_displacement3d : module scalar (displacement3d s) := ⟨ add_smul_displacement3d, zero_smul_displacement3d ⟩ 
 
@@ -380,7 +384,6 @@ instance : has_vadd (displacement3d s) (position3d s) := ⟨add_displacement3d_p
 lemma zero_displacement3d_vadd'_a3 : ∀ p : position3d s, (0 : displacement3d s) +ᵥ p = p := begin
     intros,
     ext,--exact zero_add _,
-    exact add_zero _,
     admit--exact add_zero _
 end
 lemma displacement3d_add_assoc'_a3 : ∀ (g3 g2 : displacement3d s) (p : position3d s), g3 +ᵥ (g2 +ᵥ p) = (g3 + g2) +ᵥ p := begin
@@ -395,7 +398,6 @@ lemma displacement3d_add_assoc'_a3 : ∀ (g3 g2 : displacement3d s) (p : positio
     cc,
     },
     admit,
-    admit
 end
 
 
@@ -501,3 +503,54 @@ def geom3d_transform.transform_displacement3d
     let as_pt : point s3 := ⟨λi, mk_pt scalar (d.coords i).coord⟩ in
     let tr_pt := (tr.to_equiv as_pt) in
     ⟨⟨λi, mk_vec scalar (tr_pt.coords i).coord⟩⟩
+
+
+variables {f : geom3d_frame} (s : geom3d_space f )
+
+structure orientation3d extends orientation s :=
+mk ::
+
+noncomputable def mk_orientation3d (s1 s2 s3 s4 s5 s6 s7 s8 s9 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
+    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
+
+    --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
+
+
+noncomputable def mk_orientation3d_from_euler_angles (s1 s2 s3 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
+    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
+
+
+noncomputable def mk_orientation3d_from_quaternion (s1 s2 s3 s4 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
+    : orientation3d s := mk_orientation3d s 
+        (2*(s1*s1 + s2*s2) - 1) (2*(s2*s3 - s1*s4)) (2*(s2*s4 + s1*s3))
+        (2*(s2*s3 + s1*s4)) (2*(s1*s1 + s3*s3)) (2*(s3*s4 - s1*s2))
+        (2*(s2*s4 - s1*s3)) (2*(s3*s4 + s1*s2)) (2*(s1*s1 + s1*s1 + s4*s4) - 1)
+    --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
+
+
+structure rotation3d extends rotation s :=
+mk ::
+
+/-
+noncomputable def mk_rotation3d (ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
+    : rotation3d s := ⟨mk_rotation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
+-/
+noncomputable def mk_rotation3d (s1 s2 s3 s4 s5 s6 s7 s8 s9 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
+    : rotation3d s := ⟨mk_rotation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
+
+noncomputable def mk_rotation3d_from_quaternion (s1 s2 s3 s4 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
+    : rotation3d s := mk_rotation3d s 
+        (2*(s1*s1 + s2*s2) - 1) (2*(s2*s3 - s1*s4)) (2*(s2*s4 + s1*s3))
+        (2*(s2*s3 + s1*s4)) (2*(s1*s1 + s3*s3)) (2*(s3*s4 - s1*s2))
+        (2*(s2*s4 - s1*s3)) (2*(s3*s4 + s1*s2)) (2*(s1*s1 + s1*s1 + s4*s4) - 1)
+    --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
+
+
+structure pose3d :=
+mk ::
+    (orientation : orientation3d s)
+    (position : position3d s)
+
+def mk_pose3d (orientation : orientation3d s)
+    (position : position3d s) : pose3d s := ⟨orientation,position⟩
+ 
