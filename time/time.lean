@@ -66,7 +66,7 @@ def mk_duration  {f : time_frame} (s : time_space f ) (k : scalar) : duration s 
 
 @[simp]
 def mk_time_frame {parent : time_frame} {s : spc scalar parent} (p : time s) (v : duration s) :=
-mk_frame p.to_point (λi, v.to_vectr)   -- TODO: make sure v ≠ 0
+mk_frame p.to_point (vectr_basis.mk (λi, v.to_vectr) sorry sorry)   -- TODO: make sure v ≠ 0
 
 end foo
 
@@ -97,15 +97,11 @@ instance has_add_duration : has_add (duration s) := ⟨ add_duration_duration �
 lemma add_assoc_duration : ∀ a b c : duration s, a + b + c = a + (b + c) := begin
     intros,
     ext,
-    --cases a,
-    /-repeat {
-    have p1 : (a + b + c).to_vec = a.to_vec + b.to_vec + c.to_vec := rfl,
-    have p2 : (a + (b + c)).to_vec = a.to_vec + (b.to_vec + c.to_vec) := rfl,
-    rw [p1,p2],
-    cc
-    },-/
-    admit,
-    admit
+    dsimp only [has_add.add],
+    dsimp only [add_duration_duration, mk_duration', has_add.add],
+    dsimp only [add_vectr_vectr, mk_vectr', has_add.add],
+    dsimp only [add_vec_vec],
+    simp only [add_assoc],
 end
 instance add_semigroup_duration : add_semigroup (duration s) := ⟨ add_duration_duration, add_assoc_duration⟩ 
 @[simp]
@@ -114,20 +110,24 @@ instance has_zero_duration : has_zero (duration s) := ⟨duration_zero⟩
 
 lemma zero_add_duration : ∀ a : duration s, 0 + a = a := 
 begin
-    admit
-    /-intros,--ext,
+    intros,
     ext,
-    let h0 : (0 + a).to_vec = (0 : vectr s).to_vec + a.to_vec := rfl,
-    simp [h0],
-    exact zero_add _,
-    exact zero_add _,-/
+    dsimp only [has_zero.zero, has_add.add],
+    dsimp only [add_duration_duration, duration_zero, mk_duration', mk_duration, has_add.add],
+    dsimp only [add_vectr_vectr, mk_vectr', mk_vectr, mk_vec_n, has_add.add],
+    dsimp only [add_vec_vec, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, zero_add],
 end
 
 lemma add_zero_duration : ∀ a : duration s, a + 0 = a := 
 begin
-    intros,ext,
-    exact add_zero _,
-    admit--exact add_zero _,
+    intros,
+    ext,
+    dsimp only [has_zero.zero, has_add.add],
+    dsimp only [add_duration_duration, duration_zero, mk_duration', mk_duration, has_add.add],
+    dsimp only [add_vectr_vectr, mk_vectr', mk_vectr, mk_vec_n, has_add.add],
+    dsimp only [add_vec_vec, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, add_zero],
 end
 
 @[simp]
@@ -153,7 +153,7 @@ instance has_sub_duration : has_sub (duration s) := ⟨ sub_duration_duration⟩
 lemma sub_eq_add_neg_duration : ∀ a b : duration s, a - b = a + -b := 
 begin
     intros,ext,
-    refl,refl
+    refl,
 end 
 
 instance sub_neg_monoid_duration : sub_neg_monoid (duration s) := 
@@ -172,15 +172,16 @@ instance sub_neg_monoid_duration : sub_neg_monoid (duration s) :=
 
 lemma add_left_neg_duration : ∀ a : duration s, -a + a = 0 := 
 begin
-    admit
-    /-intros,
+    intros,
     ext,
-    repeat {
-    have h0 : (-a + a).to_vec = -a.to_vec + a.to_vec := rfl,
-    simp [h0],
-    have : (0:vec scalar) = (0:duration s).to_vectr.to_vec := rfl,
-    simp *,
-    }-/
+    dsimp only [has_zero.zero, has_add.add, has_neg.neg],
+    dsimp only [neg_duration, has_scalar.smul],
+    dsimp only [add_duration_duration, smul_vectr, has_add.add, has_scalar.smul],
+    dsimp only [add_vectr_vectr, smul_vec, mk_duration', mk_vectr', has_add.add],
+    dsimp only [add_vec_vec],
+    simp only [neg_mul_eq_neg_mul_symm, one_mul, mk_vectr, duration_zero, mk_duration, add_left_neg],
+    dsimp only [mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton]
 end
 
 instance : add_group (duration s) := {
@@ -203,14 +204,13 @@ instance : add_group (duration s) := {
 
 lemma add_comm_duration : ∀ a b : duration s, a + b = b + a :=
 begin
-    admit/-intros,
+    intros,
     ext,
-    repeat {
-    have p1 : (a + b).to_vec = a.to_vec + b.to_vec:= rfl,
-    have p2 : (b + a).to_vec = b.to_vec + a.to_vec := rfl,
-    rw [p1,p2],
-    cc
-    }-/    
+    dsimp only [has_add.add],
+    dsimp only [add_duration_duration, has_add.add],
+    dsimp only [add_vectr_vectr, has_add.add],
+    dsimp only [add_vec_vec, mk_duration', mk_vectr'],
+    simp only [add_comm],
 end
 instance add_comm_semigroup_duration : add_comm_semigroup (duration s) := ⟨
     -- add_semigroup
@@ -245,12 +245,13 @@ smul_duration,
 ⟩
 
 lemma one_smul_duration : ∀ b : duration s, (1 : scalar) • b = b := begin
-    admit/-intros,ext,
-    repeat {
-        have h0 : ((1:scalar) • b).to_vec = ((1:scalar)•(b.to_vec)) := rfl,
-        rw [h0],
-        simp *,
-    }-/
+    intros,
+    ext,
+    dsimp only [has_scalar.smul],
+    dsimp only [smul_duration, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_duration', mk_vectr'],
+    simp only [one_mul],
 end
 lemma mul_smul_duration : ∀ (x y : scalar) (b : duration s), (x * y) • b = x • y • b := 
 begin
@@ -258,7 +259,6 @@ begin
     cases b,
     ext,
     exact mul_assoc x y _,
-    exact mul_assoc x y _
 end
 
 instance mul_action_duration : mul_action scalar (duration s) := ⟨
@@ -267,17 +267,23 @@ mul_smul_duration,
 ⟩ 
 
 lemma smul_add_duration : ∀(r : scalar) (x y : duration s), r • (x + y) = r • x + r • y := begin
-    admit/-intros, ext,
-    repeat {
-    have h0 : (r • (x + y)).to_vec = (r • (x.to_vec + y.to_vec)) := rfl,
-    have h1 : (r•x + r•y).to_vec = (r•x.to_vec + r•y.to_vec) := rfl,
-    rw [h0,h1],
-    simp *,
-    }
-    -/
+    intros,
+    ext,
+    dsimp only [has_scalar.smul, has_add.add],
+    dsimp only [smul_duration, add_duration_duration, has_scalar.smul, has_add.add],
+    dsimp only [smul_vectr, add_vectr_vectr, has_scalar.smul, has_add.add],
+    dsimp only [smul_vec, add_vec_vec, mk_duration', mk_vectr'],
+    simp only [distrib.left_distrib],
+    refl,
 end
 lemma smul_zero_duration : ∀(r : scalar), r • (0 : duration s) = 0 := begin
-    admit--intros, ext, exact mul_zero _, exact mul_zero _
+    intros,
+    ext,
+    dsimp only [has_scalar.smul, has_zero.zero],
+    dsimp only [smul_duration, duration_zero, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_duration', mk_vectr', mk_duration, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, mul_zero],
 end
 instance distrib_mul_action_K_duration : distrib_mul_action scalar (duration s) := ⟨
 smul_add_duration,
@@ -289,12 +295,17 @@ begin
   intros,
   ext,
   exact right_distrib _ _ _,
-  exact right_distrib _ _ _
 end
 lemma zero_smul_duration : ∀ (x : duration s), (0 : scalar) • x = 0 := begin
     intros,
     ext,
-    admit,admit--exact zero_mul _, exact zero_mul _
+    dsimp only [has_scalar.smul, has_zero.zero],
+    dsimp only [smul_duration, duration_zero, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_duration', mk_vectr', mk_duration, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, mul_eq_zero],
+    apply or.inl,
+    refl,
 end
 instance module_K_duration : module scalar (duration s) := ⟨ add_smul_duration, zero_smul_duration ⟩ 
 
@@ -356,22 +367,23 @@ def add_duration_time {f : time_frame} {s : time_space f } (v : duration s) (p :
 instance : has_vadd (duration s) (time s) := ⟨add_duration_time⟩
 
 lemma zero_duration_vadd'_a1 : ∀ p : time s, (0 : duration s) +ᵥ p = p := begin
-    admit/-intros,
-    ext,--exact zero_add _,
-    exact add_zero _,
-    exact add_zero _-/
+    intros,
+    ext,
+    dsimp only [has_vadd.vadd, has_zero.zero],
+    dsimp only [add_duration_time, duration_zero, has_vadd.vadd],
+    dsimp only [add_vectr_point, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, add_vec_pt, mk_time', mk_point', mk_duration, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, add_zero],
 end
 lemma duration_add_assoc'_a1 : ∀ (g1 g2 : duration s) (p : time s), g1 +ᵥ (g2 +ᵥ p) = (g1 + g2) +ᵥ p := begin
-    admit/-intros, ext,
-    repeat {
-    have h0 : (g1 +ᵥ (g2 +ᵥ p)).to_pt = (g1.to_vec +ᵥ (g2.to_vec +ᵥ p.to_pt)) := rfl,
-    have h1 : (g1 + g2 +ᵥ p).to_pt = (g1.to_vec +ᵥ g2.to_vec +ᵥ p.to_pt) := rfl,
-    rw [h0,h1],
-    simp *,
-    simp [has_vadd.vadd, has_add.add, add_semigroup.add, add_zero_class.add, add_monoid.add, sub_neg_monoid.add, 
-        add_group.add, distrib.add, ring.add, division_ring.add],
-    cc,
-    }-/
+    intros,
+    ext,
+    dsimp only [has_add.add, has_vadd.vadd],
+    dsimp only [add_duration_time, add_duration_duration, has_add.add, has_vadd.vadd],
+    dsimp only [add_vectr_point, add_vectr_vectr, has_add.add, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, add_vec_vec, add_vec_pt, mk_time', mk_point', mk_duration', mk_vectr'],
+    simp only [add_assoc, add_right_inj],
+    simp only [add_comm],
 end
 
 instance duration_add_action: add_action (duration s) (time s) := 
@@ -387,24 +399,13 @@ instance time_has_vsub : has_vsub (duration s) (time s) := ⟨ sub_time_time⟩
 instance : nonempty (time s) := ⟨mk_time s 0⟩
 
 lemma time_vsub_vadd_a1 : ∀ (p1 p2 : (time s)), (p1 -ᵥ p2) +ᵥ p2 = p1 := begin
-    /-intros, ext,
-    --repeat {
-    have h0 : (p1 -ᵥ p2 +ᵥ p2).to_pt = (p1.to_pt -ᵥ p2.to_pt +ᵥ p2.to_pt) := rfl,
-    rw h0,
-    simp [has_vsub.vsub, has_sub.sub, sub_neg_monoid.sub, add_group.sub, add_comm_group.sub, ring.sub, division_ring.sub],
-    simp [has_vadd.vadd, has_add.add, distrib.add, ring.add, division_ring.add],
-    let h0 : field.add p2.to_pt.to_prod.fst (field.sub p1.to_pt.to_prod.fst p2.to_pt.to_prod.fst) = 
-            field.add (field.sub p1.to_pt.to_prod.fst p2.to_pt.to_prod.fst) p2.to_pt.to_prod.fst := add_comm _ _,
-    rw h0,
-    exact sub_add_cancel _ _,
-    have h0 : (p1 -ᵥ p2 +ᵥ p2).to_pt = (p1.to_pt -ᵥ p2.to_pt +ᵥ p2.to_pt) := rfl,
-    rw h0,
-    simp [has_vsub.vsub, has_sub.sub, sub_neg_monoid.sub, add_group.sub, add_comm_group.sub, ring.sub, division_ring.sub],
-    simp [has_vadd.vadd, has_add.add, distrib.add, ring.add, division_ring.add],
-    let h0 : field.add p2.to_pt.to_prod.snd (field.sub p1.to_pt.to_prod.snd p2.to_pt.to_prod.snd) = 
-            field.add (field.sub p1.to_pt.to_prod.snd p2.to_pt.to_prod.snd) p2.to_pt.to_prod.snd := add_comm _ _,
-    rw h0,
-    exact sub_add_cancel _ _,-/admit
+    intros,
+    ext,
+    dsimp only [has_vsub.vsub, has_vadd.vadd],
+    dsimp only [add_duration_time, sub_time_time, has_vsub.vsub, has_vadd.vadd],
+    dsimp only [add_vectr_point, aff_point_group_sub, sub_point_point, has_vsub.vsub, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, aff_point_group_sub, add_vec_pt, aff_pt_group_sub, sub_pt_pt, mk_time', mk_point', mk_duration', mk_vectr'],
+    simp only [add_sub_cancel'_right],
 end
 lemma time_vadd_vsub_a1 : ∀ (g : duration s) (p : time s), g +ᵥ p -ᵥ p = g := 
 begin
