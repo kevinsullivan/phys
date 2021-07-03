@@ -63,7 +63,7 @@ def mk_displacement1d  {f : geom1d_frame} (s : geom1d_space f ) (k : scalar) : d
 @[simp]
 def mk_geom1d_frame {parent : geom1d_frame} {s : spc scalar parent} (p : position1d s) (v : displacement1d s)
     : geom1d_frame :=
-    ((mk_frame p.to_point (λi, v.to_vectr)) : geom1d_frame) --fm.deriv LENGTH (p.to_point.to_pt, v.to_vectr.to_vec) parent   -- TODO: make sure v ≠ 0
+    ((mk_frame p.to_point (vectr_basis.mk (λi, v.to_vectr) sorry sorry)) : geom1d_frame) --fm.deriv LENGTH (p.to_point.to_pt, v.to_vectr.to_vec) parent   -- TODO: make sure v ≠ 0
 
 end foo
 
@@ -96,14 +96,11 @@ instance has_add_displacement1d : has_add (displacement1d s) := ⟨ add_displace
 lemma add_assoc_displacement1d : ∀ a b c : displacement1d s, a + b + c = a + (b + c) := begin
     intros,
     ext,
-    --cases a,
-    repeat {
-    have p1 : (a + b + c).to_vec = a.to_vec + b.to_vec + c.to_vec := rfl,
-    have p2 : (a + (b + c)).to_vec = a.to_vec + (b.to_vec + c.to_vec) := rfl,
-    rw [p1,p2],
-    cc
-    },
-    admit
+    dsimp only [has_add.add],
+    dsimp only [add_displacement1d_displacement1d, has_add.add],
+    dsimp only [add_vectr_vectr, has_add.add],
+    dsimp only [add_vec_vec, mk_displacement1d', mk_vectr'],
+    simp only [add_assoc],
 end
 instance add_semigroup_displacement1d : add_semigroup (displacement1d s) := ⟨ add_displacement1d_displacement1d, add_assoc_displacement1d⟩ 
 @[simp]
@@ -115,21 +112,24 @@ Andrew 5/14 - broke this, fix someposition1d soon
 -/
 lemma zero_add_displacement1d : ∀ a : displacement1d s, 0 + a = a := 
 begin
-    intros,--ext,
+    intros,
     ext,
-    admit,
-   -- let h0 : (0 + a).to_vec = (0 : vectr s).to_vec + a.to_vec := rfl,
-    --simp [h0],
-    --exact zero_add _,
-    --exact zero_add _,
+    dsimp only [has_zero.zero, has_add.add],
+    dsimp only [add_displacement1d_displacement1d, displacement1d_zero, mk_displacement1d', mk_displacement1d, has_add.add],
+    dsimp only [add_vectr_vectr, mk_vectr', mk_vectr, mk_vec_n, has_add.add],
+    dsimp only [add_vec_vec, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, zero_add],
 end
 
 lemma add_zero_displacement1d : ∀ a : displacement1d s, a + 0 = a := 
 begin
-    intros,ext,
-    admit,
-    --exact add_zero _,
-    --exact add_zero _,
+    intros,
+    ext,
+    dsimp only [has_zero.zero, has_add.add],
+    dsimp only [add_displacement1d_displacement1d, displacement1d_zero, mk_displacement1d', mk_displacement1d, has_add.add],
+    dsimp only [add_vectr_vectr, mk_vectr', mk_vectr, mk_vec_n, has_add.add],
+    dsimp only [add_vec_vec, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, add_zero],
 end
 
 @[simp]
@@ -168,13 +168,14 @@ lemma add_left_neg_displacement1d : ∀ a : displacement1d s, -a + a = 0 :=
 begin
     intros,
     ext,
-   /- repeat {
-    have h0 : (-a + a).to_vec = -a.to_vec + a.to_vec := rfl,
-    simp [h0],
-    have : (0:vec scalar) = (0:displacement1d s).to_vectr.to_vec := rfl,
-    simp *,
-    }-/
-    admit,
+    dsimp only [has_zero.zero, has_add.add, has_neg.neg],
+    dsimp only [neg_displacement1d, has_scalar.smul],
+    dsimp only [add_displacement1d_displacement1d, smul_vectr, has_add.add, has_scalar.smul],
+    dsimp only [add_vectr_vectr, smul_vec, mk_displacement1d', mk_vectr', has_add.add],
+    dsimp only [add_vec_vec],
+    simp only [neg_mul_eq_neg_mul_symm, one_mul, mk_vectr, displacement1d_zero, mk_displacement1d, add_left_neg],
+    dsimp only [mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton],
 end
 
 instance : add_group (displacement1d s) := {
@@ -189,14 +190,11 @@ lemma add_comm_displacement1d : ∀ a b : displacement1d s, a + b = b + a :=
 begin
     intros,
     ext,
-    /-repeat {
-    have p1 : (a + b).to_vec = a.to_vec + b.to_vec:= rfl,
-    have p2 : (b + a).to_vec = b.to_vec + a.to_vec := rfl,
-    rw [p1,p2],
-    cc
-    } 
-    -/
-    admit,
+    dsimp only [has_add.add],
+    dsimp only [add_displacement1d_displacement1d, has_add.add],
+    dsimp only [add_vectr_vectr, has_add.add],
+    dsimp only [add_vec_vec, mk_displacement1d', mk_vectr'],
+    simp only [add_comm],
 end
 instance add_comm_semigroup_displacement1d : add_comm_semigroup (displacement1d s) := ⟨
     -- add_semigroup
@@ -217,13 +215,13 @@ smul_displacement1d,
 ⟩
 
 lemma one_smul_displacement1d : ∀ b : displacement1d s, (1 : scalar) • b = b := begin
-    intros,ext,
-    /-repeat {
-        have h0 : ((1:scalar) • b).to_vec = ((1:scalar)•(b.to_vec)) := rfl,
-        rw [h0],
-        simp *,
-    }-/
-    admit,
+    intros,
+    ext,
+    dsimp only [has_scalar.smul],
+    dsimp only [smul_displacement1d, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement1d', mk_vectr'],
+    simp only [one_mul],
 end
 lemma mul_smul_displacement1d : ∀ (x y : scalar) (b : displacement1d s), (x * y) • b = x • y • b := 
 begin
@@ -239,17 +237,23 @@ mul_smul_displacement1d,
 ⟩ 
 
 lemma smul_add_displacement1d : ∀(r : scalar) (x y : displacement1d s), r • (x + y) = r • x + r • y := begin
-    intros, ext,
-    repeat {
-    have h0 : (r • (x + y)).to_vec = (r • (x.to_vec + y.to_vec)) := rfl,
-    have h1 : (r•x + r•y).to_vec = (r•x.to_vec + r•y.to_vec) := rfl,
-    rw [h0,h1],
-    simp *,
-    }
-    ,admit,
+    intros,
+    ext,
+    dsimp only [has_scalar.smul, has_add.add],
+    dsimp only [smul_displacement1d, add_displacement1d_displacement1d, has_scalar.smul, has_add.add],
+    dsimp only [smul_vectr, add_vectr_vectr, has_scalar.smul, has_add.add],
+    dsimp only [smul_vec, add_vec_vec, mk_displacement1d', mk_vectr'],
+    simp only [distrib.left_distrib],
+    refl,
 end
 lemma smul_zero_displacement1d : ∀(r : scalar), r • (0 : displacement1d s) = 0 := begin
-    admit--intros, ext, exact mul_zero _, exact mul_zero _
+    intros,
+    ext,
+    dsimp only [has_scalar.smul, has_zero.zero],
+    dsimp only [smul_displacement1d, displacement1d_zero, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, mul_zero],
 end
 instance distrib_mul_action_K_displacement1d : distrib_mul_action scalar (displacement1d s) := ⟨
 smul_add_displacement1d,
@@ -266,7 +270,13 @@ end
 lemma zero_smul_displacement1d : ∀ (x : displacement1d s), (0 : scalar) • x = 0 := begin
     intros,
     ext,
-    admit,--exact zero_mul _, exact zero_mul _
+    dsimp only [has_scalar.smul, has_zero.zero],
+    dsimp only [smul_displacement1d, displacement1d_zero, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, mul_eq_zero],
+    apply or.inl,
+    refl,
 end
 instance module_K_displacement1d : module scalar (displacement1d s) := ⟨ add_smul_displacement1d, zero_smul_displacement1d ⟩ 
 
@@ -317,22 +327,22 @@ instance : has_vadd (displacement1d s) (position1d s) := ⟨add_displacement1d_p
 
 lemma zero_displacement1d_vadd'_a1 : ∀ p : position1d s, (0 : displacement1d s) +ᵥ p = p := begin
     intros,
-    ext,--exact zero_add _,
-    --exact add_zero _,
-    admit--exact add_zero _
+    ext,
+    dsimp only [has_vadd.vadd, has_zero.zero],
+    dsimp only [add_displacement1d_position1d, displacement1d_zero, has_vadd.vadd],
+    dsimp only [add_vectr_point, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, add_vec_pt, mk_position1d', mk_point', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, add_zero],
 end
 lemma displacement1d_add_assoc'_a1 : ∀ (g1 g2 : displacement1d s) (p : position1d s), g1 +ᵥ (g2 +ᵥ p) = (g1 + g2) +ᵥ p := begin
-    intros, ext,
-    repeat {
-    have h0 : (g1 +ᵥ (g2 +ᵥ p)).to_pt = (g1.to_vec +ᵥ (g2.to_vec +ᵥ p.to_pt)) := rfl,
-    have h1 : (g1 + g2 +ᵥ p).to_pt = (g1.to_vec +ᵥ g2.to_vec +ᵥ p.to_pt) := rfl,
-    rw [h0,h1],
-    simp *,
-    simp [has_vadd.vadd, has_add.add, add_semigroup.add, add_zero_class.add, add_monoid.add, sub_neg_monoid.add, 
-        add_group.add, distrib.add, ring.add, division_ring.add],
-    cc,
-    },
-    admit,
+    intros,
+    ext,
+    dsimp only [has_add.add, has_vadd.vadd],
+    dsimp only [add_displacement1d_position1d, add_displacement1d_displacement1d, has_add.add, has_vadd.vadd],
+    dsimp only [add_vectr_point, add_vectr_vectr, has_add.add, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, add_vec_vec, add_vec_pt, mk_position1d', mk_point', mk_displacement1d', mk_vectr'],
+    simp only [add_assoc, add_right_inj],
+    simp only [add_comm],
 end
 
 
@@ -349,25 +359,13 @@ instance position1d_has_vsub : has_vsub (displacement1d s) (position1d s) := ⟨
 instance : nonempty (position1d s) := ⟨mk_position1d s 0⟩
 
 lemma position1d_vsub_vadd_a1 : ∀ (p1 p2 : (position1d s)), (p1 -ᵥ p2) +ᵥ p2 = p1 := begin
-    /-intros, ext,
-    --repeat {
-    have h0 : (p1 -ᵥ p2 +ᵥ p2).to_pt = (p1.to_pt -ᵥ p2.to_pt +ᵥ p2.to_pt) := rfl,
-    rw h0,
-    simp [has_vsub.vsub, has_sub.sub, sub_neg_monoid.sub, add_group.sub, add_comm_group.sub, ring.sub, division_ring.sub],
-    simp [has_vadd.vadd, has_add.add, distrib.add, ring.add, division_ring.add],
-    let h0 : field.add p2.to_pt.to_prod.fst (field.sub p1.to_pt.to_prod.fst p2.to_pt.to_prod.fst) = 
-            field.add (field.sub p1.to_pt.to_prod.fst p2.to_pt.to_prod.fst) p2.to_pt.to_prod.fst := add_comm _ _,
-    rw h0,
-    exact sub_add_cancel _ _,
-    have h0 : (p1 -ᵥ p2 +ᵥ p2).to_pt = (p1.to_pt -ᵥ p2.to_pt +ᵥ p2.to_pt) := rfl,
-    rw h0,
-    simp [has_vsub.vsub, has_sub.sub, sub_neg_monoid.sub, add_group.sub, add_comm_group.sub, ring.sub, division_ring.sub],
-    simp [has_vadd.vadd, has_add.add, distrib.add, ring.add, division_ring.add],
-    let h0 : field.add p2.to_pt.to_prod.snd (field.sub p1.to_pt.to_prod.snd p2.to_pt.to_prod.snd) = 
-            field.add (field.sub p1.to_pt.to_prod.snd p2.to_pt.to_prod.snd) p2.to_pt.to_prod.snd := add_comm _ _,
-    rw h0,
-    exact sub_add_cancel _ _,-/
-    admit
+    intros,
+    ext,
+    dsimp only [has_vsub.vsub, has_vadd.vadd],
+    dsimp only [add_displacement1d_position1d, sub_position1d_position1d, has_vsub.vsub, has_vadd.vadd],
+    dsimp only [add_vectr_point, aff_point_group_sub, sub_point_point, has_vsub.vsub, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, aff_point_group_sub, add_vec_pt, aff_pt_group_sub, sub_pt_pt, mk_position1d', mk_point', mk_displacement1d', mk_vectr'],
+    simp only [add_sub_cancel'_right],
 end
 lemma position1d_vadd_vsub_a1 : ∀ (g : displacement1d s) (p : position1d s), g +ᵥ p -ᵥ p = g := 
 begin

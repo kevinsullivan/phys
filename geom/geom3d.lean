@@ -171,14 +171,11 @@ instance has_add_displacement3d : has_add (displacement3d s) := ⟨ add_displace
 lemma add_assoc_displacement3d : ∀ a b c : displacement3d s, a + b + c = a + (b + c) := begin
     intros,
     ext,
-    --cases a,
-    repeat {
-    have p3 : (a + b + c).to_vec = a.to_vec + b.to_vec + c.to_vec := rfl,
-    have p2 : (a + (b + c)).to_vec = a.to_vec + (b.to_vec + c.to_vec) := rfl,
-    rw [p3,p2],
-    cc
-    },
-    admit
+    dsimp only [has_add.add],
+    dsimp only [add_displacement3d_displacement3d, has_add.add],
+    dsimp only [add_vectr_vectr, has_add.add],
+    dsimp only [add_vec_vec, mk_displacement3d', mk_vectr'],
+    simp only [add_assoc],
 end
 instance add_semigroup_displacement3d : add_semigroup (displacement3d s) := ⟨ add_displacement3d_displacement3d, add_assoc_displacement3d⟩ 
 @[simp]
@@ -187,21 +184,64 @@ instance has_zero_displacement3d : has_zero (displacement3d s) := ⟨displacemen
 
 lemma zero_add_displacement3d : ∀ a : displacement3d s, 0 + a = a := 
 begin
-    intros,--ext,
+    intros,
     ext,
-    admit,
-   -- let h0 : (0 + a).to_vec = (0 : vectr s).to_vec + a.to_vec := rfl,
-    --simp [h0],
-    --exact zero_add _,
-    --exact zero_add _,
+    dsimp only [has_zero.zero, has_add.add],
+    dsimp only [add_displacement3d_displacement3d, displacement3d_zero, mk_displacement3d', mk_displacement3d, has_add.add],
+    dsimp only [add_vectr_vectr, mk_vectr', mk_vectr, mk_vec_n, has_add.add],
+    dsimp only [add_vec_vec, mk_vec, vector.nth],
+    cases x,
+    dsimp only [fin.mk],
+    cases x_val with x',
+    simp only [list.nth_le, zero_add],
+    simp only [add_left_eq_self, list.nth_le],
+    cases x' with x'',
+    simp only [list.nth_le, zero_add],
+    simp only [add_left_eq_self, list.nth_le],
+    cases x'' with x''',
+    simp only [list.nth_le, zero_add],
+    have h₀ : x'''.succ.succ.succ = x''' + 3 := rfl,
+    have h₁ : 1 + 1 + 1 = 0 + 3 := rfl,
+    rw [h₀, h₁] at x_property,
+    have h₂ : x'''.succ + 3 ≤ 0 + 3 := begin
+        dsimp only [has_lt.lt, nat.lt] at x_property,
+        dsimp only [has_le.le],
+        exact x_property,
+    end,
+    have h₃ := (add_le_add_iff_right 3).1 h₂,
+    simp only [nat.not_succ_le_zero] at h₃,
+    contradiction,
 end
 
 lemma add_zero_displacement3d : ∀ a : displacement3d s, a + 0 = a := 
 begin
-    intros,ext,
-    admit,
-    --exact add_zero _,
-    --exact add_zero _,
+    intros,
+    ext,
+    dsimp only [has_zero.zero, has_add.add],
+    dsimp only [add_displacement3d_displacement3d, displacement3d_zero, mk_displacement3d', mk_displacement3d, has_add.add],
+    dsimp only [add_vectr_vectr, mk_vectr', mk_vectr, mk_vec_n, has_add.add],
+    dsimp only [add_vec_vec, mk_vec, vector.nth],
+    cases x,
+    dsimp only [fin.mk],
+    cases x_val with x',
+    simp only [list.nth_le, add_zero],
+    simp only [add_left_eq_self, list.nth_le],
+    cases x' with x'',
+    simp only [list.nth_le, add_zero],
+    simp only [add_left_eq_self, list.nth_le],
+    cases x'' with x''',
+    simp only [list.nth_le, add_zero],
+    have h₀ : x'''.succ.succ.succ = x''' + 3 := rfl,
+    have h₁ : 1 + 1 + 1 = 0 + 3 := rfl,
+    rw [h₀, h₁] at x_property,
+    have h₂ : x'''.succ + 3 ≤ 0 + 3 := begin
+        dsimp only [has_lt.lt, nat.lt] at x_property,
+        dsimp only [has_le.le],
+        exact x_property,
+    end,
+    have h₃ := (add_le_add_iff_right 3).1 h₂,
+    simp only [nat.not_succ_le_zero] at h₃,
+    contradiction,
 end
 
 @[simp]
@@ -240,13 +280,34 @@ lemma add_left_neg_displacement3d : ∀ a : displacement3d s, -a + a = 0 :=
 begin
     intros,
     ext,
-   /- repeat {
-    have h0 : (-a + a).to_vec = -a.to_vec + a.to_vec := rfl,
-    simp [h0],
-    have : (0:vec scalar) = (0:displacement3d s).to_vectr.to_vec := rfl,
-    simp *,
-    }-/
-    admit,
+    dsimp only [has_zero.zero, has_add.add, has_neg.neg],
+    dsimp only [neg_displacement3d, has_scalar.smul],
+    dsimp only [add_displacement3d_displacement3d, smul_vectr, has_add.add, has_scalar.smul],
+    dsimp only [add_vectr_vectr, smul_vec, mk_displacement3d', mk_vectr', has_add.add],
+    dsimp only [add_vec_vec],
+    simp only [neg_mul_eq_neg_mul_symm, one_mul, mk_vectr, displacement3d_zero, mk_displacement3d, add_left_neg],
+    dsimp only [mk_vec_n, mk_vec, vector.nth],
+    cases x,
+    dsimp only [fin.mk],
+    cases x_val with x',
+    simp only [list.nth_le],
+    simp only [add_left_eq_self, list.nth_le],
+    cases x' with x'',
+    simp only [list.nth_le],
+    simp only [add_left_eq_self, list.nth_le],
+    cases x'' with x''',
+    simp only [list.nth_le],
+    have h₀ : x'''.succ.succ.succ = x''' + 3 := rfl,
+    have h₁ : 1 + 1 + 1 = 0 + 3 := rfl,
+    rw [h₀, h₁] at x_property,
+    have h₂ : x'''.succ + 3 ≤ 0 + 3 := begin
+        dsimp only [has_lt.lt, nat.lt] at x_property,
+        dsimp only [has_le.le],
+        exact x_property,
+    end,
+    have h₃ := (add_le_add_iff_right 3).1 h₂,
+    simp only [nat.not_succ_le_zero] at h₃,
+    contradiction,
 end
 
 instance : add_group (displacement3d s) := {
@@ -261,14 +322,11 @@ lemma add_comm_displacement3d : ∀ a b : displacement3d s, a + b = b + a :=
 begin
     intros,
     ext,
-    /-repeat {
-    have p3 : (a + b).to_vec = a.to_vec + b.to_vec:= rfl,
-    have p2 : (b + a).to_vec = b.to_vec + a.to_vec := rfl,
-    rw [p3,p2],
-    cc
-    } 
-    -/
-    admit,
+    dsimp only [has_add.add],
+    dsimp only [add_displacement3d_displacement3d, has_add.add],
+    dsimp only [add_vectr_vectr, has_add.add],
+    dsimp only [add_vec_vec, mk_displacement3d', mk_vectr'],
+    simp only [add_comm],
 end
 instance add_comm_semigroup_displacement3d : add_comm_semigroup (displacement3d s) := ⟨
     -- add_semigroup
@@ -289,13 +347,13 @@ smul_displacement3d,
 ⟩
 
 lemma one_smul_displacement3d : ∀ b : displacement3d s, (1 : scalar) • b = b := begin
-    intros,ext,
-    /-repeat {
-        have h0 : ((3:scalar) • b).to_vec = ((3:scalar)•(b.to_vec)) := rfl,
-        rw [h0],
-        simp *,
-    }-/
-    admit,
+    intros,
+    ext,
+    dsimp only [has_scalar.smul],
+    dsimp only [smul_displacement3d, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement3d', mk_vectr'],
+    simp only [one_mul],
 end
 lemma mul_smul_displacement3d : ∀ (x y : scalar) (b : displacement3d s), (x * y) • b = x • y • b := 
 begin
@@ -311,17 +369,43 @@ mul_smul_displacement3d,
 ⟩ 
 
 lemma smul_add_displacement3d : ∀(r : scalar) (x y : displacement3d s), r • (x + y) = r • x + r • y := begin
-    intros, ext,
-    repeat {
-    have h0 : (r • (x + y)).to_vec = (r • (x.to_vec + y.to_vec)) := rfl,
-    have h3 : (r•x + r•y).to_vec = (r•x.to_vec + r•y.to_vec) := rfl,
-    rw [h0,h3],
-    simp *,
-    }
-    ,admit,
+    intros,
+    ext,
+    dsimp only [has_scalar.smul, has_add.add],
+    dsimp only [smul_displacement3d, add_displacement3d_displacement3d, has_scalar.smul, has_add.add],
+    dsimp only [smul_vectr, add_vectr_vectr, has_scalar.smul, has_add.add],
+    dsimp only [smul_vec, add_vec_vec, mk_displacement3d', mk_vectr'],
+    simp only [distrib.left_distrib],
+    refl,
 end
 lemma smul_zero_displacement3d : ∀(r : scalar), r • (0 : displacement3d s) = 0 := begin
-    admit--intros, ext, exact mul_zero _, exact mul_zero _
+    intros,
+    ext,
+    dsimp only [has_scalar.smul, has_zero.zero],
+    dsimp only [smul_displacement3d, displacement3d_zero, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement3d', mk_vectr', mk_displacement3d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    cases x,
+    dsimp only [fin.mk],
+    cases x_val with x',
+    simp only [list.nth_le, mul_zero],
+    simp only [list.nth_le],
+    cases x' with x'',
+    simp only [list.nth_le, mul_zero],
+    simp only [list.nth_le],
+    cases x'' with x''',
+    simp only [list.nth_le, mul_zero],
+    have h₀ : x'''.succ.succ.succ = x''' + 3 := rfl,
+    have h₁ : 1 + 1 + 1 = 0 + 3 := rfl,
+    rw [h₀, h₁] at x_property,
+    have h₂ : x'''.succ + 3 ≤ 0 + 3 := begin
+        dsimp only [has_lt.lt, nat.lt] at x_property,
+        dsimp only [has_le.le],
+        exact x_property,
+    end,
+    have h₃ := (add_le_add_iff_right 3).1 h₂,
+    simp only [nat.not_succ_le_zero] at h₃,
+    contradiction,
 end
 instance distrib_mul_action_K_displacement3d : distrib_mul_action scalar (displacement3d s) := ⟨
 smul_add_displacement3d,
@@ -338,7 +422,37 @@ end
 lemma zero_smul_displacement3d : ∀ (x : displacement3d s), (0 : scalar) • x = 0 := begin
     intros,
     ext,
-    admit,--exact zero_mul _, exact zero_mul _
+    dsimp only [has_scalar.smul, has_zero.zero],
+    dsimp only [smul_displacement3d, displacement3d_zero, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement3d', mk_vectr', mk_displacement3d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    cases x_1,
+    dsimp only [fin.mk],
+    cases x_1_val with x',
+    simp only [list.nth_le, mul_eq_zero],
+    apply or.inl,
+    refl,
+    simp only [list.nth_le],
+    cases x' with x'',
+    simp only [list.nth_le, mul_eq_zero],
+    apply or.inl,
+    refl,
+    simp only [list.nth_le],
+    cases x'' with x''',
+    simp only [list.nth_le, mul_eq_zero],
+    apply or.inl,
+    refl,
+    have h₀ : x'''.succ.succ.succ = x''' + 3 := rfl,
+    have h₁ : 1 + 1 + 1 = 0 + 3 := rfl,
+    rw [h₀, h₁] at x_1_property,
+    have h₂ : x'''.succ + 3 ≤ 0 + 3 := begin
+        dsimp only [has_lt.lt, nat.lt] at x_1_property,
+        dsimp only [has_le.le],
+        exact x_1_property,
+    end,
+    have h₃ := (add_le_add_iff_right 3).1 h₂,
+    simp only [nat.not_succ_le_zero] at h₃,
+    contradiction,
 end
 instance module_K_displacement3d : module scalar (displacement3d s) := ⟨ add_smul_displacement3d, zero_smul_displacement3d ⟩ 
 
@@ -383,21 +497,42 @@ instance : has_vadd (displacement3d s) (position3d s) := ⟨add_displacement3d_p
 
 lemma zero_displacement3d_vadd'_a3 : ∀ p : position3d s, (0 : displacement3d s) +ᵥ p = p := begin
     intros,
-    ext,--exact zero_add _,
-    admit--exact add_zero _
+    ext,
+    dsimp only [has_vadd.vadd, has_zero.zero],
+    dsimp only [add_displacement3d_position3d, displacement3d_zero, has_vadd.vadd],
+    dsimp only [add_vectr_point, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, add_vec_pt, mk_position3d', mk_point', mk_displacement3d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    cases x,
+    dsimp only [fin.mk],
+    cases x_val with x',
+    simp only [list.nth_le, add_zero],
+    simp only [list.nth_le],
+    cases x' with x'',
+    simp only [list.nth_le, add_zero],
+    simp only [list.nth_le],
+    cases x'' with x''',
+    simp only [list.nth_le, add_zero],
+    have h₀ : x'''.succ.succ.succ = x''' + 3 := rfl,
+    have h₁ : 1 + 1 + 1 = 0 + 3 := rfl,
+    rw [h₀, h₁] at x_property,
+    have h₂ : x'''.succ + 3 ≤ 0 + 3 := begin
+        dsimp only [has_lt.lt, nat.lt] at x_property,
+        dsimp only [has_le.le],
+        exact x_property,
+    end,
+    have h₃ := (add_le_add_iff_right 3).1 h₂,
+    simp only [nat.not_succ_le_zero] at h₃,
+    contradiction,
 end
 lemma displacement3d_add_assoc'_a3 : ∀ (g3 g2 : displacement3d s) (p : position3d s), g3 +ᵥ (g2 +ᵥ p) = (g3 + g2) +ᵥ p := begin
-    intros, ext,
-    repeat {
-    have h0 : (g3 +ᵥ (g2 +ᵥ p)).to_pt = (g3.to_vec +ᵥ (g2.to_vec +ᵥ p.to_pt)) := rfl,
-    have h3 : (g3 + g2 +ᵥ p).to_pt = (g3.to_vec +ᵥ g2.to_vec +ᵥ p.to_pt) := rfl,
-    rw [h0,h3],
-    simp *,
-    simp [has_vadd.vadd, has_add.add, add_semigroup.add, add_zero_class.add, add_monoid.add, sub_neg_monoid.add, 
-        add_group.add, distrib.add, ring.add, division_ring.add],
-    cc,
-    },
-    admit,
+    intros,
+    ext,
+    dsimp only [has_add.add, has_vadd.vadd],
+    dsimp only [add_displacement3d_position3d, add_displacement3d_displacement3d, has_add.add, has_vadd.vadd],
+    dsimp only [add_vectr_point, add_vectr_vectr, has_add.add, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, add_vec_vec, add_vec_pt, mk_position3d', mk_point', mk_displacement3d', mk_vectr'],
+    simp only [add_assoc, add_right_inj],
+    simp only [add_comm],
 end
 
 
@@ -415,25 +550,13 @@ instance position3d_has_vsub : has_vsub (displacement3d s) (position3d s) := ⟨
 instance : nonempty (position3d s) := ⟨mk_position3d s 0 0 0⟩
 
 lemma position3d_vsub_vadd_a3 : ∀ (p3 p2 : (position3d s)), (p3 -ᵥ p2) +ᵥ p2 = p3 := begin
-    /-intros, ext,
-    --repeat {
-    have h0 : (p3 -ᵥ p2 +ᵥ p2).to_pt = (p3.to_pt -ᵥ p2.to_pt +ᵥ p2.to_pt) := rfl,
-    rw h0,
-    simp [has_vsub.vsub, has_sub.sub, sub_neg_monoid.sub, add_group.sub, add_comm_group.sub, ring.sub, division_ring.sub],
-    simp [has_vadd.vadd, has_add.add, distrib.add, ring.add, division_ring.add],
-    let h0 : field.add p2.to_pt.to_prod.fst (field.sub p3.to_pt.to_prod.fst p2.to_pt.to_prod.fst) = 
-            field.add (field.sub p3.to_pt.to_prod.fst p2.to_pt.to_prod.fst) p2.to_pt.to_prod.fst := add_comm _ _,
-    rw h0,
-    exact sub_add_cancel _ _,
-    have h0 : (p3 -ᵥ p2 +ᵥ p2).to_pt = (p3.to_pt -ᵥ p2.to_pt +ᵥ p2.to_pt) := rfl,
-    rw h0,
-    simp [has_vsub.vsub, has_sub.sub, sub_neg_monoid.sub, add_group.sub, add_comm_group.sub, ring.sub, division_ring.sub],
-    simp [has_vadd.vadd, has_add.add, distrib.add, ring.add, division_ring.add],
-    let h0 : field.add p2.to_pt.to_prod.snd (field.sub p3.to_pt.to_prod.snd p2.to_pt.to_prod.snd) = 
-            field.add (field.sub p3.to_pt.to_prod.snd p2.to_pt.to_prod.snd) p2.to_pt.to_prod.snd := add_comm _ _,
-    rw h0,
-    exact sub_add_cancel _ _,-/
-    admit
+    intros,
+    ext,
+    dsimp only [has_vsub.vsub, has_vadd.vadd],
+    dsimp only [add_displacement3d_position3d, sub_position3d_position3d, has_vsub.vsub, has_vadd.vadd],
+    dsimp only [add_vectr_point, aff_point_group_sub, sub_point_point, has_vsub.vsub, has_vadd.vadd],
+    dsimp only [aff_vec_group_action, aff_point_group_sub, add_vec_pt, aff_pt_group_sub, sub_pt_pt, mk_position3d', mk_point', mk_displacement3d', mk_vectr'],
+    simp only [add_sub_cancel'_right],
 end
 lemma position3d_vadd_vsub_a3 : ∀ (g : displacement3d s) (p : position3d s), g +ᵥ p -ᵥ p = g := 
 begin
