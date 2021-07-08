@@ -32,8 +32,8 @@ structure time {f : time_frame} (s : spc _ f ) extends point s
         exact e 
     end
 
-def time.coords {f : time_frame} {s : time_space f } (t :time s) :=
-    t.to_point.coords
+def time.coord {f : time_frame} {s : time_space f } (t :time s): scalar :=
+    (t.to_point.coords 0).coord
 
 @[simp]
 def mk_time' {f : time_frame} (s : time_space f ) (p : point s) : time s := time.mk p  
@@ -55,8 +55,8 @@ structure duration {f : time_frame} (s : time_space f ) extends vectr s
     end
 
 
-def duration.coords {f : time_frame} {s : time_space f } (d :duration s) :=
-    d.to_vectr.coords
+def duration.coord {f : time_frame} {s : time_space f } (d :duration s): scalar :=
+    (d.to_vectr.coords 0).coord
 
 @[simp]
 def mk_duration' {f : time_frame} (s : time_space f ) (v : vectr s) : duration s := duration.mk v

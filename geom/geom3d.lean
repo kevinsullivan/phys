@@ -122,6 +122,11 @@ structure displacement3d {f : geom3d_frame} (s : geom3d_space f ) extends vectr 
         exact e 
     end
 
+
+
+def displacement3d.frame {f : geom3d_frame} {s : geom3d_space f } (d :displacement3d s) :=
+    f
+
 def displacement3d.coords {f : geom3d_frame} {s : geom3d_space f } (d :displacement3d s) :=
     d.to_vectr.coords
 
@@ -141,6 +146,10 @@ def mk_geom3d_frame {parent : geom3d_frame} {s : spc scalar parent} (p : positio
     (v0 : displacement3d s) (v1 : displacement3d s) (v2 : displacement3d s)
     : geom3d_frame :=
     (mk_frame p.to_point ⟨(λi, if i = 0 then v0.to_vectr else if i = 1 then v1.to_vectr else v2.to_vectr),sorry,sorry⟩)
+
+@[simp]
+def mk_geom3d_space (fr : geom3d_frame) := mk_space fr
+
 
 end foo
 
@@ -183,6 +192,7 @@ end
 instance add_semigroup_displacement3d : add_semigroup (displacement3d s) := ⟨ add_displacement3d_displacement3d, add_assoc_displacement3d⟩ 
 @[simp]
 def displacement3d_zero  := mk_displacement3d s 0 0 0
+instance : inhabited (displacement3d s) := ⟨displacement3d_zero⟩
 instance has_zero_displacement3d : has_zero (displacement3d s) := ⟨displacement3d_zero⟩
 
 lemma zero_add_displacement3d : ∀ a : displacement3d s, 0 + a = a := 
@@ -413,6 +423,7 @@ end⟩
 instance position3d_has_vsub : has_vsub (displacement3d s) (position3d s) := ⟨ sub_position3d_position3d⟩ 
 
 instance : nonempty (position3d s) := ⟨mk_position3d s 0 0 0⟩
+instance : inhabited (position3d s) := ⟨mk_position3d s 0 0 0⟩
 
 lemma position3d_vsub_vadd_a3 : ∀ (p3 p2 : (position3d s)), (p3 -ᵥ p2) +ᵥ p2 = p3 := begin
     /-intros, ext,
@@ -510,6 +521,10 @@ variables {f : geom3d_frame} (s : geom3d_space f )
 structure orientation3d extends orientation s :=
 mk ::
 
+noncomputable instance o3i : inhabited (orientation3d s) := ⟨
+    ⟨mk_orientation s (λi, mk_vectr s ⟨[0,0,0],rfl⟩)⟩
+⟩
+
 noncomputable def mk_orientation3d (s1 s2 s3 s4 s5 s6 s7 s8 s9 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
     : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
 
@@ -538,6 +553,10 @@ noncomputable def mk_rotation3d (ax1 : displacement3d s) (ax2 : displacement3d s
 noncomputable def mk_rotation3d (s1 s2 s3 s4 s5 s6 s7 s8 s9 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
     : rotation3d s := ⟨mk_rotation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
 
+noncomputable instance r3i : inhabited (rotation3d s) := ⟨
+    mk_rotation3d s 1 1 1 1 1 1 1 1 1
+⟩
+
 noncomputable def mk_rotation3d_from_quaternion (s1 s2 s3 s4 : scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
     : rotation3d s := mk_rotation3d s 
         (2*(s1*s1 + s2*s2) - 1) (2*(s2*s3 - s1*s4)) (2*(s2*s4 + s1*s3))
@@ -554,3 +573,10 @@ mk ::
 def mk_pose3d (orientation : orientation3d s)
     (position : position3d s) : pose3d s := ⟨orientation,position⟩
  
+ noncomputable instance p3i : inhabited (pose3d s) := ⟨
+    (
+    mk_pose3d _ 
+    (mk_orientation3d _ 0 0 0 0 0 0 0 0 0)
+    (mk_position3d _ 0 0 0)
+    )
+⟩
