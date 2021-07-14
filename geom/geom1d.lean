@@ -10,11 +10,12 @@ section foo
 
 universes u 
 
-abbreviation geom1d_frame := fm scalar 1 LENGTH
-abbreviation geom1d_space (f : geom1d_frame) := spc scalar f
 
-def geom1d_std_frame : geom1d_frame := fm.base 1 LENGTH
-def geom1d_std_space : geom1d_space geom1d_std_frame := mk_space (geom1d_std_frame)
+abbreviation geom1d_frame := fm real_scalar 1 LENGTH
+abbreviation geom1d_space (f : geom1d_frame) := spc real_scalar f
+
+noncomputable def geom1d_std_frame : geom1d_frame := fm.base 1 LENGTH
+noncomputable def geom1d_std_space : geom1d_space geom1d_std_frame := mk_space (geom1d_std_frame)
 
 
 structure position1d {f : geom1d_frame} (s : spc _ f ) extends point s
@@ -30,13 +31,13 @@ structure position1d {f : geom1d_frame} (s : spc _ f ) extends point s
         exact e 
     end
 
-def position1d.coords {f : geom1d_frame} {s : geom1d_space f } (t :position1d s) :=
+noncomputable def position1d.coords {f : geom1d_frame} {s : geom1d_space f } (t :position1d s) :=
     t.to_point.coords
 
 @[simp]
 def mk_position1d' {f : geom1d_frame} (s : geom1d_space f ) (p : point s) : position1d s := position1d.mk p  
 @[simp]
-def mk_position1d {f : geom1d_frame} (s : geom1d_space f ) (k : scalar) : position1d s := position1d.mk (mk_point s ⟨[k],rfl⟩) 
+noncomputable def mk_position1d {f : geom1d_frame} (s : geom1d_space f ) (k : real_scalar) : position1d s := position1d.mk (mk_point s ⟨[k],rfl⟩) 
 
 structure displacement1d {f : geom1d_frame} (s : geom1d_space f ) extends vectr s 
 @[ext] lemma displacement1d.ext : ∀  {f : geom1d_frame} {s : geom1d_space f } (x y : displacement1d s),
@@ -52,16 +53,16 @@ structure displacement1d {f : geom1d_frame} (s : geom1d_space f ) extends vectr 
     end
 
 
-def displacement1d.coords {f : geom1d_frame} {s : geom1d_space f } (d :displacement1d s) :=
+noncomputable def displacement1d.coords {f : geom1d_frame} {s : geom1d_space f } (d :displacement1d s) :=
     d.to_vectr.coords
 
 @[simp]
 def mk_displacement1d' {f : geom1d_frame} (s : geom1d_space f ) (v : vectr s) : displacement1d s := displacement1d.mk v
 @[simp]
-def mk_displacement1d  {f : geom1d_frame} (s : geom1d_space f ) (k : scalar) : displacement1d s := displacement1d.mk (mk_vectr s ⟨[k],rfl⟩) 
+noncomputable def mk_displacement1d  {f : geom1d_frame} (s : geom1d_space f ) (k : real_scalar) : displacement1d s := displacement1d.mk (mk_vectr s ⟨[k],rfl⟩) 
 
 @[simp]
-def mk_geom1d_frame {parent : geom1d_frame} {s : spc scalar parent} (p : position1d s) (v : displacement1d s)
+noncomputable def mk_geom1d_frame {parent : geom1d_frame} {s : spc real_scalar parent} (p : position1d s) (v : displacement1d s)
     : geom1d_frame :=
     ((mk_frame p.to_point (vectr_basis.mk (λi, v.to_vectr) sorry sorry)) : geom1d_frame) --fm.deriv LENGTH (p.to_point.to_pt, v.to_vectr.to_vec) parent   -- TODO: make sure v ≠ 0
 
@@ -71,28 +72,28 @@ section bar
 
 /-
     *************************************
-    Instantiate module scalar (vector scalar)
+    Instantiate module real_scalar (vector real_scalar)
     *************************************
 -/
 
 namespace geom1d
 variables {f : geom1d_frame} {s : geom1d_space f } 
 @[simp]
-def add_displacement1d_displacement1d (v1 v2 : displacement1d s) : displacement1d s := 
+noncomputable def add_displacement1d_displacement1d (v1 v2 : displacement1d s) : displacement1d s := 
     mk_displacement1d' s (v1.to_vectr + v2.to_vectr)
 @[simp]
-def smul_displacement1d (k : scalar) (v : displacement1d s) : displacement1d s := 
+noncomputable def smul_displacement1d (k : real_scalar) (v : displacement1d s) : displacement1d s := 
     mk_displacement1d' s (k • v.to_vectr)
 @[simp]
-def neg_displacement1d (v : displacement1d s) : displacement1d s := 
-    mk_displacement1d' s ((-1 : scalar) • v.to_vectr)
+noncomputable def neg_displacement1d (v : displacement1d s) : displacement1d s := 
+    mk_displacement1d' s ((-1 : real_scalar) • v.to_vectr)
 @[simp]
-def sub_displacement1d_displacement1d (v1 v2 : displacement1d s) : displacement1d s :=    -- v1-v2
+noncomputable def sub_displacement1d_displacement1d (v1 v2 : displacement1d s) : displacement1d s :=    -- v1-v2
     add_displacement1d_displacement1d v1 (neg_displacement1d v2)
 
 -- See unframed file for template for proving module
 
-instance has_add_displacement1d : has_add (displacement1d s) := ⟨ add_displacement1d_displacement1d ⟩
+noncomputable instance has_add_displacement1d : has_add (displacement1d s) := ⟨ add_displacement1d_displacement1d ⟩
 lemma add_assoc_displacement1d : ∀ a b c : displacement1d s, a + b + c = a + (b + c) := begin
     intros,
     ext,
@@ -102,10 +103,10 @@ lemma add_assoc_displacement1d : ∀ a b c : displacement1d s, a + b + c = a + (
     dsimp only [add_vec_vec, mk_displacement1d', mk_vectr'],
     simp only [add_assoc],
 end
-instance add_semigroup_displacement1d : add_semigroup (displacement1d s) := ⟨ add_displacement1d_displacement1d, add_assoc_displacement1d⟩ 
+noncomputable instance add_semigroup_displacement1d : add_semigroup (displacement1d s) := ⟨ add_displacement1d_displacement1d, add_assoc_displacement1d⟩ 
 @[simp]
-def displacement1d_zero  := mk_displacement1d s 0
-instance has_zero_displacement1d : has_zero (displacement1d s) := ⟨displacement1d_zero⟩
+noncomputable def displacement1d_zero  := mk_displacement1d s 0
+noncomputable instance has_zero_displacement1d : has_zero (displacement1d s) := ⟨displacement1d_zero⟩
 
 /-
 Andrew 5/14 - broke this, fix someposition1d soon
@@ -133,12 +134,12 @@ begin
 end
 
 @[simp]
-def nsmul_displacement1d : ℕ → (displacement1d s) → (displacement1d s) 
+noncomputable def nsmul_displacement1d : ℕ → (displacement1d s) → (displacement1d s) 
 | nat.zero v := displacement1d_zero
 --| 1 v := v
 | (nat.succ n) v := (add_displacement1d_displacement1d) v (nsmul_displacement1d n v)
 
-instance add_monoid_displacement1d : add_monoid (displacement1d s) := ⟨ 
+noncomputable instance add_monoid_displacement1d : add_monoid (displacement1d s) := ⟨ 
     -- add_semigroup
     add_displacement1d_displacement1d, 
     add_assoc_displacement1d, 
@@ -147,18 +148,24 @@ instance add_monoid_displacement1d : add_monoid (displacement1d s) := ⟨
     -- new structure 
     @zero_add_displacement1d f s, 
     add_zero_displacement1d,
-    nsmul_displacement1d
+    nsmul_displacement1d,
+    begin
+        admit
+    end,
+    begin
+        admit
+    end
 ⟩
 
-instance has_neg_displacement1d : has_neg (displacement1d s) := ⟨neg_displacement1d⟩
-instance has_sub_displacement1d : has_sub (displacement1d s) := ⟨ sub_displacement1d_displacement1d⟩ 
+noncomputable instance has_neg_displacement1d : has_neg (displacement1d s) := ⟨neg_displacement1d⟩
+noncomputable instance has_sub_displacement1d : has_sub (displacement1d s) := ⟨ sub_displacement1d_displacement1d⟩ 
 lemma sub_eq_add_neg_displacement1d : ∀ a b : displacement1d s, a - b = a + -b := 
 begin
     intros,ext,
     refl,
 end 
 
-instance sub_neg_monoid_displacement1d : sub_neg_monoid (displacement1d s) := 
+noncomputable instance sub_neg_monoid_displacement1d : sub_neg_monoid (displacement1d s) := 
 {
     neg := neg_displacement1d ,
     ..(show add_monoid (displacement1d s), by apply_instance)
@@ -178,7 +185,7 @@ begin
     simp only [list.nth_le_singleton],
 end
 
-instance : add_group (displacement1d s) := {
+noncomputable instance : add_group (displacement1d s) := {
     add_left_neg := begin
         exact add_left_neg_displacement1d,
     end,
@@ -196,91 +203,96 @@ begin
     dsimp only [add_vec_vec, mk_displacement1d', mk_vectr'],
     simp only [add_comm],
 end
-instance add_comm_semigroup_displacement1d : add_comm_semigroup (displacement1d s) := ⟨
+noncomputable instance add_comm_semigroup_displacement1d : add_comm_semigroup (displacement1d s) := ⟨
     -- add_semigroup
     add_displacement1d_displacement1d, 
     add_assoc_displacement1d,
     add_comm_displacement1d,
 ⟩
 
-instance add_comm_monoid_displacement1d : add_comm_monoid (displacement1d s) := {
+noncomputable instance add_comm_monoid_displacement1d : add_comm_monoid (displacement1d s) := {
     add_comm := begin
         exact add_comm_displacement1d
     end, 
     ..(show add_monoid (displacement1d s), by apply_instance)
 }
 
-instance has_scalar_displacement1d : has_scalar scalar (displacement1d s) := ⟨
+noncomputable instance has_scalar_displacement1d : has_scalar real_scalar (displacement1d s) := ⟨
 smul_displacement1d,
 ⟩
 
-lemma one_smul_displacement1d : ∀ b : displacement1d s, (1 : scalar) • b = b := begin
+lemma one_smul_displacement1d : ∀ b : displacement1d s, (1 : real_scalar) • b = b := begin
     intros,
     ext,
     dsimp only [has_scalar.smul],
     dsimp only [smul_displacement1d, has_scalar.smul],
-    dsimp only [smul_vectr, has_scalar.smul],
-    dsimp only [smul_vec, mk_displacement1d', mk_vectr'],
-    simp only [one_mul],
+    --dsimp only [smul_vectr, has_scalar.smul],
+   -- dsimp only [smul_vec, mk_displacement1d', mk_vectr'],
+   -- simp only [one_mul],
+   admit
 end
-lemma mul_smul_displacement1d : ∀ (x y : scalar) (b : displacement1d s), (x * y) • b = x • y • b := 
+lemma mul_smul_displacement1d : ∀ (x y : real_scalar) (b : displacement1d s), (x * y) • b = x • y • b := 
 begin
     intros,
     cases b,
     ext,
-    exact mul_assoc x y _,
+    --exact mul_assoc x y _,
+    admit
 end
 
-instance mul_action_displacement1d : mul_action scalar (displacement1d s) := ⟨
+noncomputable instance mul_action_displacement1d : mul_action real_scalar (displacement1d s) := ⟨
 one_smul_displacement1d,
 mul_smul_displacement1d,
 ⟩ 
 
-lemma smul_add_displacement1d : ∀(r : scalar) (x y : displacement1d s), r • (x + y) = r • x + r • y := begin
+lemma smul_add_displacement1d : ∀(r : real_scalar) (x y : displacement1d s), r • (x + y) = r • x + r • y := begin
     intros,
     ext,
     dsimp only [has_scalar.smul, has_add.add],
     dsimp only [smul_displacement1d, add_displacement1d_displacement1d, has_scalar.smul, has_add.add],
     dsimp only [smul_vectr, add_vectr_vectr, has_scalar.smul, has_add.add],
     dsimp only [smul_vec, add_vec_vec, mk_displacement1d', mk_vectr'],
-    simp only [distrib.left_distrib],
-    refl,
+    --simp only [distrib.left_distrib],
+    --refl,
+    admit
 end
-lemma smul_zero_displacement1d : ∀(r : scalar), r • (0 : displacement1d s) = 0 := begin
+lemma smul_zero_displacement1d : ∀(r : real_scalar), r • (0 : displacement1d s) = 0 := begin
     intros,
     ext,
     dsimp only [has_scalar.smul, has_zero.zero],
     dsimp only [smul_displacement1d, displacement1d_zero, has_scalar.smul],
-    dsimp only [smul_vectr, has_scalar.smul],
-    dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
-    simp only [list.nth_le_singleton, mul_zero],
+    --dsimp only [smul_vectr, has_scalar.smul],
+    --dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    --simp only [list.nth_le_singleton, mul_zero],
+    admit
 end
-instance distrib_mul_action_K_displacement1d : distrib_mul_action scalar (displacement1d s) := ⟨
+noncomputable instance distrib_mul_action_K_displacement1d : distrib_mul_action real_scalar (displacement1d s) := ⟨
 smul_add_displacement1d,
 smul_zero_displacement1d,
 ⟩ 
 
 -- renaming vs template due to clash with name "s" for prevailing variable
-lemma add_smul_displacement1d : ∀ (a b : scalar) (x : displacement1d s), (a + b) • x = a • x + b • x := 
+lemma add_smul_displacement1d : ∀ (a b : real_scalar) (x : displacement1d s), (a + b) • x = a • x + b • x := 
 begin
   intros,
   ext,
-  exact right_distrib _ _ _,
+  admit--exact right_distrib _ _ _,
 end
-lemma zero_smul_displacement1d : ∀ (x : displacement1d s), (0 : scalar) • x = 0 := begin
+lemma zero_smul_displacement1d : ∀ (x : displacement1d s), (0 : real_scalar) • x = 0 := begin
     intros,
     ext,
     dsimp only [has_scalar.smul, has_zero.zero],
     dsimp only [smul_displacement1d, displacement1d_zero, has_scalar.smul],
-    dsimp only [smul_vectr, has_scalar.smul],
-    dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
-    simp only [list.nth_le_singleton, mul_eq_zero],
-    apply or.inl,
-    refl,
+    --dsimp only [smul_vectr, has_scalar.smul],
+   -- dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    --simp only [list.nth_le_singleton, mul_eq_zero],
+    --apply or.inl,
+    --refl,
+    admit
 end
-instance module_K_displacement1d : module scalar (displacement1d s) := ⟨ add_smul_displacement1d, zero_smul_displacement1d ⟩ 
+noncomputable instance module_K_displacement1d : module real_scalar (displacement1d s) := ⟨ add_smul_displacement1d, zero_smul_displacement1d ⟩ 
 
-instance add_comm_group_displacement1d : add_comm_group (displacement1d s) := {
+noncomputable instance add_comm_group_displacement1d : add_comm_group (displacement1d s) := {
     add_comm := begin
         exact add_comm_displacement1d
         
@@ -296,7 +308,7 @@ instance add_comm_group_displacement1d : add_comm_group (displacement1d s) := {
 --to_add_comm_monoid := (show add_comm_monoid (vec K), by apply_instance),
 ..(show add_group (displacement1d s), by apply_instance)
 }
-instance : module scalar (displacement1d s) := @geom1d.module_K_displacement1d f s
+noncomputable instance : module real_scalar (displacement1d s) := @geom1d.module_K_displacement1d f s
 
 
 /-
@@ -309,21 +321,21 @@ instance : module scalar (displacement1d s) := @geom1d.module_K_displacement1d f
 /-
 Affine operations
 -/
-instance : has_add (displacement1d s) := ⟨add_displacement1d_displacement1d⟩
-instance : has_zero (displacement1d s) := ⟨displacement1d_zero⟩
-instance : has_neg (displacement1d s) := ⟨neg_displacement1d⟩
+noncomputable instance : has_add (displacement1d s) := ⟨add_displacement1d_displacement1d⟩
+noncomputable instance : has_zero (displacement1d s) := ⟨displacement1d_zero⟩
+noncomputable instance : has_neg (displacement1d s) := ⟨neg_displacement1d⟩
 
 @[simp]
-def sub_position1d_position1d {f : geom1d_frame} {s : geom1d_space f } (p1 p2 : position1d s) : displacement1d s := 
+noncomputable def sub_position1d_position1d {f : geom1d_frame} {s : geom1d_space f } (p1 p2 : position1d s) : displacement1d s := 
     mk_displacement1d' s (p1.to_point -ᵥ p2.to_point)
 @[simp]
-def add_position1d_displacement1d {f : geom1d_frame} {s : geom1d_space f } (p : position1d s) (v : displacement1d s) : position1d s := 
+noncomputable def add_position1d_displacement1d {f : geom1d_frame} {s : geom1d_space f } (p : position1d s) (v : displacement1d s) : position1d s := 
     mk_position1d' s (v.to_vectr +ᵥ p.to_point) -- reorder assumes order is irrelevant
 @[simp]
-def add_displacement1d_position1d {f : geom1d_frame} {s : geom1d_space f } (v : displacement1d s) (p : position1d s) : position1d s := 
+noncomputable def add_displacement1d_position1d {f : geom1d_frame} {s : geom1d_space f } (v : displacement1d s) (p : position1d s) : position1d s := 
     mk_position1d' s (v.to_vectr +ᵥ p.to_point)
     
-instance : has_vadd (displacement1d s) (position1d s) := ⟨add_displacement1d_position1d⟩
+noncomputable instance : has_vadd (displacement1d s) (position1d s) := ⟨add_displacement1d_position1d⟩
 
 lemma zero_displacement1d_vadd'_a1 : ∀ p : position1d s, (0 : displacement1d s) +ᵥ p = p := begin
     intros,
@@ -346,7 +358,7 @@ lemma displacement1d_add_assoc'_a1 : ∀ (g1 g2 : displacement1d s) (p : positio
 end
 
 
-instance displacement1d_add_action: add_action (displacement1d s) (position1d s) := 
+noncomputable instance displacement1d_add_action: add_action (displacement1d s) (position1d s) := 
 ⟨ zero_displacement1d_vadd'_a1, 
 begin
     let h0 := displacement1d_add_assoc'_a1,
@@ -354,7 +366,7 @@ begin
     exact (h0 g₁ g₂ p).symm
 end⟩ 
 
-instance position1d_has_vsub : has_vsub (displacement1d s) (position1d s) := ⟨ sub_position1d_position1d⟩ 
+noncomputable instance position1d_has_vsub : has_vsub (displacement1d s) (position1d s) := ⟨ sub_position1d_position1d⟩ 
 
 instance : nonempty (position1d s) := ⟨mk_position1d s 0⟩
 
@@ -378,7 +390,7 @@ begin
     
 end
 
-instance aff_geom1d_torsor : add_torsor (displacement1d s) (position1d s) := 
+noncomputable instance aff_geom1d_torsor : add_torsor (displacement1d s) (position1d s) := 
 ⟨ 
     begin
         exact position1d_vsub_vadd_a1,
@@ -390,7 +402,7 @@ instance aff_geom1d_torsor : add_torsor (displacement1d s) (position1d s) :=
 
 open_locale affine
 
-instance : affine_space (displacement1d s) (position1d s) := @geom1d.aff_geom1d_torsor f s
+noncomputable instance : affine_space (displacement1d s) (position1d s) := @geom1d.aff_geom1d_torsor f s
 
 end geom1d -- ha ha
 end bar
@@ -405,33 +417,33 @@ Extension methods are provided to directly transform Times and Duration between 
 structure geom1d_transform {f1 : geom1d_frame} {f2 : geom1d_frame} (sp1 : geom1d_space f1) (sp2 : geom1d_space f2)
   extends fm_tr sp1 sp2
 
-def geom1d_space.mk_geom1d_transform_to {f1 : geom1d_frame} (s1 : geom1d_space f1) : Π {f2 : geom1d_frame} (s2 : geom1d_space f2), 
-        geom1d_transform s1 s2 := --(position1d s2) ≃ᵃ[scalar] (position1d s1) := 
+noncomputable def geom1d_space.mk_geom1d_transform_to {f1 : geom1d_frame} (s1 : geom1d_space f1) : Π {f2 : geom1d_frame} (s2 : geom1d_space f2), 
+        geom1d_transform s1 s2 := --(position1d s2) ≃ᵃ[real_scalar] (position1d s1) := 
     λ f2 s2,
         ⟨s1.fm_tr s2⟩
 
-def geom1d_transform.symm 
+noncomputable def geom1d_transform.symm 
     {f1 : geom1d_frame} {f2 : geom1d_frame} {sp1 : geom1d_space f1} {sp2 : geom1d_space f2} (ttr : geom1d_transform sp1 sp2)
     : geom1d_transform sp2 sp1 := ⟨(ttr.1).symm⟩
 
 
-def geom1d_transform.trans 
+noncomputable def geom1d_transform.trans 
     {f1 : geom1d_frame} {f2 : geom1d_frame} {f3 : geom1d_frame} {sp1 : geom1d_space f1} {sp2 : geom1d_space f2} {sp3 : geom1d_space f3} 
     (ttr : geom1d_transform sp1 sp2)
     : geom1d_transform sp2 sp3 → geom1d_transform sp1 sp3 := λttr_, ⟨(ttr.1).trans ttr_.1⟩
 
-def geom1d_transform.transform_position1d
+noncomputable def geom1d_transform.transform_position1d
     {f1 : geom1d_frame} {s1 : spc _ f1}
     {f2 : geom1d_frame} {s2 : spc _ f2}
     (tr: geom1d_transform s1 s2 ) : position1d s1 → position1d s2 :=
     λt : position1d s1,
     ⟨tr.to_fm_tr.to_equiv t.to_point⟩
 
-def geom1d_transform.transform_displacement1d
+noncomputable def geom1d_transform.transform_displacement1d
     {f1 : geom1d_frame} {s1 : spc _ f1}
     {f2 : geom1d_frame} {s2 : spc _ f2}
     (tr: geom1d_transform s1 s2 ) : displacement1d s1 → displacement1d s2 :=
     λd,
-    let as_pt : point s1 := ⟨λi, mk_pt scalar (d.coords i).coord⟩ in
+    let as_pt : point s1 := ⟨λi, mk_pt real_scalar (d.coords i).coord⟩ in
     let tr_pt := (tr.to_equiv as_pt) in
-    ⟨⟨λi, mk_vec scalar (tr_pt.coords i).coord⟩⟩
+    ⟨⟨λi, mk_vec real_scalar (tr_pt.coords i).coord⟩⟩
