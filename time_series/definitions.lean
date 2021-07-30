@@ -5,10 +5,25 @@ universes u
 
 variables   {tf : time_frame} (ts : time_space tf) (V : Type u) 
   [inhabited V] /-Questionable whether to use inhabited.default as a default value-/
+/-
+structure timestamped :=
+  (timestamp : time ts)
 
-#check time.coord
+@[class]
+structure has_timestamp (V : Type u) :=
+  (get_timestamp : V → time ts)
 
-#check propext
+instance : has_timestamp ts (timestamped ts) := ⟨λts, ts.timestamp⟩
+-/
+structure timestamped :=
+(timestamp : time ts)
+(value : V)
+
+def mk_default_timestamped : timestamped ts V := 
+  ⟨inhabited.default (time ts), inhabited.default V⟩
+
+instance : inhabited (timestamped ts V) := ⟨mk_default_timestamped ts V⟩
+
 
 @[simp]
 lemma nathelper :  ∀ (a b : ℕ), a + b < a → false := 
@@ -161,17 +176,29 @@ def time_series.Ici.sample
   λser tm , ser tm
 
 abbreviation discrete_series {tf : time_frame} (ts : time_space tf) (V : Type u) [inhabited V] :=
-  list (time ts × V)
+  list (timestamped ts V)
 
 def discrete_series.mk_empty {tf : time_frame} {ts : time_space tf} {V : Type u} 
   [inhabited V] : discrete_series ts V := []
 
 def discrete_series.update {tf : time_frame} {ts : time_space tf} {V : Type u} 
   [inhabited V] :
-  discrete_series ts V → time ts → V → discrete_series ts V
+  discrete_series ts V → timestamped ts V → discrete_series ts V
 --| [] ts_ val_ := [(ts_, val_)]
---| (h::t) ts_ val_ := (h::t ++ [(ts_, val_)] :  list (time ts × V))
-| ser ts_ val_ := ser.cons (ts_, val_)
+--| (h::t) ts_ val_ := (h::t ++ [(ts_, val_)] :  list (timestamped ts V))
+| ser tsv := ser.cons tsv
+
+def discrete_series.latest_helper {tf : time_frame} {ts : time_space tf} {V : Type u}
+  [inhabited V] :
+  discrete_series ts V → (timestamped ts V) → (timestamped ts V)
+| (h::t) v := if h.timestamp > v.timestamp then discrete_series.latest_helper t h else discrete_series.latest_helper t v
+| [] v := v
+
+def discrete_series.latest {tf : time_frame} {ts : time_space tf} {V : Type u} 
+  [inhabited V] :
+  discrete_series ts V → (timestamped ts V)
+| (h::t) := discrete_series.latest_helper t h
+| [] :=  ⟨inhabited.default (time ts), inhabited.default V⟩
 
 abbreviation discrete_series.Icc {tf : time_frame} (ts : time_space tf) (V : Type u) [inhabited V]
   (min_t max_t : time ts) :=
@@ -185,36 +212,35 @@ def discrete_series.sample  {tf : time_frame} {ts : time_space tf} {V : Type u}
   [inhabited V] 
   : discrete_series ts V → time ts → V
 | [] t_ := inhabited.default V
-| (h::t) t_ := if h.fst = t_ then h.snd else discrete_series.sample t t_ 
+| (h::t) t_ := if h.timestamp = t_ then h.value else discrete_series.sample t t_ 
 
 def discrete_series.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
-  (v : time ts) : discrete_series ts V → option (time ts × V) → V
+  (v : time ts) : discrete_series ts V → option (timestamped ts V) → V
 | [] (none) := inhabited.default V
-| [] (some t_) := t_.snd
+| [] (some t_) := t_.value
 | (h::t) (some t_) := 
-  if t_.fst < h.fst ∧ h.fst ≤ v 
+  if t_.timestamp < h.timestamp ∧ h.timestamp ≤ v 
   then discrete_series.sample_floor_helper t (some h) 
   else discrete_series.sample_floor_helper t (some t_)
 | (h::t) (none) := 
-  if h.fst ≤ v 
+  if h.timestamp ≤ v 
   then discrete_series.sample_floor_helper t (some h) 
   else discrete_series.sample_floor_helper t none
-
 
 def discrete_series.sample_floor {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
   : discrete_series ts V → time ts → V := 
   λser t, discrete_series.sample_floor_helper t ser none
 
 def discrete_series.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
-  (v : time ts) : discrete_series ts V → option (time ts × V) → V
+  (v : time ts) : discrete_series ts V → option (timestamped ts V) → V
 | [] (none) := inhabited.default V
-| [] (some t_) := t_.snd
+| [] (some t_) := t_.value
 | (h::t) (some t_) := 
-  if h.fst < t_.fst ∧ v ≤ h.fst
+  if h.timestamp < t_.timestamp ∧ v ≤ h.timestamp
   then discrete_series.sample_ceil_helper t (some h) 
   else discrete_series.sample_ceil_helper t (some t_)
 | (h::t) (none) := 
-  if v ≤ h.fst 
+  if v ≤ h.timestamp 
   then discrete_series.sample_ceil_helper t (some h) 
   else discrete_series.sample_ceil_helper t none
 
@@ -226,19 +252,19 @@ def discrete_series.sample_ceil {tf : time_frame} {ts : time_space tf} {V : Type
 def discrete_series.Icc.sample {min_t max_t : time ts}
   : discrete_series.Icc ts V min_t max_t → time ts → V
 | [] t_ := inhabited.default V
-| (h::t) t_ := if h.fst.1 = t_ then h.snd else discrete_series.Icc.sample t t_ 
+| (h::t) t_ := if h.timestamp.1 = t_ then h.value else discrete_series.Icc.sample t t_ 
 
 
 def discrete_series.Icc.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
   (v : set.Icc min_t max_t) : discrete_series.Icc ts V min_t max_t → option (set.Icc min_t max_t × V) → V
 | [] (none) := inhabited.default V
-| [] (some t_) := t_.snd
+| [] (some t_) := t_.value
 | (h::t) (some t_) := 
-  if t_.fst.val < h.fst ∧ h.fst.val ≤ v 
+  if t_.timestamp.val < h.timestamp ∧ h.timestamp.val ≤ v 
   then discrete_series.Icc.sample_floor_helper t (some h) 
   else discrete_series.Icc.sample_floor_helper t (some t_)
 | (h::t) (none) := 
-  if h.fst.val ≤ v 
+  if h.timestamp.val ≤ v 
   then discrete_series.Icc.sample_floor_helper t (some h) 
   else discrete_series.Icc.sample_floor_helper t none
 
@@ -252,13 +278,13 @@ def discrete_series.Icc.sample_floor
 def discrete_series.Icc.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
   (v : set.Icc min_t max_t) : discrete_series.Icc ts V min_t max_t → option (set.Icc min_t max_t × V) → V
 | [] (none) := inhabited.default V
-| [] (some t_) := t_.snd
+| [] (some t_) := t_.value
 | (h::t) (some t_) := 
-  if h.fst.val < t_.fst.val ∧ v.val ≤ h.fst.val
+  if h.timestamp.val < t_.timestamp.val ∧ v.val ≤ h.timestamp.val
   then discrete_series.Icc.sample_ceil_helper t (some h) 
   else discrete_series.Icc.sample_ceil_helper t (some t_)
 | (h::t) (none) := 
-  if v.val ≤ h.fst.val
+  if v.val ≤ h.timestamp.val
   then discrete_series.Icc.sample_ceil_helper t (some h) 
   else discrete_series.Icc.sample_ceil_helper t none
 
@@ -271,19 +297,19 @@ def discrete_series.Icc.sample_ceil {tf : time_frame} {ts : time_space tf} {V : 
 def discrete_series.Ici.sample {min_t : time ts}
   : discrete_series.Ici ts V min_t → time ts → V
 | [] t_ := inhabited.default V
-| (h::t) t_ := if h.fst.1 = t_ then h.snd else discrete_series.Ici.sample t t_ 
+| (h::t) t_ := if h.timestamp.1 = t_ then h.value else discrete_series.Ici.sample t t_ 
 
 
 def discrete_series.Ici.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t : time ts}
   (v : set.Ici min_t) : discrete_series.Ici ts V min_t → option (set.Ici min_t × V) → V
 | [] (none) := inhabited.default V
-| [] (some t_) := t_.snd
+| [] (some t_) := t_.value
 | (h::t) (some t_) := 
-  if t_.fst.val < h.fst ∧ h.fst.val ≤ v 
+  if t_.timestamp.val < h.timestamp ∧ h.timestamp.val ≤ v 
   then discrete_series.Ici.sample_floor_helper t (some h) 
   else discrete_series.Ici.sample_floor_helper t (some t_)
 | (h::t) (none) := 
-  if h.fst.val ≤ v 
+  if h.timestamp.val ≤ v 
   then discrete_series.Ici.sample_floor_helper t (some h) 
   else discrete_series.Ici.sample_floor_helper t none
 
@@ -297,13 +323,13 @@ def discrete_series.Ici.sample_floor
 def discrete_series.Ici.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t : time ts}
   (v : set.Ici min_t) : discrete_series.Ici ts V min_t → option (set.Ici min_t × V) → V
 | [] (none) := inhabited.default V
-| [] (some t_) := t_.snd
+| [] (some t_) := t_.value
 | (h::t) (some t_) := 
-  if h.fst.val < t_.fst.val ∧ v.val ≤ h.fst.val
+  if h.timestamp.val < t_.timestamp.val ∧ v.val ≤ h.timestamp.val
   then discrete_series.Ici.sample_ceil_helper t (some h) 
   else discrete_series.Ici.sample_ceil_helper t (some t_)
 | (h::t) (none) := 
-  if v.val ≤ h.fst.val
+  if v.val ≤ h.timestamp.val
   then discrete_series.Ici.sample_ceil_helper t (some h) 
   else discrete_series.Ici.sample_ceil_helper t none
 
@@ -311,3 +337,169 @@ def discrete_series.Ici.sample_ceil_helper {tf : time_frame} {ts : time_space tf
 def discrete_series.Ici.sample_ceil {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t : time ts}
   : discrete_series.Ici ts V min_t → set.Ici min_t → V := 
   λser t, discrete_series.Ici.sample_ceil_helper t ser none
+
+/-
+abbreviation discrete_timestamped_series {tf : time_frame} (ts : time_space tf) (V : Type u) [inhabited V] :=
+  list (timestamped ts V)
+
+def discrete_timestamped_series.mk_empty {tf : time_frame} {ts : time_space tf} {V : Type u} 
+  [inhabited V] : discrete_timestamped_series ts V := []
+
+def discrete_timestamped_series.update {tf : time_frame} {ts : time_space tf} {V : Type u} 
+  [inhabited V] :
+  discrete_timestamped_series ts V → time ts → V → discrete_timestamped_series ts V
+--| [] ts_ val_ := [(ts_, val_)]
+--| (h::t) ts_ val_ := (h::t ++ [(ts_, val_)] :  list (timestamped ts V))
+| ser ts_ val_ := ser.cons (ts_, val_)
+
+def discrete_timestamped_series.latest_helper {tf : time_frame} {ts : time_space tf} {V : Type u}
+  [inhabited V] :
+  discrete_timestamped_series ts V → (timestamped ts V) → V
+| (h::t) v := if h.timestamp > v.timestamp then discrete_timestamped_series.latest_helper t h else discrete_timestamped_series.latest_helper t v
+| [] v := v.value
+
+def discrete_timestamped_series.latest {tf : time_frame} {ts : time_space tf} {V : Type u} 
+  [inhabited V] :
+  discrete_timestamped_series ts V → V
+| (h::t) := discrete_timestamped_series.latest_helper t h
+| [] :=  inhabited.default V
+
+abbreviation discrete_timestamped_series.Icc {tf : time_frame} (ts : time_space tf) (V : Type u) [inhabited V]
+  (min_t max_t : time ts) :=
+  list (set.Icc min_t max_t × V)
+
+abbreviation discrete_timestamped_series.Ici {tf : time_frame} (ts : time_space tf) (V : Type u) [inhabited V]
+  (min_t : time ts) :=
+  list (set.Ici min_t × V)
+
+def discrete_timestamped_series.sample  {tf : time_frame} {ts : time_space tf} {V : Type u} 
+  [inhabited V] 
+  : discrete_timestamped_series ts V → time ts → V
+| [] t_ := inhabited.default V
+| (h::t) t_ := if h.timestamp = t_ then h.value else discrete_timestamped_series.sample t t_ 
+
+def discrete_timestamped_series.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+  (v : time ts) : discrete_timestamped_series ts V → option (timestamped ts V) → V
+| [] (none) := inhabited.default V
+| [] (some t_) := t_.value
+| (h::t) (some t_) := 
+  if t_.timestamp < h.timestamp ∧ h.timestamp ≤ v 
+  then discrete_timestamped_series.sample_floor_helper t (some h) 
+  else discrete_timestamped_series.sample_floor_helper t (some t_)
+| (h::t) (none) := 
+  if h.timestamp ≤ v 
+  then discrete_timestamped_series.sample_floor_helper t (some h) 
+  else discrete_timestamped_series.sample_floor_helper t none
+
+
+def discrete_timestamped_series.sample_floor {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+  : discrete_timestamped_series ts V → time ts → V := 
+  λser t, discrete_timestamped_series.sample_floor_helper t ser none
+
+def discrete_timestamped_series.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+  (v : time ts) : discrete_timestamped_series ts V → option (timestamped ts V) → V
+| [] (none) := inhabited.default V
+| [] (some t_) := t_.value
+| (h::t) (some t_) := 
+  if h.timestamp < t_.timestamp ∧ v ≤ h.timestamp
+  then discrete_timestamped_series.sample_ceil_helper t (some h) 
+  else discrete_timestamped_series.sample_ceil_helper t (some t_)
+| (h::t) (none) := 
+  if v ≤ h.timestamp 
+  then discrete_timestamped_series.sample_ceil_helper t (some h) 
+  else discrete_timestamped_series.sample_ceil_helper t none
+
+
+def discrete_timestamped_series.sample_ceil {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+  : discrete_timestamped_series ts V → time ts → V := 
+  λser t, discrete_timestamped_series.sample_ceil_helper t ser none
+
+def discrete_timestamped_series.Icc.sample {min_t max_t : time ts}
+  : discrete_timestamped_series.Icc ts V min_t max_t → time ts → V
+| [] t_ := inhabited.default V
+| (h::t) t_ := if h.timestamp.1 = t_ then h.value else discrete_timestamped_series.Icc.sample t t_ 
+
+
+def discrete_timestamped_series.Icc.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
+  (v : set.Icc min_t max_t) : discrete_timestamped_series.Icc ts V min_t max_t → option (set.Icc min_t max_t × V) → V
+| [] (none) := inhabited.default V
+| [] (some t_) := t_.value
+| (h::t) (some t_) := 
+  if t_.timestamp.val < h.timestamp ∧ h.timestamp.val ≤ v 
+  then discrete_timestamped_series.Icc.sample_floor_helper t (some h) 
+  else discrete_timestamped_series.Icc.sample_floor_helper t (some t_)
+| (h::t) (none) := 
+  if h.timestamp.val ≤ v 
+  then discrete_timestamped_series.Icc.sample_floor_helper t (some h) 
+  else discrete_timestamped_series.Icc.sample_floor_helper t none
+
+
+def discrete_timestamped_series.Icc.sample_floor 
+  {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
+  : discrete_timestamped_series.Icc ts V min_t max_t → set.Icc min_t max_t → V := 
+  λser t, discrete_timestamped_series.Icc.sample_floor_helper t ser none
+
+
+def discrete_timestamped_series.Icc.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
+  (v : set.Icc min_t max_t) : discrete_timestamped_series.Icc ts V min_t max_t → option (set.Icc min_t max_t × V) → V
+| [] (none) := inhabited.default V
+| [] (some t_) := t_.value
+| (h::t) (some t_) := 
+  if h.timestamp.val < t_.timestamp.val ∧ v.val ≤ h.timestamp.val
+  then discrete_timestamped_series.Icc.sample_ceil_helper t (some h) 
+  else discrete_timestamped_series.Icc.sample_ceil_helper t (some t_)
+| (h::t) (none) := 
+  if v.val ≤ h.timestamp.val
+  then discrete_timestamped_series.Icc.sample_ceil_helper t (some h) 
+  else discrete_timestamped_series.Icc.sample_ceil_helper t none
+
+
+def discrete_timestamped_series.Icc.sample_ceil {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
+  : discrete_timestamped_series.Icc ts V min_t max_t → set.Icc min_t max_t → V := 
+  λser t, discrete_timestamped_series.Icc.sample_ceil_helper t ser none
+
+
+def discrete_timestamped_series.Ici.sample {min_t : time ts}
+  : discrete_timestamped_series.Ici ts V min_t → time ts → V
+| [] t_ := inhabited.default V
+| (h::t) t_ := if h.timestamp.1 = t_ then h.value else discrete_timestamped_series.Ici.sample t t_ 
+
+
+def discrete_timestamped_series.Ici.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t : time ts}
+  (v : set.Ici min_t) : discrete_timestamped_series.Ici ts V min_t → option (set.Ici min_t × V) → V
+| [] (none) := inhabited.default V
+| [] (some t_) := t_.value
+| (h::t) (some t_) := 
+  if t_.timestamp.val < h.timestamp ∧ h.timestamp.val ≤ v 
+  then discrete_timestamped_series.Ici.sample_floor_helper t (some h) 
+  else discrete_timestamped_series.Ici.sample_floor_helper t (some t_)
+| (h::t) (none) := 
+  if h.timestamp.val ≤ v 
+  then discrete_timestamped_series.Ici.sample_floor_helper t (some h) 
+  else discrete_timestamped_series.Ici.sample_floor_helper t none
+
+
+def discrete_timestamped_series.Ici.sample_floor 
+  {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t : time ts}
+  : discrete_timestamped_series.Ici ts V min_t → set.Ici min_t → V := 
+  λser t, discrete_timestamped_series.Ici.sample_floor_helper t ser none
+
+
+def discrete_timestamped_series.Ici.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t : time ts}
+  (v : set.Ici min_t) : discrete_timestamped_series.Ici ts V min_t → option (set.Ici min_t × V) → V
+| [] (none) := inhabited.default V
+| [] (some t_) := t_.value
+| (h::t) (some t_) := 
+  if h.timestamp.val < t_.timestamp.val ∧ v.val ≤ h.timestamp.val
+  then discrete_timestamped_series.Ici.sample_ceil_helper t (some h) 
+  else discrete_timestamped_series.Ici.sample_ceil_helper t (some t_)
+| (h::t) (none) := 
+  if v.val ≤ h.timestamp.val
+  then discrete_timestamped_series.Ici.sample_ceil_helper t (some h) 
+  else discrete_timestamped_series.Ici.sample_ceil_helper t none
+
+
+def discrete_timestamped_series.Ici.sample_ceil {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t : time ts}
+  : discrete_timestamped_series.Ici ts V min_t → set.Ici min_t → V := 
+  λser t, discrete_timestamped_series.Ici.sample_ceil_helper t ser none
+-/

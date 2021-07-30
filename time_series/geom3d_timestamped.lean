@@ -1,4 +1,4 @@
-import .geom1d
+import ..geom.geom3d
 
 open_locale affine
 
@@ -730,6 +730,3 @@ noncomputable def geom3d_transform.transform_pose3d
     (tr: geom3d_transform s3 s2 ) : pose3d s3 → pose3d s2 :=
     λp :_,
     (⟨tr.transform_orientation p.orientation, tr.transform_position3d p.position⟩:pose3d s2)
-
-
-notation tr⬝t := geom3d_transform.transform_pose3d tr t

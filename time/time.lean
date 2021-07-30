@@ -40,6 +40,8 @@ def mk_time' {f : time_frame} (s : time_space f ) (p : point s) : time s := time
 @[simp]
 def mk_time {f : time_frame} (s : time_space f ) (k : scalar) : time s := time.mk (mk_point s ⟨[k],rfl⟩) 
 
+instance {f : time_frame} (s : time_space f ): inhabited (time s) := ⟨mk_time _ 0⟩
+
 -- intervals in time
 structure duration {f : time_frame} (s : time_space f ) extends vectr s 
 @[ext] lemma duration.ext : ∀  {f : time_frame} {s : time_space f } (x y : duration s),
