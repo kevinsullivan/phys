@@ -225,19 +225,19 @@ lemma one_smul_displacement1d : ∀ b : displacement1d s, (1 : real_scalar) • 
     intros,
     ext,
     dsimp only [has_scalar.smul],
-    dsimp only [smul_displacement1d, has_scalar.smul],
-    --dsimp only [smul_vectr, has_scalar.smul],
-   -- dsimp only [smul_vec, mk_displacement1d', mk_vectr'],
-   -- simp only [one_mul],
-   admit
+    dsimp only [smul_displacement1d, has_scalar.smul, mk_displacement1d'],
+    simp only [smul_vectr, smul_vec, one_smul, mk_vectr'],
 end
 lemma mul_smul_displacement1d : ∀ (x y : real_scalar) (b : displacement1d s), (x * y) • b = x • y • b := 
 begin
     intros,
     cases b,
     ext,
-    --exact mul_assoc x y _,
-    admit
+    dsimp only [has_scalar.smul],
+    dsimp only [smul_displacement1d, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement1d', mk_vectr'],
+    simp only [mul_assoc],
 end
 
 noncomputable instance mul_action_displacement1d : mul_action real_scalar (displacement1d s) := ⟨
@@ -252,19 +252,16 @@ lemma smul_add_displacement1d : ∀(r : real_scalar) (x y : displacement1d s), r
     dsimp only [smul_displacement1d, add_displacement1d_displacement1d, has_scalar.smul, has_add.add],
     dsimp only [smul_vectr, add_vectr_vectr, has_scalar.smul, has_add.add],
     dsimp only [smul_vec, add_vec_vec, mk_displacement1d', mk_vectr'],
-    --simp only [distrib.left_distrib],
-    --refl,
-    admit
+    apply distrib.left_distrib,
 end
 lemma smul_zero_displacement1d : ∀(r : real_scalar), r • (0 : displacement1d s) = 0 := begin
     intros,
     ext,
     dsimp only [has_scalar.smul, has_zero.zero],
     dsimp only [smul_displacement1d, displacement1d_zero, has_scalar.smul],
-    --dsimp only [smul_vectr, has_scalar.smul],
-    --dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
-    --simp only [list.nth_le_singleton, mul_zero],
-    admit
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, mul_zero],
 end
 noncomputable instance distrib_mul_action_K_displacement1d : distrib_mul_action real_scalar (displacement1d s) := ⟨
 smul_add_displacement1d,
@@ -276,19 +273,24 @@ lemma add_smul_displacement1d : ∀ (a b : real_scalar) (x : displacement1d s), 
 begin
   intros,
   ext,
-  admit--exact right_distrib _ _ _,
+  dsimp only [has_scalar.smul],
+  dsimp only [smul_displacement1d, has_scalar.smul],
+  dsimp only [smul_vectr, has_scalar.smul],
+  dsimp only [smul_vec, mk_displacement1d', mk_vectr'],
+  sorry,
 end
 lemma zero_smul_displacement1d : ∀ (x : displacement1d s), (0 : real_scalar) • x = 0 := begin
     intros,
     ext,
-    dsimp only [has_scalar.smul, has_zero.zero],
-    dsimp only [smul_displacement1d, displacement1d_zero, has_scalar.smul],
-    --dsimp only [smul_vectr, has_scalar.smul],
-   -- dsimp only [smul_vec, mk_displacement1d', mk_vectr', mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
-    --simp only [list.nth_le_singleton, mul_eq_zero],
-    --apply or.inl,
-    --refl,
-    admit
+    dsimp only [has_scalar.smul],
+    dsimp only [smul_displacement1d, has_scalar.smul],
+    dsimp only [smul_vectr, has_scalar.smul],
+    dsimp only [smul_vec, mk_displacement1d', mk_vectr'],
+    dsimp only [has_zero.zero],
+    dsimp only [displacement1d_zero, mk_displacement1d, mk_vectr, mk_vec_n, mk_vec, vector.nth],
+    simp only [list.nth_le_singleton, mul_eq_zero],
+    apply or.inl,
+    refl,
 end
 noncomputable instance module_K_displacement1d : module real_scalar (displacement1d s) := ⟨ add_smul_displacement1d, zero_smul_displacement1d ⟩ 
 
