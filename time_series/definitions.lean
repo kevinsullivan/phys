@@ -19,10 +19,11 @@ structure timestamped :=
 (timestamp : time ts)
 (value : V)
 
-def mk_default_timestamped : timestamped ts V := 
+@[simp]
+noncomputable def mk_default_timestamped : timestamped ts V := 
   ⟨inhabited.default (time ts), inhabited.default V⟩
 
-instance : inhabited (timestamped ts V) := ⟨mk_default_timestamped ts V⟩
+noncomputable instance : inhabited (timestamped ts V) := ⟨mk_default_timestamped ts V⟩
 
 
 @[simp]
@@ -88,7 +89,7 @@ instance [has_le (time ts)] [has_lt (time ts)]: preorder (time ts) := ⟨
     exact h.2,
   end
 ⟩
-instance eqd {t1 t2 : time ts} : decidable (t1 = t2) := 
+noncomputable instance eqd {t1 t2 : time ts} : decidable (t1 = t2) := 
   if eqc:t1.coord=t2.coord then
     begin
       --cases t1, cases t2, cases t1, cases t2,
@@ -154,7 +155,7 @@ def time_series.mk_empty {tf : time_frame} {ts : time_space tf} {V : Type u}
   [inhabited V] 
   : time_series ts V := λi, inhabited.default V 
 
-def time_series.update {tf : time_frame} {ts : time_space tf} {V : Type u} 
+noncomputable def time_series.update {tf : time_frame} {ts : time_space tf} {V : Type u} 
   [inhabited V] : 
   time_series ts V → time ts → V → time_series ts V 
 | ser t_ val_ := --λt, if t = t_ then val_ else ser t
@@ -181,6 +182,14 @@ abbreviation discrete_series {tf : time_frame} (ts : time_space tf) (V : Type u)
 def discrete_series.mk_empty {tf : time_frame} {ts : time_space tf} {V : Type u} 
   [inhabited V] : discrete_series ts V := []
 
+#check list.range
+#check set.mem
+
+def discrete_series.domain {tf : time_frame} {ts : time_space tf} {V : Type u} 
+  [inhabited V] :
+  discrete_series ts V → list (time ts) := 
+  λser, list.map (λtsv : timestamped ts V, tsv.timestamp) ser
+
 def discrete_series.update {tf : time_frame} {ts : time_space tf} {V : Type u} 
   [inhabited V] :
   discrete_series ts V → timestamped ts V → discrete_series ts V
@@ -188,13 +197,15 @@ def discrete_series.update {tf : time_frame} {ts : time_space tf} {V : Type u}
 --| (h::t) ts_ val_ := (h::t ++ [(ts_, val_)] :  list (timestamped ts V))
 | ser tsv := ser.cons tsv
 
-def discrete_series.latest_helper {tf : time_frame} {ts : time_space tf} {V : Type u}
+@[simp, reducible]
+noncomputable def discrete_series.latest_helper {tf : time_frame} {ts : time_space tf} {V : Type u}
   [inhabited V] :
   discrete_series ts V → (timestamped ts V) → (timestamped ts V)
 | (h::t) v := if h.timestamp > v.timestamp then discrete_series.latest_helper t h else discrete_series.latest_helper t v
 | [] v := v
 
-def discrete_series.latest {tf : time_frame} {ts : time_space tf} {V : Type u} 
+@[simp, reducible]
+noncomputable def discrete_series.latest {tf : time_frame} {ts : time_space tf} {V : Type u} 
   [inhabited V] :
   discrete_series ts V → (timestamped ts V)
 | (h::t) := discrete_series.latest_helper t h
@@ -208,13 +219,13 @@ abbreviation discrete_series.Ici {tf : time_frame} (ts : time_space tf) (V : Typ
   (min_t : time ts) :=
   list (set.Ici min_t × V)
 
-def discrete_series.sample  {tf : time_frame} {ts : time_space tf} {V : Type u} 
+noncomputable def discrete_series.sample  {tf : time_frame} {ts : time_space tf} {V : Type u} 
   [inhabited V] 
   : discrete_series ts V → time ts → V
 | [] t_ := inhabited.default V
 | (h::t) t_ := if h.timestamp = t_ then h.value else discrete_series.sample t t_ 
 
-def discrete_series.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+noncomputable def discrete_series.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
   (v : time ts) : discrete_series ts V → option (timestamped ts V) → V
 | [] (none) := inhabited.default V
 | [] (some t_) := t_.value
@@ -227,11 +238,11 @@ def discrete_series.sample_floor_helper {tf : time_frame} {ts : time_space tf} {
   then discrete_series.sample_floor_helper t (some h) 
   else discrete_series.sample_floor_helper t none
 
-def discrete_series.sample_floor {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+noncomputable def discrete_series.sample_floor {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
   : discrete_series ts V → time ts → V := 
   λser t, discrete_series.sample_floor_helper t ser none
 
-def discrete_series.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+noncomputable def discrete_series.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
   (v : time ts) : discrete_series ts V → option (timestamped ts V) → V
 | [] (none) := inhabited.default V
 | [] (some t_) := t_.value
@@ -245,17 +256,17 @@ def discrete_series.sample_ceil_helper {tf : time_frame} {ts : time_space tf} {V
   else discrete_series.sample_ceil_helper t none
 
 
-def discrete_series.sample_ceil {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
+noncomputable def discrete_series.sample_ceil {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] 
   : discrete_series ts V → time ts → V := 
   λser t, discrete_series.sample_ceil_helper t ser none
 
-def discrete_series.Icc.sample {min_t max_t : time ts}
+noncomputable def discrete_series.Icc.sample {min_t max_t : time ts}
   : discrete_series.Icc ts V min_t max_t → time ts → V
 | [] t_ := inhabited.default V
 | (h::t) t_ := if h.timestamp.1 = t_ then h.value else discrete_series.Icc.sample t t_ 
 
 
-def discrete_series.Icc.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
+noncomputable def discrete_series.Icc.sample_floor_helper {tf : time_frame} {ts : time_space tf} {V : Type u} [inhabited V] {min_t max_t : time ts}
   (v : set.Icc min_t max_t) : discrete_series.Icc ts V min_t max_t → option (set.Icc min_t max_t × V) → V
 | [] (none) := inhabited.default V
 | [] (some t_) := t_.value

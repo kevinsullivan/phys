@@ -1,6 +1,8 @@
 import ..phys_dimensions
 import linear_algebra.affine_space.basic
-import ...math.affnKcoord.affnKcoord_std
+--import ...math.affnKcoord.affnKcoord_std
+import ...math.euclidnK.euclidnK_definitions
+
 import ..scalar
 
 
@@ -12,8 +14,8 @@ universes u
 
 abbreviation time_frame := fm scalar 1 LENGTH
 abbreviation time_space (f : time_frame) := spc scalar f
-def time_std_frame : time_frame := fm.base 1 LENGTH
-def time_std_space : time_space time_std_frame := mk_space (time_std_frame)
+noncomputable def time_std_frame : time_frame := fm.base 1 LENGTH
+noncomputable def time_std_space : time_space time_std_frame := mk_space (time_std_frame)
 
 
 
@@ -32,15 +34,15 @@ structure time {f : time_frame} (s : spc _ f ) extends point s
         exact e 
     end
 
-def time.coord {f : time_frame} {s : time_space f } (t :time s): scalar :=
+noncomputable def time.coord {f : time_frame} {s : time_space f } (t :time s): scalar :=
     (t.to_point.coords 0).coord
 
 @[simp]
 def mk_time' {f : time_frame} (s : time_space f ) (p : point s) : time s := time.mk p  
 @[simp]
-def mk_time {f : time_frame} (s : time_space f ) (k : scalar) : time s := time.mk (mk_point s ⟨[k],rfl⟩) 
+noncomputable def mk_time {f : time_frame} (s : time_space f ) (k : scalar) : time s := time.mk (mk_point s ⟨[k],rfl⟩) 
 
-instance {f : time_frame} (s : time_space f ): inhabited (time s) := ⟨mk_time _ 0⟩
+noncomputable instance {f : time_frame} (s : time_space f ): inhabited (time s) := ⟨mk_time _ 0⟩
 
 -- intervals in time
 structure duration {f : time_frame} (s : time_space f ) extends vectr s 
@@ -57,17 +59,17 @@ structure duration {f : time_frame} (s : time_space f ) extends vectr s
     end
 
 
-def duration.coord {f : time_frame} {s : time_space f } (d :duration s): scalar :=
+noncomputable def duration.coord {f : time_frame} {s : time_space f } (d :duration s): scalar :=
     (d.to_vectr.coords 0).coord
 
 @[simp]
 def mk_duration' {f : time_frame} (s : time_space f ) (v : vectr s) : duration s := duration.mk v
 @[simp]
-def mk_duration  {f : time_frame} (s : time_space f ) (k : scalar) : duration s := duration.mk (mk_vectr s ⟨[k],rfl⟩) 
+noncomputable def mk_duration  {f : time_frame} (s : time_space f ) (k : scalar) : duration s := duration.mk (mk_vectr s ⟨[k],rfl⟩) 
 
 
 @[simp]
-def mk_time_frame {parent : time_frame} {s : spc scalar parent} (p : time s) (v : duration s) :=
+noncomputable def mk_time_frame {parent : time_frame} {s : spc scalar parent} (p : time s) (v : duration s) :=
 mk_frame p.to_point (vectr_basis.mk (λi, v.to_vectr) sorry sorry)   -- TODO: make sure v ≠ 0
 
 end foo
@@ -83,19 +85,19 @@ section bar
 namespace time
 variables {f : time_frame} {s : time_space f } 
 @[simp]
-def add_duration_duration (v1 v2 : duration s) : duration s := 
+noncomputable def add_duration_duration (v1 v2 : duration s) : duration s := 
     mk_duration' s (v1.to_vectr + v2.to_vectr)
 @[simp]
-def smul_duration (k : scalar) (v : duration s) : duration s := 
+noncomputable def smul_duration (k : scalar) (v : duration s) : duration s := 
     mk_duration' s (k • v.to_vectr)
 @[simp]
-def neg_duration (v : duration s) : duration s := 
+noncomputable def neg_duration (v : duration s) : duration s := 
     mk_duration' s ((-1 : scalar) • v.to_vectr)
 @[simp]
-def sub_duration_duration (v1 v2 : duration s) : duration s :=    -- v1-v2
+noncomputable def sub_duration_duration (v1 v2 : duration s) : duration s :=    -- v1-v2
     add_duration_duration v1 (neg_duration v2)
 
-instance has_add_duration : has_add (duration s) := ⟨ add_duration_duration ⟩
+noncomputable instance has_add_duration : has_add (duration s) := ⟨ add_duration_duration ⟩
 lemma add_assoc_duration : ∀ a b c : duration s, a + b + c = a + (b + c) := begin
     intros,
     ext,
@@ -105,10 +107,10 @@ lemma add_assoc_duration : ∀ a b c : duration s, a + b + c = a + (b + c) := be
     dsimp only [add_vec_vec],
     simp only [add_assoc],
 end
-instance add_semigroup_duration : add_semigroup (duration s) := ⟨ add_duration_duration, add_assoc_duration⟩ 
+noncomputable instance add_semigroup_duration : add_semigroup (duration s) := ⟨ add_duration_duration, add_assoc_duration⟩ 
 @[simp]
-def duration_zero  := mk_duration s 0
-instance has_zero_duration : has_zero (duration s) := ⟨duration_zero⟩
+noncomputable def duration_zero  := mk_duration s 0
+noncomputable instance has_zero_duration : has_zero (duration s) := ⟨duration_zero⟩
 
 lemma zero_add_duration : ∀ a : duration s, 0 + a = a := 
 begin
@@ -133,12 +135,12 @@ begin
 end
 
 @[simp]
-def nsmul_duration : ℕ → (duration s) → (duration s) 
+noncomputable def nsmul_duration : ℕ → (duration s) → (duration s) 
 | nat.zero v := duration_zero
 --| 1 v := v
 | (nat.succ n) v := (add_duration_duration) v (nsmul_duration n v)
 
-instance add_monoid_duration : add_monoid (duration s) := ⟨ 
+noncomputable instance add_monoid_duration : add_monoid (duration s) := ⟨ 
     -- add_semigroup
     add_duration_duration, 
     add_assoc_duration, 
@@ -150,15 +152,15 @@ instance add_monoid_duration : add_monoid (duration s) := ⟨
     nsmul_duration
 ⟩
 
-instance has_neg_duration : has_neg (duration s) := ⟨neg_duration⟩
-instance has_sub_duration : has_sub (duration s) := ⟨ sub_duration_duration⟩ 
+noncomputable instance has_neg_duration : has_neg (duration s) := ⟨neg_duration⟩
+noncomputable instance has_sub_duration : has_sub (duration s) := ⟨ sub_duration_duration⟩ 
 lemma sub_eq_add_neg_duration : ∀ a b : duration s, a - b = a + -b := 
 begin
     intros,ext,
     refl,
 end 
 
-instance sub_neg_monoid_duration : sub_neg_monoid (duration s) := 
+noncomputable instance sub_neg_monoid_duration : sub_neg_monoid (duration s) := 
 {
     neg := neg_duration,
     ..(show add_monoid (duration s), by apply_instance)
@@ -186,7 +188,7 @@ begin
     simp only [list.nth_le_singleton]
 end
 
-instance : add_group (duration s) := {
+noncomputable instance : add_group (duration s) := {
     add_left_neg := begin
         exact add_left_neg_duration,
     end,
@@ -214,14 +216,14 @@ begin
     dsimp only [add_vec_vec, mk_duration', mk_vectr'],
     simp only [add_comm],
 end
-instance add_comm_semigroup_duration : add_comm_semigroup (duration s) := ⟨
+noncomputable instance add_comm_semigroup_duration : add_comm_semigroup (duration s) := ⟨
     -- add_semigroup
     add_duration_duration, 
     add_assoc_duration,
     add_comm_duration,
 ⟩
 
-instance add_comm_monoid_duration : add_comm_monoid (duration s) := {
+noncomputable instance add_comm_monoid_duration : add_comm_monoid (duration s) := {
     add_comm := begin
         exact add_comm_duration
     end, 
@@ -242,7 +244,7 @@ instance add_comm_monoid_duration : add_comm_monoid (duration s) := {
     add_comm_duration,
 ⟩-/
 
-instance has_scalar_duration : has_scalar scalar (duration s) := ⟨
+noncomputable instance has_scalar_duration : has_scalar scalar (duration s) := ⟨
 smul_duration,
 ⟩
 
@@ -263,7 +265,7 @@ begin
     exact mul_assoc x y _,
 end
 
-instance mul_action_duration : mul_action scalar (duration s) := ⟨
+noncomputable instance mul_action_duration : mul_action scalar (duration s) := ⟨
 one_smul_duration,
 mul_smul_duration,
 ⟩ 
@@ -287,7 +289,7 @@ lemma smul_zero_duration : ∀(r : scalar), r • (0 : duration s) = 0 := begin
     dsimp only [smul_vec, mk_duration', mk_vectr', mk_duration, mk_vectr, mk_vec_n, mk_vec, vector.nth],
     simp only [list.nth_le_singleton, mul_zero],
 end
-instance distrib_mul_action_K_duration : distrib_mul_action scalar (duration s) := ⟨
+noncomputable instance distrib_mul_action_K_duration : distrib_mul_action scalar (duration s) := ⟨
 smul_add_duration,
 smul_zero_duration,
 ⟩ 
@@ -309,9 +311,9 @@ lemma zero_smul_duration : ∀ (x : duration s), (0 : scalar) • x = 0 := begin
     apply or.inl,
     refl,
 end
-instance module_K_duration : module scalar (duration s) := ⟨ add_smul_duration, zero_smul_duration ⟩ 
+noncomputable instance module_K_duration : module scalar (duration s) := ⟨ add_smul_duration, zero_smul_duration ⟩ 
 
-instance add_comm_group_duration : add_comm_group (duration s) := 
+noncomputable instance add_comm_group_duration : add_comm_group (duration s) := 
 {
     add_comm := begin
         exact add_comm_duration
@@ -339,7 +341,7 @@ instance add_comm_group_duration : add_comm_group (duration s) :=
     add_comm_duration,
 ⟩-/
 
-instance : module scalar (duration s) := @time.module_K_duration f s
+noncomputable instance : module scalar (duration s) := @time.module_K_duration f s
 
 
 /-
@@ -352,21 +354,21 @@ instance : module scalar (duration s) := @time.module_K_duration f s
 /-
 Affine operations
 -/
-instance : has_add (duration s) := ⟨add_duration_duration⟩
-instance : has_zero (duration s) := ⟨duration_zero⟩
-instance : has_neg (duration s) := ⟨neg_duration⟩
+noncomputable instance : has_add (duration s) := ⟨add_duration_duration⟩
+noncomputable instance : has_zero (duration s) := ⟨duration_zero⟩
+noncomputable instance : has_neg (duration s) := ⟨neg_duration⟩
 
 @[simp]
-def sub_time_time {f : time_frame} {s : time_space f } (p1 p2 : time s) : duration s := 
+noncomputable def sub_time_time {f : time_frame} {s : time_space f } (p1 p2 : time s) : duration s := 
     mk_duration' s (p1.to_point -ᵥ p2.to_point)
 @[simp]
-def add_time_duration {f : time_frame} {s : time_space f } (p : time s) (v : duration s) : time s := 
+noncomputable def add_time_duration {f : time_frame} {s : time_space f } (p : time s) (v : duration s) : time s := 
     mk_time' s (v.to_vectr +ᵥ p.to_point) -- reorder assumes order is irrelevant
 @[simp]
-def add_duration_time {f : time_frame} {s : time_space f } (v : duration s) (p : time s) : time s := 
+noncomputable def add_duration_time {f : time_frame} {s : time_space f } (v : duration s) (p : time s) : time s := 
     mk_time' s (v.to_vectr +ᵥ p.to_point)
     
-instance : has_vadd (duration s) (time s) := ⟨add_duration_time⟩
+noncomputable instance : has_vadd (duration s) (time s) := ⟨add_duration_time⟩
 
 lemma zero_duration_vadd'_a1 : ∀ p : time s, (0 : duration s) +ᵥ p = p := begin
     intros,
@@ -388,7 +390,7 @@ lemma duration_add_assoc'_a1 : ∀ (g1 g2 : duration s) (p : time s), g1 +ᵥ (g
     simp only [add_comm],
 end
 
-instance duration_add_action: add_action (duration s) (time s) := 
+noncomputable instance duration_add_action: add_action (duration s) (time s) := 
 ⟨ zero_duration_vadd'_a1, 
 begin
     let h0 := duration_add_assoc'_a1,
@@ -396,7 +398,7 @@ begin
     exact (h0 g₁ g₂ p).symm
 end⟩ 
 
-instance time_has_vsub : has_vsub (duration s) (time s) := ⟨ sub_time_time⟩ 
+noncomputable instance time_has_vsub : has_vsub (duration s) (time s) := ⟨ sub_time_time⟩ 
 
 instance : nonempty (time s) := ⟨mk_time s 0⟩
 
@@ -420,7 +422,7 @@ begin
     
 end
 
-instance aff_time_torsor : add_torsor (duration s) (time s) := ⟨
+noncomputable instance aff_time_torsor : add_torsor (duration s) (time s) := ⟨
     begin
         exact time_vsub_vadd_a1,
     end,
@@ -432,7 +434,7 @@ instance aff_time_torsor : add_torsor (duration s) (time s) := ⟨
 
 open_locale affine
 
-instance : affine_space (duration s) (time s) := @time.aff_time_torsor f s
+noncomputable instance : affine_space (duration s) (time s) := @time.aff_time_torsor f s
 
 end time -- ha ha
 end bar
@@ -443,29 +445,29 @@ universes u
 structure time_transform {f1 : time_frame} {f2 : time_frame} (sp1 : time_space f1) (sp2 : time_space f2)
   extends fm_tr sp1 sp2
 
-def time_space.mk_time_transform_to {f1 : time_frame} (s1 : time_space f1) : Π {f2 : time_frame} (s2 : time_space f2), 
+noncomputable def time_space.mk_time_transform_to {f1 : time_frame} (s1 : time_space f1) : Π {f2 : time_frame} (s2 : time_space f2), 
         time_transform s1 s2 := --(time s2) ≃ᵃ[scalar] (time s1) := 
     λ f2 s2,
         ⟨s1.fm_tr s2⟩
 
-def time_transform.symm 
+noncomputable def time_transform.symm 
     {f1 : time_frame} {f2 : time_frame} {sp1 : time_space f1} {sp2 : time_space f2} (ttr : time_transform sp1 sp2)
     : time_transform sp2 sp1 := ⟨(ttr.1).symm⟩
 
 
-def time_transform.trans 
+noncomputable def time_transform.trans 
     {f1 : time_frame} {f2 : time_frame} {f3 : time_frame} {sp1 : time_space f1} {sp2 : time_space f2} {sp3 : time_space f3} 
     (ttr : time_transform sp1 sp2)
     : time_transform sp2 sp3 → time_transform sp1 sp3 := λttr_, ⟨(ttr.1).trans ttr_.1⟩
 
-def time_transform.transform_time 
+noncomputable def time_transform.transform_time 
     {f1 : time_frame} {s1 : spc _ f1}
     {f2 : time_frame} {s2 : spc _ f2}
     (tr: time_transform s1 s2 ) : time s1 → time s2 :=
     λt : time s1,
     ⟨tr.to_fm_tr.to_equiv t.to_point⟩
 
-def time_transform.transform_duration
+noncomputable def time_transform.transform_duration
     {f1 : time_frame} {s1 : spc _ f1}
     {f2 : time_frame} {s2 : spc _ f2}
     (tr: time_transform s1 s2 ) : duration s1 → duration s2 :=
