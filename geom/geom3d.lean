@@ -2,76 +2,29 @@ import .geom1d
 
 open_locale affine
 
-section foo 
+section fix_this_name 
 
 universes u
-#check add_maps
 
-abbreviation geom3d_frame := 
-    (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space).frame_type
-abbreviation geom3d_space (f : geom3d_frame) := spc real_scalar f
-noncomputable def geom3d_std_frame := 
-    (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space).frame
-noncomputable def geom3d_std_space : geom3d_space geom3d_std_frame := 
+/-
+3D Geometric Space with Std Coordinate System
+-/
+noncomputable def std_3d_geom :=  
     (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space)
+abbreviation geom3d_frame := std_3d_geom.frame_type
+abbreviation geom3d_space (f : geom3d_frame) := spc real_scalar f
+noncomputable def geom3d_std_frame := std_3d_geom.frame
+noncomputable def geom3d_std_space : geom3d_space geom3d_std_frame := std_3d_geom
 
---@[reducible, elab_with_expected_type]
-/-
-def geom3d_std_frame : geom3d_frame := (let eqpf : 
-  (add_maps 
-    (add_maps 
-      (λi : fin 1, LENGTH) (λi : fin 1, LENGTH)) (λi : fin 1, LENGTH)) = 
-        LENGTH :=
-    by simp * in
-  (eq.rec_on eqpf (mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space).fm) : fm real_scalar 3 LENGTH)
--/
 
 /-
-def ppp := mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space
-
-#check (merge_prod_fm (merge_prod_fm geom1d_std_frame geom1d_std_frame) geom1d_std_frame)
-
-example : ppp.fm = geom3d_std_frame := 
-
-#check spc.rec_on
-
-#check @spc.rec_on real_scalar _ _ (λ dim, λ id_vec, λf, λ sp,)
-
-#check eq.rec
-
-#check homogeneous
-
-def geom3d_std_space : geom3d_space (_ : geom3d_frame) := 
-    begin
-        let v : spc real_scalar (_ : fm real_scalar (1 + 1 + 1) (add_maps (add_maps ↑LENGTH ↑LENGTH) ↑LENGTH)) := 
-            mk_prod_spc (mk_prod_spc geom1d_std_space geom1d_std_space) geom1d_std_space,
-        let f := v.fm,
-        let : v.frame_type = fm real_scalar (1 + 1 + 1) (add_maps (add_maps ↑LENGTH ↑LENGTH) ↑LENGTH) := rfl,
-        let : v.frame_type = geom3d_frame := begin
-            let eqf : (add_maps 
-    (add_maps 
-      (λi : fin 1, LENGTH) (λi : fin 1, LENGTH)) (λi : fin 1, LENGTH)) = (λ i:fin 3, LENGTH) := by simp *,
-            simp *,
-            refl
-        end,
-        let h : fm real_scalar (1 + 1 + 1) (add_maps (add_maps ↑LENGTH ↑LENGTH) ↑LENGTH) = geom3d_frame 
-            := begin simp *,
-                refl    
-            end,
-        let fm_ := v.fm,
-        simp * at v,
-        let fm_g : geom3d_frame := eq.rec fm_ (begin
-            
-        end),
-        let vg : geom3d_space geom3d_frame := eq.rec v (by cc)
-        let : v.fm = geom3d_std_frame := rfl,
-
-
-        exact v,
-    end
+Positions are points in this space.
 -/
 
+-- public 
 structure position3d {f : geom3d_frame} (s : geom3d_space f ) extends point s
+
+-- public, to enable certain proofs that clients might want to write
 @[ext] lemma position3d.ext : ∀  {f : geom3d_frame} {s : geom3d_space f } (x y : position3d s),
     x.to_point = y.to_point → x = y :=
     begin
@@ -84,31 +37,52 @@ structure position3d {f : geom3d_frame} (s : geom3d_space f ) extends point s
         exact e 
     end
 
-noncomputable def position3d.coords {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) :=
-    t.to_point.coords
+noncomputable def position3d.coords {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) :=
+    p.to_point.coords
 
-noncomputable def position3d.x {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) : real_scalar :=
-    (t.to_point.coords 0).coord
+/-
+User can use coordinates to build an object, but once this is done, the coordinates should
+disappear inside the object. From there, you should be able to ask the object to return its
+coordinates *in any given ACS (on the same physical dimension).
 
-noncomputable def position3d.y {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) : real_scalar :=
-    (t.to_point.coords 1).coord
+noncomputable def position3d.coords_in_s' {f f': geom3d_frame} {s : geom3d_space f } (p :position3d s) (s' : geom3d_space f' ) :=
+    p.to_point.coords -- should get back (transform p) . coords.
+-/
 
-noncomputable def position3d.z {f : geom3d_frame} {s : geom3d_space f } (t :position3d s) : real_scalar :=
-    (t.to_point.coords 2).coord
+noncomputable def position3d.x {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) : real_scalar :=
+    (p.to_point.coords 0).coord
 
+noncomputable def position3d.y {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) : real_scalar :=
+    (p.to_point.coords 1).coord
 
+noncomputable def position3d.z {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) : real_scalar :=
+    (p.to_point.coords 2).coord
 
+noncomputable def mk_position3d 
+    {f : geom3d_frame} 
+    (s : geom3d_space f ) 
+    (k₁ k₂ k₃ : real_scalar) : 
+    position3d s := 
+position3d.mk (mk_point s ⟨[k₁,k₂,k₃],rfl⟩) 
+
+-- Private
 @[simp]
 def mk_position3d' {f : geom3d_frame} (s : geom3d_space f ) (p : point s) : position3d s := position3d.mk p  
 @[simp]
-noncomputable def mk_position3d {f : geom3d_frame} (s : geom3d_space f ) (k₁ k₂ k₃ : real_scalar) : position3d s := position3d.mk (mk_point s ⟨[k₁,k₂,k₃],rfl⟩) 
 
+
+-- Private
 @[simp]
 noncomputable def mk_position3d'' {f1 f2 f3 : geom1d_frame } { s1 : geom1d_space f1} {s2 : geom1d_space f2} { s3 : geom1d_space f3}
     (p1 : position1d s1) (p2 : position1d s2) (p3 : position1d s3 )
     : position3d (mk_prod_spc (mk_prod_spc s1 s2) s3) :=
     ⟨mk_point_prod (mk_point_prod p1.to_point p2.to_point) p3.to_point⟩
     
+/-
+Displacements are vectors in this affine coordinate space
+-/
+
+-- Public
 structure displacement3d {f : geom3d_frame} (s : geom3d_space f ) extends vectr s 
 @[ext] lemma displacement3d.ext : ∀  {f : geom3d_frame} {s : geom3d_space f } (x y : displacement3d s),
     x.to_vectr = y.to_vectr → x = y :=
@@ -122,43 +96,46 @@ structure displacement3d {f : geom3d_frame} (s : geom3d_space f ) extends vectr 
         exact e 
     end
 
-
-
+-- Public
 def displacement3d.frame {f : geom3d_frame} {s : geom3d_space f } (d :displacement3d s) :=
     f
 
+-- Public
 noncomputable def displacement3d.coords {f : geom3d_frame} {s : geom3d_space f } (d :displacement3d s) :=
     d.to_vectr.coords
 
+-- Private
 @[simp]
 def mk_displacement3d' {f : geom3d_frame} (s : geom3d_space f ) (v : vectr s) : displacement3d s := displacement3d.mk v
 @[simp]
 noncomputable def mk_displacement3d  {f : geom3d_frame} (s : geom3d_space f ) (k₁ k₂ k₃ : real_scalar) : displacement3d s := displacement3d.mk (mk_vectr s ⟨[k₁,k₂,k₃],rfl⟩) 
 
+-- Private
 @[simp]
 noncomputable def mk_displacement3d'' {f1 f2 f3 : geom1d_frame } { s1 : geom1d_space f1} {s2 : geom1d_space f2} { s3 : geom1d_space f3}
     (p1 : displacement1d s1) (p2 : displacement1d s2) (p3 : displacement1d s3 )
     : displacement3d (mk_prod_spc (mk_prod_spc s1 s2) s3) :=
     ⟨mk_vectr_prod (mk_vectr_prod p1.to_vectr p2.to_vectr) p3.to_vectr⟩
 
+
+-- Public
 @[simp]
 noncomputable def mk_geom3d_frame {parent : geom3d_frame} {s : spc real_scalar parent} (p : position3d s) 
     (v0 : displacement3d s) (v1 : displacement3d s) (v2 : displacement3d s)
     : geom3d_frame :=
     (mk_frame p.to_point ⟨(λi, if i = 0 then v0.to_vectr else if i = 1 then v1.to_vectr else v2.to_vectr),sorry,sorry⟩)
 
+-- Public
 @[simp]
 noncomputable def mk_geom3d_space (fr : geom3d_frame) := mk_space fr
 
 
-end foo
+end fix_this_name
 
-section bar 
+section fix_this_name_too 
 
 /-
-    *************************************
-    Instantiate module real_scalar (vector real_scalar)
-    *************************************
+Proof that geom3d is an affine coordinate space
 -/
 
 namespace geom3d
@@ -560,7 +537,7 @@ begin
     exact (h0 g₁ g₂ p).symm
 end⟩ 
 --@[simp]
---def aff_geom3d_group_sub : position3d s → position3d s → displacement3d s := sub_geom3d_position3d real_scalar
+
 noncomputable instance position3d_has_vsub : has_vsub (displacement3d s) (position3d s) := ⟨ sub_position3d_position3d⟩ 
 
 instance : nonempty (position3d s) := ⟨mk_position3d s 0 0 0⟩
@@ -601,12 +578,17 @@ open_locale affine
 noncomputable instance : affine_space (displacement3d s) (position3d s) := @geom3d.aff_geom3d_torsor f s
 
 end geom3d -- ha ha
-end bar
+
+
+end fix_this_name_too
+
+/-
+Transformations in 3d geometric space
+-/
 
 /-
 Newer version
 Tradeoff - Does not directly extend from affine equiv. Base class is an equiv on points and vectrs
-
 Extension methods are provided to directly transform Times and Duration between frames
 -/
 @[ext]
@@ -651,7 +633,23 @@ noncomputable def geom3d_transform.transform_displacement3d
     ⟨⟨λi, mk_vec real_scalar (tr_pt.coords i).coord⟩⟩
 
 
+/-
+Orientation in 3D
+-/
+
+
 variables {f : geom3d_frame} (s : geom3d_space f )
+
+/-
+Background for the following definition:
+
+In an orientation object, id_vec keeps track of the
+physical dimension to which each basis vector belongs,
+allowing us to represent things like the product of a
+geometric space and a time space. 
+
+orientation : Π {dim : ℕ} {id_vec : fin dim → ℕ} {f : fm K dim id_vec}, spc K f → Type
+-/
 
 structure orientation3d extends orientation s :=
 mk ::
@@ -660,10 +658,21 @@ noncomputable instance o3i : inhabited (orientation3d s) := ⟨
     ⟨mk_orientation s (λi, mk_vectr s ⟨[0,0,0],rfl⟩)⟩
 ⟩
 
-noncomputable def mk_orientation3d (s1 s2 s3 s4 s5 s6 s7 s8 s9 : real_scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
-    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
+noncomputable def mk_orientation3d' /-(s1 s2 s3 s4 s5 s6 s7 s8 s9 : real_scalar)-/
+    (ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
+    --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else 
+    --                                            if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr 
+    --                                            else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
 
-    --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
+    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
+
+
+noncomputable def mk_orientation3d (s1 s2 s3 s4 s5 s6 s7 s8 s9 : real_scalar)
+    --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else 
+    --                                            if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr 
+    --                                            else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
+
+    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
 
 
 --okay, i can fill in this function now...
@@ -684,6 +693,11 @@ noncomputable def geom3d_transform.transform_orientation
     (tr: geom3d_transform s3 s2 ) : orientation3d s3 → orientation3d s2 :=
     λo : orientation3d s3,
     ⟨tr.to_fm_tr.transform_orientation o.to_orientation⟩
+
+
+/-
+Rotations
+-/
 
 structure rotation3d extends rotation s :=
 mk ::
@@ -706,6 +720,10 @@ noncomputable def mk_rotation3d_from_quaternion (s1 s2 s3 s4 : real_scalar)--(ax
         (2*(s2*s4 - s1*s3)) (2*(s3*s4 + s1*s2)) (2*(s1*s1 + s1*s1 + s4*s4) - 1)
     --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
 
+
+/-
+Poses
+-/
 
 structure pose3d :=
 mk ::

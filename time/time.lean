@@ -72,6 +72,10 @@ noncomputable def mk_duration  {f : time_frame} (s : time_space f ) (k : scalar)
 noncomputable def mk_time_frame {parent : time_frame} {s : spc scalar parent} (p : time s) (v : duration s) :=
 mk_frame p.to_point (vectr_basis.mk (λi, v.to_vectr) sorry sorry)   -- TODO: make sure v ≠ 0
 
+-- Public
+@[simp]
+noncomputable def mk_time_space (fr : time_frame) := mk_space fr
+
 end foo
 
 section bar 
