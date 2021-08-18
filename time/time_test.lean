@@ -34,31 +34,31 @@ Progress this week:
 #check time_std_space
 
 
- def t1 : time (time_std_space) :=  mk_time (time_std_space)  1          -- t=0 + 1 second
- def t2 := mk_time (time_std_space) 3                             -- t=0 + 3 seconds
- def d1 : duration (time_std_space) := t2 -ᵥ t1                     -- 2 seconds
- def t3 := 5 • d1 +ᵥ t1                                          -- t=0 + 11 seconds
+ noncomputable def t1 : time (time_std_space) :=  mk_time (time_std_space)  1   -- t=0 + 1 second
+ noncomputable def t2 := mk_time (time_std_space) 3                             -- t=0 + 3 seconds
+ noncomputable def d1 : duration (time_std_space) := t2 -ᵥ t1                   -- 2 seconds
+ noncomputable def t3 := 5 • d1 +ᵥ t1                                           -- t=0 + 11 seconds
 
 -- new frame with origin at t=0 + 1hr and unit duration of 1 minute
- def t1' := mk_time (time_std_space) 3600      -- t=0 + 1hr
+noncomputable def t1' := mk_time (time_std_space) 3600      -- t=0 + 1hr
 
 #eval t1'.coords
 
- def d1' := 60 • (mk_duration (time_std_space) 1)                                             -- one minute
- def new_fm := mk_frame t1'.to_point d1'.to_vectr                -- TODO: fix
- def new_space := mk_space scalar new_fm
+ noncomputable def d1' := 60 • (mk_duration (time_std_space) 1)                                             -- one minute
+ noncomputable def new_fm := mk_frame t1'.to_point d1'.to_vectr                -- TODO: fix
+ noncomputable def new_space := mk_space scalar new_fm
 
 -- create some points and vectors in new space
- def t1'' : time new_space := mk_time new_space 1                -- t=0 + 1 second (3660)
- def t2'' := mk_time new_space 3                                 -- t=0 + 3 seconds (3600 + 180)
+noncomputable def t1'' : time new_space := mk_time new_space 1                -- t=0 + 1 second (3660)
+noncomputable def t2'' := mk_time new_space 3                                 -- t=0 + 3 seconds (3600 + 180)
 
-def t3'' := mk_duration new_space 5
+noncomputable def t3'' := mk_duration new_space 5
 
-def mytr := (time_std_space).mk_time_transform_to new_space
+noncomputable def mytr := (time_std_space).mk_time_transform_to new_space
 
 #check mytr
 
-def ftr := (new_space).time_tr (time_std_space K)
+noncomputable def ftr := (new_space).time_tr (time_std_space K)
 
 #check ftr
 #eval (mytr.transform_time t1).to_point.to_pt.to_prod
