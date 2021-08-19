@@ -68,7 +68,7 @@ position3d.mk (mk_point s ⟨[k₁,k₂,k₃],rfl⟩)
 -- Private
 @[simp]
 def mk_position3d' {f : geom3d_frame} (s : geom3d_space f ) (p : point s) : position3d s := position3d.mk p  
-@[simp]
+
 
 
 -- Private
@@ -104,6 +104,14 @@ def displacement3d.frame {f : geom3d_frame} {s : geom3d_space f } (d :displaceme
 noncomputable def displacement3d.coords {f : geom3d_frame} {s : geom3d_space f } (d :displacement3d s) :=
     d.to_vectr.coords
 
+noncomputable def displacement3d.x {f : geom3d_frame} {s : geom3d_space f } (p :displacement3d s) : real_scalar :=
+    (p.to_vectr.coords 0).coord
+
+noncomputable def displacement3d.y {f : geom3d_frame} {s : geom3d_space f } (p :displacement3d s) : real_scalar :=
+    (p.to_vectr.coords 1).coord
+
+noncomputable def displacement3d.z {f : geom3d_frame} {s : geom3d_space f } (p :displacement3d s) : real_scalar :=
+    (p.to_vectr.coords 2).coord
 -- Private
 @[simp]
 def mk_displacement3d' {f : geom3d_frame} (s : geom3d_space f ) (v : vectr s) : displacement3d s := displacement3d.mk v
@@ -668,16 +676,25 @@ noncomputable def mk_orientation3d' /-(s1 s2 s3 s4 s5 s6 s7 s8 s9 : real_scalar)
 
 
 noncomputable def mk_orientation3d (s1 s2 s3 s4 s5 s6 s7 s8 s9 : real_scalar)
-    --: orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else 
-    --                                            if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr 
-    --                                            else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
+    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else 
+                                                if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr 
+                                                else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
 
-    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then ax1.to_vectr else if i.1 = 1 then ax2.to_vectr else ax3.to_vectr )⟩
-
-
+/-
+R = Ry(1)*Rx(2)*Rz(3)
+  = | cos 1*cos 3+sin 1*sin 2*sin 3  cos 3*sin 1*sin 2-sin 3*cos 1  cos 2*sin 1 |
+    |                   cos 2*sin 3                    cos 3*cos 2       -sin 2 |
+    | sin 3*cos 1*sin 2-sin 1*cos 3  sin 1*sin 3+cos 3*cos 1*sin 2  cos 2*cos 1 |
+-/
 --okay, i can fill in this function now...
 noncomputable def mk_orientation3d_from_euler_angles (s1 s2 s3 : real_scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
-    : orientation3d s := ⟨mk_orientation s (λi, if i.1 = 0 then (mk_displacement3d s s1 s2 s3).to_vectr else if i.1 = 1 then (mk_displacement3d s s4 s5 s6).to_vectr else (mk_displacement3d s s7 s8 s9).to_vectr )⟩
+    : orientation3d s := ⟨mk_orientation s 
+        (λi, if i.1 = 0 then (mk_displacement3d s 
+            ((real.cos s1)*(real.cos s3) + (real.sin s1*(real.sin s2)*(real.sin s3))) ((real.cos s3)*(real.sin s1)*(real.sin s2) - (real.sin s3)*(real.cos s1)) ((real.cos s2)*(real.sin s1))).to_vectr 
+        else if i.1 = 1 then (mk_displacement3d s 
+            ((real.cos s2)*(real.sin s3)) ((real.cos s3)*(real.cos s2)) (-(real.sin s2))).to_vectr 
+        else (mk_displacement3d s 
+            ((real.sin s3)*(real.cos s1)*(real.sin s2) - (real.sin s1)*(real.cos s3)) ((real.sin s1)*(real.sin s3) + (real.cos s3)*(real.cos s1)*(real.sin s2)) ((real.cos s2)*(real.cos s1))).to_vectr )⟩
 
 
 noncomputable def mk_orientation3d_from_quaternion (s1 s2 s3 s4 : real_scalar)--(ax1 : displacement3d s) (ax2 : displacement3d s) (ax3 : displacement3d s)
@@ -692,7 +709,13 @@ noncomputable def geom3d_transform.transform_orientation
     {f2 : geom3d_frame} {s2 : geom3d_space f2}
     (tr: geom3d_transform s3 s2 ) : orientation3d s3 → orientation3d s2 :=
     λo : orientation3d s3,
-    ⟨tr.to_fm_tr.transform_orientation o.to_orientation⟩
+    ⟨mk_orientation s2 
+        (λi, if i.1 = 0 then (tr.to_fm_tr.transform_vectr (o.to_orientation.to_vectr_basis.basis_vectrs ⟨0,by linarith⟩)) 
+        else if i.1 = 1 then (tr.to_fm_tr.transform_vectr (o.to_orientation.to_vectr_basis.basis_vectrs ⟨1,by linarith⟩))
+        else (tr.to_fm_tr.transform_vectr (o.to_orientation.to_vectr_basis.basis_vectrs ⟨2,by linarith⟩)) )⟩
+
+
+   -- ⟨tr.to_fm_tr.transform_orientation o.to_orientation⟩⟩
 
 
 /-
