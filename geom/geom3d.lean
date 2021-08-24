@@ -38,7 +38,7 @@ structure position3d {f : geom3d_frame} (s : geom3d_space f ) extends point s
     end
 
 noncomputable def position3d.coords {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) :=
-    p.to_point.coords
+    λi : fin 3, (p.to_point.coords i).coord
 
 /-
 User can use coordinates to build an object, but once this is done, the coordinates should
@@ -48,6 +48,34 @@ coordinates *in any given ACS (on the same physical dimension).
 noncomputable def position3d.coords_in_s' {f f': geom3d_frame} {s : geom3d_space f } (p :position3d s) (s' : geom3d_space f' ) :=
     p.to_point.coords -- should get back (transform p) . coords.
 -/
+
+/-
+
+def point.expressed_in 
+    {dim : ℕ} {id_vec : fin dim → ℕ} {f: fm K dim id_vec} {s : spc K f}  
+    {f2: fm K dim id_vec} {s2 : spc K f2} 
+    
+    (p1 : point s) (s2 : spc K f2) : point s2 :=
+    (s.fm_tr s2).transform_point p1
+
+def vectr.expressed_in 
+    {dim : ℕ} {id_vec : fin dim → ℕ} {f: fm K dim id_vec} {s : spc K f}  
+    {f2: fm K dim id_vec} {s2 : spc K f2} 
+    
+    (v1 : vectr s) (s2 : spc K f2) : vectr s2 :=
+    (s.fm_tr s2).transform_vectr v1
+-/
+
+noncomputable def position3d.expressed_in {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) 
+    : Π {f' : geom3d_frame} (s' : geom3d_space f' ), position3d s' := 
+        λ f' s',
+        ⟨(p.to_point.expressed_in s')⟩
+
+
+noncomputable def position3d.coords_in {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) 
+    : Π {f' : geom3d_frame} (s' : geom3d_space f' ), fin 3 → scalar := 
+        λ f' s',
+        λi, ((p.expressed_in s').to_point.coords i).coord
 
 noncomputable def position3d.x {f : geom3d_frame} {s : geom3d_space f } (p :position3d s) : real_scalar :=
     (p.to_point.coords 0).coord
@@ -101,8 +129,21 @@ def displacement3d.frame {f : geom3d_frame} {s : geom3d_space f } (d :displaceme
     f
 
 -- Public
+
+noncomputable def displacement3d.expressed_in {f : geom3d_frame} {s : geom3d_space f } (p : displacement3d s) 
+    : Π {f' : geom3d_frame} (s' : geom3d_space f' ), displacement3d s' := 
+        λ f' s',
+        ⟨(p.to_vectr.expressed_in s')⟩
+
+
+noncomputable def displacement3d.coords_in {f : geom3d_frame} {s : geom3d_space f } (p : displacement3d s) 
+    : Π {f' : geom3d_frame} (s' : geom3d_space f' ), fin 3 → scalar := 
+        λ f' s',
+        λi, ((p.expressed_in s').to_vectr.coords i).coord
+
+
 noncomputable def displacement3d.coords {f : geom3d_frame} {s : geom3d_space f } (d :displacement3d s) :=
-    d.to_vectr.coords
+    λi : fin 3, (d.to_vectr.coords i).coord
 
 noncomputable def displacement3d.x {f : geom3d_frame} {s : geom3d_space f } (p :displacement3d s) : real_scalar :=
     (p.to_vectr.coords 0).coord
@@ -620,9 +661,9 @@ noncomputable def geom3d_transform.symm
 
 
 noncomputable def geom3d_transform.trans 
-    {f3 : geom3d_frame} {f2 : geom3d_frame} {f3 : geom3d_frame} {sp3 : geom3d_space f3} {sp2 : geom3d_space f2} {sp3 : geom3d_space f3} 
-    (ttr : geom3d_transform sp3 sp2)
-    : geom3d_transform sp2 sp3 → geom3d_transform sp3 sp3 := λttr_, ⟨(ttr.1).trans ttr_.1⟩
+    {f1 : geom3d_frame} {f2 : geom3d_frame} {f3 : geom3d_frame} {sp1 : geom3d_space f1} {sp2 : geom3d_space f2} {sp3 : geom3d_space f3} 
+    (ttr : geom3d_transform sp1 sp2)
+    : geom3d_transform sp2 sp3 → geom3d_transform sp1 sp3 := λttr_, ⟨(ttr.1).trans ttr_.1⟩
 
 noncomputable def geom3d_transform.transform_position3d
     {f3 : geom3d_frame} {s3 : geom3d_space f3}
@@ -774,3 +815,16 @@ noncomputable def geom3d_transform.transform_pose3d
 
 
 notation tr⬝t := geom3d_transform.transform_pose3d tr t
+
+
+noncomputable def geom3d_transform.translation 
+    {f3 : geom3d_frame} {s3 : geom3d_space f3}
+    {f2 : geom3d_frame} {s2 : geom3d_space f2}
+    (tr: geom3d_transform s3 s2 ) : geom3d_transform s3 s2 → displacement3d s2 :=
+    inhabited.default _ /- how to fill this in -/
+
+noncomputable def geom3d_transform.rotation 
+    {f3 : geom3d_frame} {s3 : geom3d_space f3}
+    {f2 : geom3d_frame} {s2 : geom3d_space f2}
+    (tr: geom3d_transform s3 s2 ) : geom3d_transform s3 s2 → orientation3d s2 :=
+    inhabited.default _ /- how to fill this in -/

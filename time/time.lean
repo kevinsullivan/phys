@@ -67,6 +67,7 @@ def mk_duration' {f : time_frame} (s : time_space f ) (v : vectr s) : duration s
 @[simp]
 noncomputable def mk_duration  {f : time_frame} (s : time_space f ) (k : scalar) : duration s := duration.mk (mk_vectr s ⟨[k],rfl⟩) 
 
+noncomputable instance {f : time_frame} (s : time_space f ): inhabited (duration s) := ⟨mk_duration _ 0⟩
 
 @[simp]
 noncomputable def mk_time_frame {parent : time_frame} {s : spc scalar parent} (p : time s) (v : duration s) :=
@@ -74,7 +75,7 @@ mk_frame p.to_point (vectr_basis.mk (λi, v.to_vectr) sorry sorry)   -- TODO: ma
 
 -- Public
 @[simp]
-noncomputable def mk_time_space (fr : time_frame) := mk_space fr
+noncomputable def mk_time_space (fr : time_frame) : time_space _ := mk_space fr
 
 end foo
 

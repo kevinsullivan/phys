@@ -60,6 +60,12 @@ instance timelt : has_lt (time ts) := ⟨
 instance timele : has_le (time ts) := ⟨ 
   λt1 t2, t1.coord ≤ t2.coord
 ⟩
+instance durationlt : has_lt (duration ts) := ⟨
+  λt1 t2, t1.coord < t2.coord
+⟩
+instance durationle : has_le (duration ts) := ⟨ 
+  λt1 t2, t1.coord ≤ t2.coord
+⟩
 
 instance [has_le (time ts)] [has_lt (time ts)]: preorder (time ts) := ⟨ 
   --has_le.le, has_lt.lt, 
@@ -89,6 +95,7 @@ instance [has_le (time ts)] [has_lt (time ts)]: preorder (time ts) := ⟨
     exact h.2,
   end
 ⟩
+
 noncomputable instance eqd {t1 t2 : time ts} : decidable (t1 = t2) := 
   if eqc:t1.coord=t2.coord then
     begin
