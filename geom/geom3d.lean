@@ -176,7 +176,7 @@ noncomputable def mk_geom3d_frame {parent : geom3d_frame} {s : spc real_scalar p
 
 -- Public
 @[simp]
-noncomputable def mk_geom3d_space (fr : geom3d_frame) := mk_space fr
+noncomputable def mk_geom3d_space (fr : geom3d_frame) : geom3d_space _ := mk_space fr
 
 
 end fix_this_name
